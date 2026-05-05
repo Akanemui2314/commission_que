@@ -3,274 +3,226 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Commission Queue - 2026</title>
+    <title>Commission Queue - Sakura Edition</title>
     <style>
         :root {
-            --bg-gradient: linear-gradient(135deg, #ffe0e0 0%, #ffc9b1 100%);
-            --glass-bg: rgba(255, 255, 255, 0.4);
+            --bg-gradient: linear-gradient(135deg, #fff0f5 0%, #ffdbdb 100%);
+            --glass-bg: rgba(255, 255, 255, 0.45);
             --glass-border: rgba(255, 255, 255, 0.6);
-            --primary-orange: #ff9b83;
+            --primary-pink: #ffb7c5;
+            --accent-pink: #ff91a4;
             --soft-green: #c4e17f;
-            --status-grey: #b0b0b0;
-            --status-yellow: #fdd835;
-            --status-green: #81c784;
-            --status-red: #ff8a80;
             --text-main: #5a4a42;
+            
+            --status-pending-bg: #f0f0f0; --status-pending-text: #757575;
+            --status-doing-bg: #fff9c4; --status-doing-text: #827717;
+            --status-done-bg: #c8e6c9; --status-done-text: #1b5e20;
+            --status-off: #ff8a80;
         }
 
         body {
-            margin: 0;
-            padding: 20px;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: var(--bg-gradient);
-            min-height: 100vh;
-            color: var(--text-main);
-            display: flex;
-            justify-content: center;
+            margin: 0; padding: 20px; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: var(--bg-gradient); min-height: 100vh; color: var(--text-main);
+            display: flex; justify-content: center; align-items: flex-start;
+            position: relative; overflow-x: hidden;
         }
 
-        /* Liquid Hearts Animation */
-        #hearts-container { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: -1; }
-        .heart { position: absolute; width: 20px; height: 20px; background: white; opacity: 0.4; clip-path: path('M12,21.35L10.55,20.03C5.4,15.36 2,12.27 2,8.5C2,5.41 4.41,3 7.5,3C9.24,3 10.91,3.81 12,5.08C13.09,3.81 14.76,3 16.5,3C19.59,3 22,5.41 22,8.5C22,12.27 18.6,15.36 13.45,20.03L12,21.35Z'); animation: floatHearts linear infinite; filter: blur(1px); }
-        @keyframes floatHearts { 0% { transform: translateY(110vh) rotate(0deg); opacity: 0; } 50% { opacity: 0.6; } 100% { transform: translateY(-10vh) rotate(360deg); opacity: 0; } }
+        /* Fixed Sakura Animation */
+        #sakura-container { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 1; }
+        .petal {
+            position: absolute; 
+            top: -50px; /* เริ่มต้นนอกจอ */
+            background-color: #ffb7c5; 
+            border-radius: 150% 0 150% 0;
+            opacity: 0; 
+            transform-origin: center; 
+            animation: fall linear infinite;
+        }
+        @keyframes fall {
+            0% { transform: translateY(0) translateX(0) rotate(0deg); opacity: 0; }
+            10% { opacity: 0.7; } /* ค่อยๆ ปรากฏ */
+            90% { opacity: 0.7; }
+            100% { transform: translateY(110vh) translateX(120px) rotate(360deg); opacity: 0; }
+        }
 
-        /* Liquid Glass Container */
         .glass-card {
-            width: 100%;
-            max-width: 1100px;
-            background: var(--glass-bg);
-            backdrop-filter: blur(15px);
-            -webkit-backdrop-filter: blur(15px);
-            border: 1px solid var(--glass-border);
-            border-radius: 30px;
-            padding: 40px;
-            box-shadow: 0 8px 32px 0 rgba(255, 138, 128, 0.2);
+            width: 100%; max-width: 1100px; background: var(--glass-bg);
+            backdrop-filter: blur(25px); -webkit-backdrop-filter: blur(25px);
+            border: 1px solid var(--glass-border); border-radius: 40px; padding: 40px;
+            box-shadow: 0 15px 35px rgba(255, 183, 197, 0.3); margin-top: 20px;
+            position: relative; z-index: 2;
         }
 
-        .header-grid {
-            display: grid;
-            grid-template-columns: 1.5fr 1fr 1fr auto;
-            gap: 20px;
-            align-items: start;
-            margin-bottom: 35px;
+        .admin-shortcut {
+            position: absolute; top: 20px; right: 20px; width: 35px; height: 35px;
+            background: rgba(255,255,255,0.5); border-radius: 50%; border: 1px solid white;
+            display: flex; align-items: center; justify-content: center; cursor: pointer;
+            font-size: 18px; transition: 0.3s;
+        }
+        .admin-shortcut:hover { transform: rotate(90deg); background: white; }
+
+        .header-section { display: grid; grid-template-columns: 1.2fr 1fr 0.8fr 0.6fr; gap: 20px; align-items: center; margin-bottom: 40px; }
+        .title-box { background: rgba(255, 255, 255, 0.7); padding: 20px; border-radius: 25px; border: 1px solid white; }
+        
+        .contact-bubble {
+            background: rgba(255, 255, 255, 0.5); backdrop-filter: blur(10px);
+            border: 2px solid white; padding: 15px 20px; border-radius: 30px;
+            font-size: 13px; line-height: 1.6; box-shadow: 0 8px 32px rgba(255, 255, 255, 0.2);
         }
 
-        .info-panel {
-            background: rgba(255, 255, 255, 0.5);
-            padding: 20px;
-            border-radius: 20px;
-            border-left: 5px solid var(--primary-orange);
-        }
+        .join-btn { background: var(--soft-green); color: white; padding: 15px; border-radius: 50px; text-decoration: none; font-weight: bold; text-align: center; border: 2px solid white; box-shadow: 0 8px 20px rgba(196, 225, 127, 0.3); }
 
-        .join-btn {
-            background: var(--soft-green);
-            color: white;
-            padding: 18px 25px;
-            border-radius: 50px;
-            text-decoration: none;
-            font-weight: bold;
-            text-align: center;
-            box-shadow: 0 4px 15px rgba(196, 225, 127, 0.4);
-            transition: 0.3s;
-            border: 2px solid white;
-        }
+        .status-badge { padding: 8px 20px; border-radius: 50px; font-weight: bold; color: white; border: 2px solid white; text-align: center; font-size: 14px; cursor: pointer; transition: 0.3s; }
+        .status-badge.on { background: #81c784; box-shadow: 0 4px 15px rgba(129, 199, 132, 0.3); }
+        .status-badge.off { background: var(--status-off); box-shadow: 0 4px 15px rgba(255, 138, 128, 0.3); }
 
-        .join-btn:hover { transform: scale(1.05); filter: brightness(1.05); }
+        .active-label { font-weight: bold; font-size: 14px; background: white; padding: 5px 15px; border-radius: 50px; margin-top: 10px; text-align: center; }
+        .update-time { font-size: 10px; opacity: 0.5; margin-top: 5px; font-weight: normal; text-align: center; }
 
-        .shop-controls { text-align: center; }
+        .table-container { background: rgba(255, 255, 255, 0.25); border-radius: 35px; padding: 15px; overflow-x: auto; }
+        table { width: 100%; border-collapse: collapse; min-width: 850px; }
+        th { padding: 18px; color: #8d6e63; font-weight: bold; border-bottom: 2px solid rgba(255,255,255,0.4); }
+        td { padding: 18px; text-align: center; border-bottom: 1px solid rgba(255,255,255,0.2); font-size: 14px; }
 
-        .status-badge {
-            padding: 10px 20px;
-            border-radius: 50px;
-            font-weight: bold;
-            color: white;
-            display: inline-block;
-            margin-bottom: 10px;
-            border: 2px solid rgba(255,255,255,0.5);
-        }
-        .status-badge.on { background: #81c784; box-shadow: 0 0 15px rgba(129, 199, 132, 0.5); }
-        .status-badge.off { background: #ff8a80; }
-
-        /* Table Design */
-        .table-wrapper {
-            background: rgba(255, 255, 255, 0.3);
-            border-radius: 20px;
-            padding: 10px;
-            overflow-x: auto;
-        }
-
-        table { width: 100%; border-collapse: collapse; min-width: 800px; }
-        th { padding: 15px; color: #8d6e63; font-weight: 600; text-align: left; border-bottom: 2px solid rgba(255,255,255,0.4); }
-        td { padding: 15px; border-bottom: 1px solid rgba(255,255,255,0.2); }
-
-        /* Status & Payment Bubbles */
-        .bubble {
-            padding: 6px 12px;
-            border-radius: 12px;
-            font-size: 13px;
-            font-weight: bold;
-            color: white;
-            text-align: center;
-            border: 1px solid rgba(255,255,255,0.3);
-        }
-        .bg-pending { background: var(--status-grey); }
-        .bg-doing { background: var(--status-yellow); color: #5a4a42; }
-        .bg-done { background: var(--status-green); }
-
-        /* Input Controls */
-        .input-glass {
-            background: rgba(255, 255, 255, 0.5);
-            border: 1px solid var(--glass-border);
-            border-radius: 10px;
-            padding: 8px;
-            width: 100%;
-            color: var(--text-main);
-        }
-
-        .btn-add {
-            background: var(--primary-orange);
-            color: white;
-            border: none;
-            padding: 12px 25px;
-            border-radius: 50px;
-            cursor: pointer;
-            font-weight: bold;
-            margin-top: 20px;
-            float: right;
-        }
-
-        .btn-delete {
-            background: none;
-            border: 1px solid #ff8a80;
-            color: #ff8a80;
-            padding: 5px 10px;
-            border-radius: 8px;
-            cursor: pointer;
-        }
-
-        #admin-ui { display: none; margin-top: 20px; }
+        .bubble { padding: 6px 15px; border-radius: 50px; font-size: 12px; font-weight: bold; display: inline-block; min-width: 100px; border: 1px solid rgba(255,255,255,0.5); }
+        .bg-pending { background: var(--status-pending-bg); color: var(--status-pending-text); }
+        .bg-doing { background: var(--status-doing-bg); color: var(--status-doing-text); }
+        .bg-done { background: var(--status-done-bg); color: var(--status-done-text); }
     </style>
 </head>
 <body>
-    <div id="hearts-container"></div>
+
+    <div id="sakura-container"></div>
 
     <div class="glass-card">
-        <div class="header-grid">
-            <div class="info-panel">
-                <h1 style="margin:0; color: var(--primary-orange);">Commission Queue</h1>
-                <p style="margin:5px 0 0;">นุเนะ แมวเม่น • 2026</p>
+        <div class="admin-shortcut" onclick="goToSheet()" title="เข้าจัดการข้อมูล">⚙️</div>
+
+        <div class="header-section">
+            <div class="title-box">
+                <h1 style="margin:0; color: var(--accent-pink); font-size: 26px;">Commission Queue</h1>
+                <p style="margin:5px 0 0; opacity: 0.8;">นุเนะ แมวเม่น • 2026</p>
             </div>
-            <div style="font-size: 13px; opacity: 0.8;">
-                <b>Contact:</b><br>สนใจจ้างงานหรือสอบถามรายละเอียดเพิ่มเติม ติดต่อ<br>Facebook: นุเนะ แมวเม่น
+            
+            <div class="contact-bubble">
+                <b>Contact:</b><br>
+                สนใจจ้างงานหรือสอบถามรายละเอียดเพิ่มเติม ติดต่อ<br>
+                Facebook: นุเนะ แมวเม่น
             </div>
+
             <a href="https://www.facebook.com/akanemui2314" target="_blank" class="join-btn">Join Wait-list</a>
-            <div class="shop-controls">
-                <div id="shop-status" class="status-badge on" onclick="toggleShop()">STATUS: ON</div>
-                <div id="count-display" style="font-weight:bold; font-size:14px;">Active: 0 orders</div>
+            
+            <div style="display:flex; flex-direction:column; align-items: center;">
+                <div id="shop-status" class="status-badge on" onclick="toggleStatus()">STATUS: ON</div>
+                <div id="active-count" class="active-label">Active: 0 orders</div>
+                <div id="last-updated" class="update-time">อัปเดตล่าสุด: -</div>
             </div>
         </div>
 
-        <div class="table-wrapper">
+        <div class="table-container">
             <table>
                 <thead>
                     <tr>
-                        <th width="100">Date</th>
-                        <th width="130">Status</th>
+                        <th>Date</th>
+                        <th>Status</th>
                         <th>Contact</th>
-                        <th width="100">Deadline</th>
-                        <th width="130">Payment</th>
-                        <th>Type</th>
+                        <th>Deadline</th>
+                        <th>Payment</th>
                         <th>Note</th>
-                        <th id="th-admin" style="display:none">Action</th>
                     </tr>
                 </thead>
-                <tbody id="queue-body"></tbody>
+                <tbody id="queue-table"></tbody>
             </table>
-        </div>
-
-        <div id="admin-ui">
-            <button class="btn-add" onclick="addRow()">+ เพิ่มลูกค้าใหม่</button>
-            <p style="color:var(--primary-orange); font-size:12px;">*แก้ไขเสร็จแล้วอย่าลืม Copy ข้อมูลไป Save ใน GitHub นะครับ</p>
         </div>
     </div>
 
     <script>
-        const PASSWORD = "1234"; // *** เปลี่ยนรหัสผ่านตรงนี้ ***
-        let isAdmin = false;
-        let data = { shopOn: true, list: [] };
+        const SHEET_CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTWq26jrX4nDcIGzIaO-XQW0saxFlwZO2H7SVakkr45n3Bx5SfmsNxVpQhhBSlf2bOt73DIY2pvkgtB/pub?output=csv';
+        const SHEET_EDIT_URL = 'https://docs.google.com/spreadsheets/d/1QyTn6jTpV_yHvf4MVBkwGdqJdjRd5B0Dm1YnWw0qJ0I/edit?gid=0#gid=0';
+        const ADMIN_PW = '2314';
 
-        // โหมดแอดมิน: ต้องพิมพ์ ?admin=true ต่อท้าย URL
-        const params = new URLSearchParams(window.location.search);
-        if (params.get('admin') === 'true') {
-            if (prompt("กรุณาใส่รหัสผ่าน:") === PASSWORD) {
-                isAdmin = true;
-                document.getElementById('admin-ui').style.display = 'block';
-                document.getElementById('th-admin').style.display = 'table-cell';
-            } else { window.location.href = window.location.pathname; }
+        async function loadData() {
+            try {
+                const res = await fetch(SHEET_CSV_URL + '&cb=' + Date.now());
+                const csv = await res.text();
+                const rows = csv.split('\n').slice(1);
+                const table = document.getElementById('queue-table');
+                table.innerHTML = '';
+                let count = 0;
+
+                rows.forEach(row => {
+                    const cols = row.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/).map(c => c.replace(/"/g, '').trim());
+                    if (cols.length < 5 || !cols[0]) return;
+
+                    const statusVal = cols[1] || '';
+                    if (!statusVal.includes('สำเร็จ') && !statusVal.includes('Done')) count++;
+
+                    const tr = document.createElement('tr');
+                    tr.innerHTML = `
+                        <td>${cols[0] || '-'}</td>
+                        <td><div class="bubble ${getColorClass(cols[1])}">${cols[1] || '-'}</div></td>
+                        <td>${cols[2] && cols[2].includes('http') ? `<a href="${cols[2]}" target="_blank" style="color:var(--accent-pink); font-weight:bold;">Link</a>` : (cols[2] || '-')}</td>
+                        <td>${cols[3] || '-'}</td>
+                        <td><div class="bubble ${getColorClass(cols[4])}">${cols[4] || '-'}</div></td>
+                        <td>${cols[6] || '-'}</td>
+                    `;
+                    table.appendChild(tr);
+                });
+                document.getElementById('active-count').innerText = `Active: ${count} orders`;
+                
+                // แสดงเวลาที่อัปเดตล่าสุด
+                const now = new Date();
+                const timeStr = now.toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+                const dateStr = now.toLocaleDateString('th-TH', { day: 'numeric', month: 'short', year: 'numeric' });
+                document.getElementById('last-updated').innerText = `อัปเดตล่าสุด: ${dateStr} ${timeStr}`;
+
+            } catch (e) { console.error(e); }
         }
 
-        function render() {
-            const body = document.getElementById('queue-body');
-            body.innerHTML = '';
-            
-            const badge = document.getElementById('shop-status');
-            badge.className = `status-badge ${data.shopOn ? 'on' : 'off'}`;
-            badge.innerText = `STATUS: ${data.shopOn ? 'ON' : 'OFF'}`;
+        function getColorClass(t) {
+            if (!t) return 'bg-pending';
+            if (t.includes('ทำ') || t.includes('มัดจำ') || t.includes('Progress')) return 'bg-doing';
+            if (t.includes('สำเร็จ') || t.includes('เต็ม') || t.includes('Done')) return 'bg-done';
+            return 'bg-pending';
+        }
 
-            data.list.forEach((item, idx) => {
-                const tr = document.createElement('tr');
-                if (isAdmin) {
-                    tr.innerHTML = `
-                        <td><input type="date" class="input-glass" value="${item.date}" onchange="edit(${idx},'date',this.value)"></td>
-                        <td><select class="input-glass" onchange="edit(${idx},'status',this.value);render()">
-                            <option value="bg-pending" ${item.status==='bg-pending'?'selected':''}>ยังไม่เริ่ม</option>
-                            <option value="bg-doing" ${item.status==='bg-doing'?'selected':''}>กำลังทำ</option>
-                            <option value="bg-done" ${item.status==='bg-done'?'selected':''}>สำเร็จแล้ว</option>
-                        </select></td>
-                        <td><input type="text" class="input-glass" value="${item.contact}" onchange="edit(${idx},'contact',this.value)"></td>
-                        <td><input type="date" class="input-glass" value="${item.deadline}" onchange="edit(${idx},'deadline',this.value)"></td>
-                        <td><select class="input-glass" onchange="edit(${idx},'pay',this.value);render()">
-                            <option value="bg-pending" ${item.pay==='bg-pending'?'selected':''}>ยังไม่ชำระ</option>
-                            <option value="bg-doing" ${item.pay==='bg-doing'?'selected':''}>มัดจำแล้ว</option>
-                            <option value="bg-done" ${item.pay==='bg-done'?'selected':''}>ชำระเต็ม</option>
-                        </select></td>
-                        <td><input type="text" class="input-glass" value="${item.type}" onchange="edit(${idx},'type',this.value)"></td>
-                        <td><input type="text" class="input-glass" value="${item.note}" onchange="edit(${idx},'note',this.value)"></td>
-                        <td><button class="btn-delete" onclick="remove(${idx})">ลบ</button></td>
-                    `;
+        function toggleStatus() {
+            if (prompt('กรุณาใส่รหัสผ่านเพื่อเปลี่ยนสถานะร้าน:') === ADMIN_PW) {
+                const btn = document.getElementById('shop-status');
+                if (btn.classList.contains('on')) {
+                    btn.classList.replace('on', 'off');
+                    btn.innerText = 'STATUS: OFF';
                 } else {
-                    tr.innerHTML = `
-                        <td>${item.date || '-'}</td>
-                        <td><div class="bubble ${item.status}">${getText(item.status)}</div></td>
-                        <td>${item.contact.includes('http') ? `<a href="${item.contact}" target="_blank" style="color:var(--primary-orange)">Link</a>` : item.contact}</td>
-                        <td>${item.deadline || '-'}</td>
-                        <td><div class="bubble ${item.pay}">${getPayText(item.pay)}</div></td>
-                        <td>${item.type}</td>
-                        <td>${item.note}</td>
-                    `;
+                    btn.classList.replace('off', 'on');
+                    btn.innerText = 'STATUS: ON';
                 }
-                body.appendChild(tr);
-            });
-            document.getElementById('count-display').innerText = `Active: ${data.list.filter(i=>i.status!=='bg-done').length} orders`;
+            } else {
+                alert('รหัสผ่านไม่ถูกต้อง!');
+            }
         }
 
-        function edit(idx, key, val) { data.list[idx][key] = val; }
-        function addRow() { data.list.push({date:'', status:'bg-pending', contact:'', deadline:'', pay:'bg-pending', type:'', note:''}); render(); }
-        function remove(idx) { if(confirm('ลบคิวนี้?')) { data.list.splice(idx, 1); render(); } }
-        function toggleShop() { if(isAdmin) { data.shopOn = !data.shopOn; render(); } }
-        function getText(s) { return s==='bg-pending'?'ยังไม่เริ่ม':s==='bg-doing'?'กำลังทำ':'สำเร็จแล้ว'; }
-        function getPayText(s) { return s==='bg-pending'?'ยังไม่ชำระ':s==='bg-doing'?'มัดจำแล้ว':'ชำระเต็ม'; }
+        function goToSheet() {
+            if (prompt('กรุณาใส่รหัสผ่านเพื่อเข้าหน้าจัดการข้อมูล (Sheet):') === ADMIN_PW) {
+                window.open(SHEET_EDIT_URL, '_blank');
+            } else {
+                alert('รหัสผ่านไม่ถูกต้อง!');
+            }
+        }
 
-        // Hearts Setup
+        // Improved Sakura Petals Setup
+        const sakuraContainer = document.getElementById('sakura-container');
         for(let i=0; i<20; i++){
-            const h = document.createElement('div');
-            h.className = 'heart';
-            h.style.left = Math.random()*100+'vw';
-            h.style.animationDelay = Math.random()*8+'s';
-            h.style.animationDuration = 5+Math.random()*5+'s';
-            document.getElementById('hearts-container').appendChild(h);
+            const petal = document.createElement('div');
+            petal.className = 'petal';
+            petal.style.left = Math.random() * 100 + 'vw';
+            petal.style.width = Math.random() * 10 + 10 + 'px';
+            petal.style.height = Math.random() * 10 + 5 + 'px';
+            petal.style.animationDelay = Math.random() * 12 + 's'; // สุ่มเวลาเริ่มให้ต่างกันมากขึ้น
+            petal.style.animationDuration = Math.random() * 6 + 6 + 's';
+            sakuraContainer.appendChild(petal);
         }
-        render();
+
+        loadData();
+        setInterval(loadData, 10000); // ซิงค์ข้อมูลทุก 10 วินาที
     </script>
 </body>
 </html>
