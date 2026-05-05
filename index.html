@@ -14,75 +14,43 @@
             --soft-green: #c4e17f;
             --text-main: #5a4a42;
             
+            /* สีปุ่มสถานะแบบพาสเทลตัวอักษรเข้ม */
             --status-pending-bg: #f0f0f0; --status-pending-text: #757575;
             --status-doing-bg: #fff9c4; --status-doing-text: #827717;
-            --status-done-bg: #c8e6c9; --status-done-text: #1b5e20;
+            --status-done-bg: #c8e6c9; --status-done-text: #1b5e20; /* เขียวเข้มอ่านง่าย */
             --status-off: #ff8a80;
         }
 
-        body {
-            margin: 0; padding: 20px; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: var(--bg-gradient); min-height: 100vh; color: var(--text-main);
-            display: flex; justify-content: center; align-items: flex-start;
-            position: relative; overflow-x: hidden;
-        }
+        body { margin: 0; padding: 20px; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: var(--bg-gradient); min-height: 100vh; color: var(--text-main); display: flex; justify-content: center; align-items: flex-start; position: relative; overflow-x: hidden; }
 
-        /* Fixed Sakura Animation */
         #sakura-container { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 1; }
-        .petal {
-            position: absolute; 
-            top: -50px; /* เริ่มต้นนอกจอ */
-            background-color: #ffb7c5; 
-            border-radius: 150% 0 150% 0;
-            opacity: 0; 
-            transform-origin: center; 
-            animation: fall linear infinite;
-        }
-        @keyframes fall {
-            0% { transform: translateY(0) translateX(0) rotate(0deg); opacity: 0; }
-            10% { opacity: 0.7; } /* ค่อยๆ ปรากฏ */
-            90% { opacity: 0.7; }
-            100% { transform: translateY(110vh) translateX(120px) rotate(360deg); opacity: 0; }
-        }
+        .petal { position: absolute; top: -10%; background-color: #ffb7c5; border-radius: 150% 0 150% 0; opacity: 0; transform-origin: center; animation: fall linear infinite; }
+        @keyframes fall { 0% { transform: translateY(0) translateX(0) rotate(0deg); opacity: 0; } 10% { opacity: 0.7; } 90% { opacity: 0.7; } 100% { transform: translateY(110vh) translateX(120px) rotate(360deg); opacity: 0; } }
 
-        .glass-card {
-            width: 100%; max-width: 1100px; background: var(--glass-bg);
-            backdrop-filter: blur(25px); -webkit-backdrop-filter: blur(25px);
-            border: 1px solid var(--glass-border); border-radius: 40px; padding: 40px;
-            box-shadow: 0 15px 35px rgba(255, 183, 197, 0.3); margin-top: 20px;
-            position: relative; z-index: 2;
-        }
-
-        .admin-shortcut {
-            position: absolute; top: 20px; right: 20px; width: 35px; height: 35px;
-            background: rgba(255,255,255,0.5); border-radius: 50%; border: 1px solid white;
-            display: flex; align-items: center; justify-content: center; cursor: pointer;
-            font-size: 18px; transition: 0.3s;
-        }
+        .glass-card { width: 100%; max-width: 1100px; background: var(--glass-bg); backdrop-filter: blur(25px); -webkit-backdrop-filter: blur(25px); border: 1px solid var(--glass-border); border-radius: 40px; padding: 40px; box-shadow: 0 15px 35px rgba(255, 183, 197, 0.3); margin-top: 20px; position: relative; z-index: 2; }
+        .admin-shortcut { position: absolute; top: 20px; right: 20px; width: 35px; height: 35px; background: rgba(255,255,255,0.5); border-radius: 50%; border: 1px solid white; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 18px; transition: 0.3s; }
         .admin-shortcut:hover { transform: rotate(90deg); background: white; }
 
         .header-section { display: grid; grid-template-columns: 1.2fr 1fr 0.8fr 0.6fr; gap: 20px; align-items: center; margin-bottom: 40px; }
         .title-box { background: rgba(255, 255, 255, 0.7); padding: 20px; border-radius: 25px; border: 1px solid white; }
-        
-        .contact-bubble {
-            background: rgba(255, 255, 255, 0.5); backdrop-filter: blur(10px);
-            border: 2px solid white; padding: 15px 20px; border-radius: 30px;
-            font-size: 13px; line-height: 1.6; box-shadow: 0 8px 32px rgba(255, 255, 255, 0.2);
-        }
-
+        .contact-bubble { background: rgba(255, 255, 255, 0.5); backdrop-filter: blur(10px); border: 2px solid white; padding: 15px 20px; border-radius: 30px; font-size: 13px; line-height: 1.6; box-shadow: 0 8px 32px rgba(255, 255, 255, 0.2); }
         .join-btn { background: var(--soft-green); color: white; padding: 15px; border-radius: 50px; text-decoration: none; font-weight: bold; text-align: center; border: 2px solid white; box-shadow: 0 8px 20px rgba(196, 225, 127, 0.3); }
 
-        .status-badge { padding: 8px 20px; border-radius: 50px; font-weight: bold; color: white; border: 2px solid white; text-align: center; font-size: 14px; cursor: pointer; transition: 0.3s; }
+        .status-badge { padding: 8px 20px; border-radius: 50px; font-weight: bold; color: white; border: 2px solid white; text-align: center; font-size: 14px; cursor: pointer; transition: 0.3s; min-width: 110px; }
         .status-badge.on { background: #81c784; box-shadow: 0 4px 15px rgba(129, 199, 132, 0.3); }
         .status-badge.off { background: var(--status-off); box-shadow: 0 4px 15px rgba(255, 138, 128, 0.3); }
 
-        .active-label { font-weight: bold; font-size: 14px; background: white; padding: 5px 15px; border-radius: 50px; margin-top: 10px; text-align: center; }
+        .active-label { font-weight: bold; font-size: 14px; background: white; padding: 5px 15px; border-radius: 50px; margin-top: 10px; text-align: center; box-shadow: 0 4px 10px rgba(0,0,0,0.05); }
         .update-time { font-size: 10px; opacity: 0.5; margin-top: 5px; font-weight: normal; text-align: center; }
 
         .table-container { background: rgba(255, 255, 255, 0.25); border-radius: 35px; padding: 15px; overflow-x: auto; }
         table { width: 100%; border-collapse: collapse; min-width: 850px; }
         th { padding: 18px; color: #8d6e63; font-weight: bold; border-bottom: 2px solid rgba(255,255,255,0.4); }
         td { padding: 18px; text-align: center; border-bottom: 1px solid rgba(255,255,255,0.2); font-size: 14px; }
+        
+        /* ตัวคั่นโซนงานที่เสร็จแล้ว */
+        .category-header { background: rgba(255, 183, 197, 0.3); font-weight: bold; color: var(--accent-pink); text-align: center; }
+        .category-header td { padding: 15px; font-size: 16px; border-bottom: 2px solid var(--primary-pink); }
 
         .bubble { padding: 6px 15px; border-radius: 50px; font-size: 12px; font-weight: bold; display: inline-block; min-width: 100px; border: 1px solid rgba(255,255,255,0.5); }
         .bg-pending { background: var(--status-pending-bg); color: var(--status-pending-text); }
@@ -95,7 +63,7 @@
     <div id="sakura-container"></div>
 
     <div class="glass-card">
-        <div class="admin-shortcut" onclick="goToSheet()" title="เข้าจัดการข้อมูล">⚙️</div>
+        <div class="admin-shortcut" onclick="goToSheet()" title="Manage Data">⚙️</div>
 
         <div class="header-section">
             <div class="title-box">
@@ -142,73 +110,103 @@
 
         async function loadData() {
             try {
-                const res = await fetch(SHEET_CSV_URL + '&cb=' + Date.now());
+                const urlWithBust = SHEET_CSV_URL + '&t=' + new Date().getTime();
+                const res = await fetch(urlWithBust);
+                if (!res.ok) throw new Error('Network Error');
+                
                 const csv = await res.text();
-                const rows = csv.split('\n').slice(1);
+                const rows = csv.trim().split(/\r?\n/).slice(1);
                 const table = document.getElementById('queue-table');
                 table.innerHTML = '';
-                let count = 0;
+                
+                let activeRows = [];
+                let completedRows = [];
+                let activeCount = 0;
 
                 rows.forEach(row => {
                     const cols = row.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/).map(c => c.replace(/"/g, '').trim());
-                    if (cols.length < 5 || !cols[0]) return;
+                    if (cols.length < 5 || cols[0] === "") return;
 
                     const statusVal = cols[1] || '';
-                    if (!statusVal.includes('สำเร็จ') && !statusVal.includes('Done')) count++;
+                    const isDone = statusVal.includes('สำเร็จ') || statusVal.includes('Finished') || statusVal.includes('Done');
 
-                    const tr = document.createElement('tr');
-                    tr.innerHTML = `
-                        <td>${cols[0] || '-'}</td>
-                        <td><div class="bubble ${getColorClass(cols[1])}">${cols[1] || '-'}</div></td>
-                        <td>${cols[2] && cols[2].includes('http') ? `<a href="${cols[2]}" target="_blank" style="color:var(--accent-pink); font-weight:bold;">Link</a>` : (cols[2] || '-')}</td>
-                        <td>${cols[3] || '-'}</td>
-                        <td><div class="bubble ${getColorClass(cols[4])}">${cols[4] || '-'}</div></td>
-                        <td>${cols[6] || '-'}</td>
-                    `;
-                    table.appendChild(tr);
+                    if (isDone) {
+                        completedRows.push(cols);
+                    } else {
+                        activeRows.push(cols);
+                        activeCount++;
+                    }
                 });
-                document.getElementById('active-count').innerText = `Active: ${count} orders`;
+
+                // เรียงลำดับ: ใหม่ล่าสุดอยู่บนสุด
+                activeRows.reverse();
+                completedRows.reverse();
+
+                // 1. แสดงงานที่กำลังทำ (Active Zone)
+                activeRows.forEach(cols => table.appendChild(createRowElement(cols)));
+
+                // 2. แสดงตัวคั่นโซนงานเสร็จแล้ว (ถ้ามี)
+                if (completedRows.length > 0) {
+                    const sep = document.createElement('tr');
+                    sep.className = 'category-header';
+                    sep.innerHTML = `<td colspan="6">🌸 Zone: Completed Works (งานที่เสร็จสิ้นแล้ว) 🌸</td>`;
+                    table.appendChild(sep);
+
+                    // 3. แสดงงานที่เสร็จแล้ว (Completed Zone)
+                    completedRows.forEach(cols => table.appendChild(createRowElement(cols)));
+                }
+
+                document.getElementById('active-count').innerText = `Active: ${activeCount} orders`;
                 
-                // แสดงเวลาที่อัปเดตล่าสุด
                 const now = new Date();
                 const timeStr = now.toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
                 const dateStr = now.toLocaleDateString('th-TH', { day: 'numeric', month: 'short', year: 'numeric' });
-                document.getElementById('last-updated').innerText = `อัปเดตล่าสุด: ${dateStr} ${timeStr}`;
+                document.getElementById('last-updated').innerText = `ซิงค์สำเร็จ: ${dateStr} ${timeStr}`;
 
-            } catch (e) { console.error(e); }
+            } catch (e) { 
+                console.error(e);
+                document.getElementById('last-updated').innerText = 'การซิงค์ขัดข้อง...';
+            }
+        }
+
+        function createRowElement(cols) {
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+                <td>${cols[0] || '-'}</td>
+                <td><div class="bubble ${getColorClass(cols[1])}">${cols[1] || '-'}</div></td>
+                <td>${cols[2] && cols[2].includes('http') ? `<a href="${cols[2]}" target="_blank" style="color:var(--accent-pink); font-weight:bold;">Link</a>` : (cols[2] || '-')}</td>
+                <td>${cols[3] || '-'}</td>
+                <td><div class="bubble ${getColorClass(cols[4])}">${cols[4] || '-'}</div></td>
+                <td>${cols[6] || '-'}</td> 
+            `;
+            return tr;
         }
 
         function getColorClass(t) {
             if (!t) return 'bg-pending';
-            if (t.includes('ทำ') || t.includes('มัดจำ') || t.includes('Progress')) return 'bg-doing';
-            if (t.includes('สำเร็จ') || t.includes('เต็ม') || t.includes('Done')) return 'bg-done';
+            const val = t.trim();
+            // เช็คคำว่าสำเร็จ/เสร็จ/Done/Finished ให้เป็นสีเขียว
+            if (val.includes('สำเร็จ') || val.includes('เสร็จ') || val.includes('Done') || val.includes('Finished') || val.includes('เต็ม')) return 'bg-done';
+            // เช็คคำว่ากำลังทำ/มัดจำ/Progress ให้เป็นสีเหลือง
+            if (val.includes('ทำ') || val.includes('มัดจำ') || val.includes('Progress')) return 'bg-doing';
+            // คำอื่นๆ ให้เป็นสีเทา
             return 'bg-pending';
         }
 
         function toggleStatus() {
             if (prompt('กรุณาใส่รหัสผ่านเพื่อเปลี่ยนสถานะร้าน:') === ADMIN_PW) {
                 const btn = document.getElementById('shop-status');
-                if (btn.classList.contains('on')) {
-                    btn.classList.replace('on', 'off');
-                    btn.innerText = 'STATUS: OFF';
-                } else {
-                    btn.classList.replace('off', 'on');
-                    btn.innerText = 'STATUS: ON';
-                }
-            } else {
-                alert('รหัสผ่านไม่ถูกต้อง!');
-            }
+                if (btn.classList.contains('on')) { btn.classList.replace('on', 'off'); btn.innerText = 'STATUS: OFF'; } 
+                else { btn.classList.replace('off', 'on'); btn.innerText = 'STATUS: ON'; }
+            } else { alert('รหัสผ่านไม่ถูกต้อง!'); }
         }
 
         function goToSheet() {
-            if (prompt('กรุณาใส่รหัสผ่านเพื่อเข้าหน้าจัดการข้อมูล (Sheet):') === ADMIN_PW) {
-                window.open(SHEET_EDIT_URL, '_blank');
-            } else {
-                alert('รหัสผ่านไม่ถูกต้อง!');
-            }
+            if (prompt('กรุณาใส่รหัสผ่านเพื่อเข้าหน้าจัดการข้อมูล (Sheet):') === ADMIN_PW) { window.open(SHEET_EDIT_URL, '_blank'); } 
+            else { alert('รหัสผ่านไม่ถูกต้อง!'); }
         }
 
-        // Improved Sakura Petals Setup
+        // Setup Sakura Petals - ปรับปรุงไม่ให้ค้างขอบบน
         const sakuraContainer = document.getElementById('sakura-container');
         for(let i=0; i<20; i++){
             const petal = document.createElement('div');
@@ -216,8 +214,8 @@
             petal.style.left = Math.random() * 100 + 'vw';
             petal.style.width = Math.random() * 10 + 10 + 'px';
             petal.style.height = Math.random() * 10 + 5 + 'px';
-            petal.style.animationDelay = Math.random() * 12 + 's'; // สุ่มเวลาเริ่มให้ต่างกันมากขึ้น
-            petal.style.animationDuration = Math.random() * 6 + 6 + 's';
+            petal.style.animationDelay = (Math.random() * 15) + 's';
+            petal.style.animationDuration = (Math.random() * 7 + 7) + 's';
             sakuraContainer.appendChild(petal);
         }
 
