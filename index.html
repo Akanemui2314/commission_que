@@ -14,7 +14,6 @@
             --soft-green: #c4e17f;
             --text-main: #5a4a42;
             
-            /* สีปุ่มสถานะแบบตัวอักษรเข้ม */
             --status-pending-bg: #f0f0f0; --status-pending-text: #757575;
             --status-doing-bg: #fff9c4; --status-doing-text: #827717;
             --status-done-bg: #c8e6c9; --status-done-text: #1b5e20;
@@ -28,10 +27,11 @@
         @keyframes fall { 0% { transform: translateY(0) translateX(0) rotate(0deg); opacity: 0; } 10% { opacity: 0.7; } 90% { opacity: 0.7; } 100% { transform: translateY(110vh) translateX(120px) rotate(360deg); opacity: 0; } }
 
         .glass-card { width: 100%; max-width: 1100px; background: var(--glass-bg); backdrop-filter: blur(25px); -webkit-backdrop-filter: blur(25px); border: 1px solid var(--glass-border); border-radius: 40px; padding: 40px; box-shadow: 0 15px 35px rgba(255, 183, 197, 0.3); margin-top: 20px; position: relative; z-index: 2; }
+        
         .admin-shortcut { position: absolute; top: 20px; right: 20px; width: 35px; height: 35px; background: rgba(255,255,255,0.5); border-radius: 50%; border: 1px solid white; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 18px; transition: 0.3s; }
         .admin-shortcut:hover { transform: rotate(90deg); background: white; }
 
-        .header-section { display: grid; grid-template-columns: 1.2fr 1fr 0.8fr 0.6fr; gap: 20px; align-items: center; margin-bottom: 40px; }
+        .header-section { display: grid; grid-template-columns: 1.2fr 1fr 0.8fr 0.6fr; gap: 20px; align-items: center; margin-bottom: 30px; }
         .title-box { background: rgba(255, 255, 255, 0.7); padding: 20px; border-radius: 25px; border: 1px solid white; }
         .contact-bubble { background: rgba(255, 255, 255, 0.5); backdrop-filter: blur(10px); border: 2px solid white; padding: 15px 20px; border-radius: 30px; font-size: 13px; line-height: 1.6; box-shadow: 0 8px 32px rgba(255, 255, 255, 0.2); }
         .join-btn { background: var(--soft-green); color: white; padding: 15px; border-radius: 50px; text-decoration: none; font-weight: bold; text-align: center; border: 2px solid white; box-shadow: 0 8px 20px rgba(196, 225, 127, 0.3); }
@@ -43,12 +43,39 @@
         .active-label { font-weight: bold; font-size: 14px; background: white; padding: 5px 15px; border-radius: 50px; margin-top: 10px; text-align: center; box-shadow: 0 4px 10px rgba(0,0,0,0.05); }
         .update-time { font-size: 10px; opacity: 0.5; margin-top: 5px; font-weight: normal; text-align: center; }
 
+        /* แถบประกาศตัวอักษรวิ่ง */
+        .announcement-bar {
+            background: white;
+            border-radius: 50px;
+            padding: 10px 25px;
+            margin-bottom: 25px;
+            display: flex;
+            align-items: center;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+            border: 1px solid rgba(255,255,255,0.8);
+            overflow: hidden;
+        }
+        .announcement-icon { font-size: 20px; margin-right: 15px; flex-shrink: 0; }
+        .marquee-container { flex-grow: 1; overflow: hidden; white-space: nowrap; }
+        .marquee-text {
+            display: inline-block;
+            padding-left: 100%;
+            animation: marquee 25s linear infinite;
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--text-main);
+        }
+        @keyframes marquee {
+            0% { transform: translate(0, 0); }
+            100% { transform: translate(-100%, 0); }
+        }
+
         .table-container { background: rgba(255, 255, 255, 0.25); border-radius: 35px; padding: 15px; overflow-x: auto; }
         table { width: 100%; border-collapse: collapse; min-width: 850px; }
         th { padding: 18px; color: #8d6e63; font-weight: bold; border-bottom: 2px solid rgba(255,255,255,0.4); }
         td { padding: 18px; text-align: center; border-bottom: 1px solid rgba(255,255,255,0.2); font-size: 14px; }
         
-        .category-header { background: rgba(255, 183, 197, 0.4); font-weight: bold; color: var(--accent-pink); text-align: center; }
+        .category-header { background: rgba(255, 183, 197, 0.3); font-weight: bold; color: var(--accent-pink); text-align: center; }
         .category-header td { padding: 15px; font-size: 16px; border-bottom: 2px solid var(--primary-pink); }
 
         .bubble { padding: 6px 15px; border-radius: 50px; font-size: 12px; font-weight: bold; display: inline-block; min-width: 100px; border: 1px solid rgba(255,255,255,0.5); }
@@ -72,8 +99,7 @@
             
             <div class="contact-bubble">
                 <b>Contact:</b><br>
-                สนใจจ้างงานหรือสอบถามรายละเอียดเพิ่มเติม ติดต่อ<br>
-                Facebook: นุเนะ แมวเม่น
+                สนใจจ้างงานหรือสอบถามรายละเอียดเพิ่มเติม ติดต่อ Facebook: นุเนะ แมวเม่น
             </div>
 
             <a href="https://www.facebook.com/akanemui2314" target="_blank" class="join-btn">Join Wait-list</a>
@@ -81,7 +107,17 @@
             <div style="display:flex; flex-direction:column; align-items: center;">
                 <div id="shop-status" class="status-badge on" onclick="toggleStatus()">STATUS: ON</div>
                 <div id="active-count" class="active-label">Active: 0 orders</div>
-                <div id="last-updated" class="update-time">ซิงค์ล่าสุด: -</div>
+                <div id="last-updated" class="update-time">อัปเดตล่าสุด: -</div>
+            </div>
+        </div>
+
+        <!-- แถบประกาศ Bubble สีขาว -->
+        <div class="announcement-bar">
+            <span class="announcement-icon">📢</span>
+            <div class="marquee-container">
+                <div class="marquee-text">
+                    ช่วงนี้นุเนะทำงานเป็นสาว OL เต็มตัว คิวงานอาจล่าช้าสักหน่อย ขออภัยสำหรับความล่าช้าด้วยนะคะ 🙇‍♀️
+                </div>
             </div>
         </div>
 
@@ -109,11 +145,12 @@
 
         async function loadData() {
             try {
-                // บังคับ Cache Busting ให้แรงขึ้น
-                const res = await fetch(SHEET_CSV_URL + '&cachebust=' + Date.now(), { cache: "no-store" });
+                const urlWithBust = SHEET_CSV_URL + '&t=' + new Date().getTime();
+                const res = await fetch(urlWithBust);
+                if (!res.ok) throw new Error('Network Error');
+                
                 const csv = await res.text();
                 const rows = csv.trim().split(/\r?\n/).slice(1);
-                
                 const table = document.getElementById('queue-table');
                 table.innerHTML = '';
                 
@@ -126,24 +163,17 @@
                     if (cols.length < 5 || cols[0] === "") return;
 
                     const statusVal = cols[1] || '';
-                    const isDone = statusVal.includes('สำเร็จ') || statusVal.includes('เสร็จ') || statusVal.includes('Done') || statusVal.includes('Finished');
+                    const isDone = statusVal.includes('สำเร็จ') || statusVal.includes('เสร็จ') || statusVal.includes('Done') || statusVal.includes('Finished') || statusVal.includes('เต็ม');
 
-                    if (isDone) {
-                        completedRows.push(cols);
-                    } else {
-                        activeRows.push(cols);
-                        activeCount++;
-                    }
+                    if (isDone) { completedRows.push(cols); } 
+                    else { activeRows.push(cols); activeCount++; }
                 });
 
-                // เรียง: ใหม่ล่าสุด (แถวล่างใน Sheet) มาไว้บนสุด
                 activeRows.reverse();
                 completedRows.reverse();
 
-                // แสดงโซน Active
                 activeRows.forEach(cols => table.appendChild(createRowElement(cols)));
 
-                // แสดงตัวคั่นและโซนที่สำเร็จแล้ว
                 if (completedRows.length > 0) {
                     const sep = document.createElement('tr');
                     sep.className = 'category-header';
@@ -180,11 +210,9 @@
 
         function getColorClass(t) {
             if (!t) return 'bg-pending';
-            const v = t.trim();
-            // สีเขียว: สำเร็จ, เสร็จ, Done, Finished, เต็ม
-            if (v.includes('สำเร็จ') || v.includes('เสร็จ') || v.includes('Done') || v.includes('Finished') || v.includes('เต็ม')) return 'bg-done';
-            // สีเหลือง: ทำ, มัดจำ, Progress
-            if (v.includes('ทำ') || v.includes('มัดจำ') || v.includes('Progress')) return 'bg-doing';
+            const val = t.trim();
+            if (val.includes('สำเร็จ') || val.includes('เสร็จ') || val.includes('Done') || val.includes('Finished') || val.includes('เต็ม')) return 'bg-done';
+            if (val.includes('ทำ') || val.includes('มัดจำ') || val.includes('Progress')) return 'bg-doing';
             return 'bg-pending';
         }
 
