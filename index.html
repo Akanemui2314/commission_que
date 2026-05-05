@@ -176,7 +176,7 @@
                 const now = new Date();
                 const timeStr = now.toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
                 const dateStr = now.toLocaleDateString('th-TH', { day: 'numeric', month: 'short', year: 'numeric' });
-                document.getElementById('last-updated').innerText = `ซิงค์สำเร็จ: ${dateStr} ${timeStr}`;
+                document.getElementById('last-updated').innerText = `อัพเดทล่าสุด: ${dateStr} ${timeStr}`;
 
             } catch (e) { 
                 console.error(e);
