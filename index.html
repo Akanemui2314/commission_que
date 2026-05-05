@@ -3,9 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Commission Queue</title>
+    <title>Commission Queue - Sakura Edition</title>
     <style>
         :root {
+            /* โทนสีซากุระ Liquid Glass */
             --bg-gradient: linear-gradient(135deg, #fff0f5 0%, #ffdbdb 100%);
             --glass-bg: rgba(255, 255, 255, 0.45);
             --glass-border: rgba(255, 255, 255, 0.6);
@@ -14,6 +15,7 @@
             --soft-green: #c4e17f;
             --text-main: #5a4a42;
             
+            /* สีปุ่มสถานะแบบพาสเทลตัวอักษรเข้ม */
             --status-pending-bg: #f0f0f0; --status-pending-text: #757575;
             --status-doing-bg: #fff9c4; --status-doing-text: #827717;
             --status-done-bg: #c8e6c9; --status-done-text: #1b5e20;
@@ -22,7 +24,7 @@
 
         body { margin: 0; padding: 20px; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: var(--bg-gradient); min-height: 100vh; color: var(--text-main); display: flex; justify-content: center; align-items: flex-start; position: relative; overflow-x: hidden; }
 
-        /* Sakura Animation */
+        /* Sakura Falling Animation */
         #sakura-container { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 1; }
         .petal { position: absolute; top: -10%; background-color: #ffb7c5; border-radius: 150% 0 150% 0; opacity: 0; transform-origin: center; animation: fall linear infinite; }
         @keyframes fall { 0% { transform: translateY(0) translateX(0) rotate(0deg); opacity: 0; } 10% { opacity: 0.7; } 90% { opacity: 0.7; } 100% { transform: translateY(110vh) translateX(120px) rotate(360deg); opacity: 0; } }
@@ -62,7 +64,9 @@
         table { width: 100%; border-collapse: collapse; min-width: 850px; }
         th { padding: 18px; color: #8d6e63; font-weight: bold; border-bottom: 2px solid rgba(255,255,255,0.4); }
         td { padding: 18px; text-align: center; border-bottom: 1px solid rgba(255,255,255,0.2); font-size: 14px; }
+        
         .category-header { background: rgba(255, 183, 197, 0.3); font-weight: bold; color: var(--accent-pink); text-align: center; }
+        /* Adjusted colspan to 7 to match added column */
         .category-header td { padding: 15px; font-size: 16px; border-bottom: 2px solid var(--primary-pink); }
 
         .bubble { padding: 6px 15px; border-radius: 50px; font-size: 12px; font-weight: bold; display: inline-block; min-width: 100px; border: 1px solid rgba(255,255,255,0.5); }
@@ -119,6 +123,7 @@
                         <th>Contact</th>
                         <th>Deadline</th>
                         <th>Payment</th>
+                        <th>Type</th> <!-- Added Header -->
                         <th>Note</th>
                     </tr>
                 </thead>
@@ -166,7 +171,8 @@
                 if (completedRows.length > 0) {
                     const sep = document.createElement('tr');
                     sep.className = 'category-header';
-                    sep.innerHTML = `<td colspan="6">🌸 Zone: Completed Works (งานที่เสร็จสิ้นแล้ว) 🌸</td>`;
+                    // Colspan updated to 7 to match new column count
+                    sep.innerHTML = `<td colspan="7">🌸 Zone: Completed Works (งานที่เสร็จสิ้นแล้ว) 🌸</td>`;
                     table.appendChild(sep);
                     completedRows.forEach(cols => table.appendChild(createRowElement(cols)));
                 }
@@ -186,12 +192,14 @@
 
         function createRowElement(cols) {
             const tr = document.createElement('tr');
+            // Added Type data from cols[5]
             tr.innerHTML = `
                 <td>${cols[0] || '-'}</td>
                 <td><div class="bubble ${getColorClass(cols[1])}">${cols[1] || '-'}</div></td>
                 <td>${cols[2] && cols[2].includes('http') ? `<a href="${cols[2]}" target="_blank" style="color:var(--accent-pink); font-weight:bold;">Link</a>` : (cols[2] || '-')}</td>
                 <td>${cols[3] || '-'}</td>
                 <td><div class="bubble ${getColorClass(cols[4])}">${cols[4] || '-'}</div></td>
+                <td>${cols[5] || '-'}</td>
                 <td>${cols[6] || '-'}</td> 
             `;
             return tr;
