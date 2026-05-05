@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Commission Que - 2026</title>
+    <style>
+        :root {
+            --bg-color: #ffe0e0;
+            --primary-orange: #ff9b83;
+            --lighter-orange: #ffc9b1;
+            --soft-green: #c4e17f;
+            --grey: #ccc;
+            --yellow: #ffeb3b;
+            --green: #4caf50;
+            --red: #ff5252;
+            --font-main: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body { margin: 0; padding: 20px; font-family: var(--font-main); background-color: var(--bg-color); position: relative; overflow-x: hidden; }
+
+        /* Heart Animation */
+        #hearts-container { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: -1; }
+        .heart { position: absolute; width: 20px; height: 20px; background-color: white; opacity: 0.6; clip-path: path('M12,21.35L10.55,20.03C5.4,15.36 2,12.27 2,8.5C2,5.41 4.41,3 7.5,3C9.24,3 10.91,3.81 12,5.08C13.09,3.81 14.76,3 16.5,3C19.59,3 22,5.41 22,8.5C22,12.27 18.6,15.36 13.45,20.03L12,21.35Z'); animation: floatHearts linear infinite; }
+        @keyframes floatHearts { 0% { transform: translateY(110vh) scale(1); opacity: 0.6; } 100% { transform: translateY(-10vh) scale(1); opacity: 0; } }
+
+        .container { max-width: 1200px; margin: 0 auto; background-color: white; border-radius: 20px; box-shadow: 0 4px 20px rgba(0,0,0,0.1); padding: 30px; }
+        .header-panel { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; gap: 20px; flex-wrap: wrap; }
+        .info-box { background-color: var(--primary-orange); color: white; padding: 15px 25px; border-radius: 10px; text-align: center; }
+        .contact-box { background-color: var(--lighter-orange); color: #333; padding: 15px 25px; border-radius: 10px; font-size: 14px; max-width: 300px; }
+        .join-btn { background-color: var(--soft-green); color: white; padding: 15px 30px; border-radius: 10px; text-decoration: none; font-weight: bold; }
+        
+        .status-toggle { padding: 10px 20px; border-radius: 10px; font-weight: bold; color: white; cursor: pointer; text-align: center; }
+        .status-toggle.on { background-color: var(--green); }
+        .status-toggle.off { background-color: var(--red); }
+        .active-orders { background-color: #ffb74d; color: white; padding: 10px 20px; border-radius: 10px; font-weight: bold; margin-top: 10px; text-align: center; }
+
+        .table-container { background-color: #fff8f8; border-radius: 10px; padding: 20px; overflow-x: auto; }
+        table { width: 100%; border-collapse: collapse; }
+        th { background-color: var(--primary-orange); color: white; padding: 12px; border-radius: 5px; font-weight: normal; }
+        td { padding: 10px; border-bottom: 1px solid #ffe8e8; }
+        
+        .input-show { width: 100%; padding: 8px; border-radius: 5px; border: 1px solid var(--grey); }
+        .status-select, .payment-select { padding: 8px; border-radius: 8px; border: none; width: 100%; font-weight: bold; text-align: center; }
+        .bg-grey { background-color: var(--grey); color: white; }
+        .bg-yellow { background-color: var(--yellow); color: #333; }
+        .bg-green { background-color: var(--green); color: white; }
+        .btn-delete { background-color: var(--red); color: white; border: none; padding: 8px 12px; border-radius: 5px; cursor: pointer; }
+
+        #admin-controls { display: none; margin-top: 20px; text-align: right; gap: 10px; }
+        .admin-btn { background-color: var(--primary-orange); color: white; padding: 10px 20px; border: none; border-radius: 10px; cursor: pointer; font-weight: bold; }
+    </style>
+</head>
+<body>
+    <div id="hearts-container"></div>
+    <div class="container">
+        <div class="header-panel">
+            <div class="info-box"><h2 style="margin:0">Commission Que</h2><div style="font-size:14px">คิวคอมมิชชั่นประจำปี 2026</div></div>
+            <div class="contact-box"><b>Contact:</b> นุเนะ แมวเม่น<br>หากต้องการสอบถามข้อมูลเพิ่มเติมติดต่อFB นุเนะแมวเม่น</div>
+            <a href="https://www.facebook.com/akanemui2314" target="_blank" class="join-btn">Join wait-list</a>
+            <div>
+                <div id="shop-status-toggle" class="status-toggle on" onclick="toggleShopStatus()">STATUS : ON</div>
+                <div id="active-orders-count" class="active-orders">Active : 0 orders</div>
+            </div>
+        </div>
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr><th>Date</th><th>Status</th><th>Contact</th><th>Deadline</th><th>Payment</th><th>Type of Works</th><th>Note</th><th id="th-action" style="display:none">Action</th></tr>
+                </thead>
+                <tbody id="table-body"></tbody>
+            </table>
+        </div>
+        <div id="admin-controls">
+            <button class="admin-btn" onclick="addNewRow()">+ เพิ่มลูกค้า</button>
+            <button class="admin-btn" style="background-color: #4caf50;" onclick="saveData()">บันทึกข้อมูล</button>
+        </div>
+    </div>
+
+    <script>
+        const ADMIN_PASSWORD = '1234'; // *** แก้รหัสผ่านของคุณตรงนี้ ***
+        
+        let isAdmin = false;
+        let shopData = { statusOn: true, rows: [] };
+
+        const urlParams = new URLSearchParams(window.location.search);
+        if (urlParams.get('admin') === 'true') {
+            if (prompt('Password:') === ADMIN_PASSWORD) {
+                isAdmin = true;
+                document.getElementById('admin-controls').style.display = 'flex';
+                document.getElementById('th-action').style.display = 'table-cell';
+            } else { window.location.href = window.location.pathname; }
+        }
+
+        function render() {
+            const tbody = document.getElementById('table-body');
+            tbody.innerHTML = '';
+            const toggle = document.getElementById('shop-status-toggle');
+            toggle.textContent = `STATUS : ${shopData.statusOn ? 'ON' : 'OFF'}`;
+            toggle.className = `status-toggle ${shopData.statusOn ? 'on' : 'off'}`;
+
+            shopData.rows.forEach(row => {
+                const tr = document.createElement('tr');
+                if (isAdmin) {
+                    tr.innerHTML = `
+                        <td><input type="date" class="input-show" value="${row.date}" onchange="update(${row.id}, 'date', this.value)"></td>
+                        <td><select class="status-select ${row.status==='pending'?'bg-grey':row.status==='in-progress'?'bg-yellow':'bg-green'}" onchange="update(${row.id}, 'status', this.value); render()"><option value="pending" ${row.status==='pending'?'selected':''}>ยังไม่เริ่ม</option><option value="in-progress" ${row.status==='in-progress'?'selected':''}>กำลังทำ</option><option value="completed" ${row.status==='completed'?'selected':''}>สำเร็จแล้ว</option></select></td>
+                        <td><input type="text" class="input-show" value="${row.contact}" onchange="update(${row.id}, 'contact', this.value)"></td>
+                        <td><input type="date" class="input-show" value="${row.deadline}" onchange="update(${row.id}, 'deadline', this.value)"></td>
+                        <td><select class="payment-select ${row.payment==='unpaid'?'bg-grey':row.payment==='deposit'?'bg-yellow':'bg-green'}" onchange="update(${row.id}, 'payment', this.value); render()"><option value="unpaid" ${row.payment==='unpaid'?'selected':''}>ยังไม่ชำระ</option><option value="deposit" ${row.payment==='deposit'?'selected':''}>ชำระมัดจำ</option><option value="full" ${row.payment==='full'?'selected':''}>ชำระเต็มจำนวน</option></select></td>
+                        <td><input type="text" class="input-show" value="${row.type}" onchange="update(${row.id}, 'type', this.value)"></td>
+                        <td><input type="text" class="input-show" value="${row.note}" onchange="update(${row.id}, 'note', this.value)"></td>
+                        <td><button class="btn-delete" onclick="removeRow(${row.id})">ลบ</button></td>`;
+                } else {
+                    tr.innerHTML = `<td>${row.date}</td><td>${row.status}</td><td>${row.contact}</td><td>${row.deadline}</td><td>${row.payment}</td><td>${row.type}</td><td>${row.note}</td>`;
+                }
+                tbody.appendChild(tr);
+            });
+            document.getElementById('active-orders-count').textContent = `Active : ${shopData.rows.filter(r => r.status !== 'completed').length} orders`;
+        }
+
+        function update(id, field, val) { const row = shopData.rows.find(r => r.id === id); if (row) row[field] = val; }
+        function removeRow(id) { if (confirm('ลบออร์เดอร์นี้?')) { shopData.rows = shopData.rows.filter(r => r.id !== id); render(); } }
+        function addNewRow() { shopData.rows.push({ id: Date.now(), date: '', status: 'pending', contact: '', deadline: '', payment: 'unpaid', type: '', note: '' }); render(); }
+        function toggleShopStatus() { if (isAdmin) { shopData.statusOn = !shopData.statusOn; render(); } }
+        function saveData() { console.log(JSON.stringify(shopData)); alert('บันทึกแล้ว (ดูข้อมูลใน Console)'); }
+
+        for(let i=0; i<20; i++){
+            const h = document.createElement('div'); h.className = 'heart'; h.style.left = Math.random()*100+'vw'; h.style.animationDelay = Math.random()*10+'s'; h.style.animationDuration = 5+Math.random()*5+'s'; document.getElementById('hearts-container').appendChild(h);
+        }
+        render();
+    </script>
+</body>
+</html>
