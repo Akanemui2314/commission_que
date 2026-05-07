@@ -27,25 +27,27 @@
         .petal { position: absolute; top: -10%; background-color: #ffb7c5; border-radius: 150% 0 150% 0; opacity: 0; transform-origin: center; animation: fall linear infinite; }
         @keyframes fall { 0% { transform: translateY(0) translateX(0) rotate(0deg); opacity: 0; } 10% { opacity: 0.7; } 90% { opacity: 0.7; } 100% { transform: translateY(110vh) translateX(120px) rotate(360deg); opacity: 0; } }
 
-        .glass-card { width: 100%; max-width: 1100px; background: var(--glass-bg); backdrop-filter: blur(25px); -webkit-backdrop-filter: blur(25px); border: 1px solid var(--glass-border); border-radius: 30px; padding: 20px; box-shadow: 0 15px 35px rgba(255, 183, 197, 0.3); margin-top: 10px; position: relative; z-index: 2; box-sizing: border-box; }
+        .glass-card { width: 100%; max-width: 1100px; background: var(--glass-bg); backdrop-filter: blur(25px); -webkit-backdrop-filter: blur(25px); border: 1px solid var(--glass-border); border-radius: 30px; padding: 25px; box-shadow: 0 15px 35px rgba(255, 183, 197, 0.3); margin-top: 15px; position: relative; z-index: 2; box-sizing: border-box; }
         
-        .admin-shortcut { position: absolute; top: 15px; right: 15px; width: 30px; height: 30px; background: rgba(255,255,255,0.5); border-radius: 50%; border: 1px solid white; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 16px; transition: 0.3s; }
-        .admin-shortcut:hover { transform: rotate(90deg); background: white; }
+        /* Fixed Wrench Icon Styling (No overlap) */
+        .admin-shortcut { width: 30px; height: 30px; background: rgba(255,255,255,0.6); border-radius: 50%; border: 1px solid white; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 13px; transition: 0.3s; margin-bottom: 5px; margin-left: auto; }
+        .admin-shortcut:hover { transform: scale(1.1) rotate(15deg); background: white; }
 
-        .header-section { display: grid; grid-template-columns: 1.2fr 1fr 0.8fr 0.6fr; gap: 15px; align-items: center; margin-bottom: 25px; }
-        .title-box { background: rgba(255, 255, 255, 0.7); padding: 15px; border-radius: 20px; border: 1px solid white; }
-        .contact-bubble { background: rgba(255, 255, 255, 0.5); backdrop-filter: blur(10px); border: 2px solid white; padding: 12px 15px; border-radius: 20px; font-size: 12px; line-height: 1.5; box-shadow: 0 8px 32px rgba(255, 255, 255, 0.1); }
+        .header-section { display: grid; grid-template-columns: 1.2fr 1fr 0.8fr 0.6fr; gap: 15px; align-items: stretch; margin-bottom: 25px; }
+        .title-box { background: rgba(255, 255, 255, 0.7); padding: 15px; border-radius: 20px; border: 1px solid white; display: flex; flex-direction: column; justify-content: center; }
+        .contact-bubble { background: rgba(255, 255, 255, 0.5); backdrop-filter: blur(10px); border: 2px solid white; padding: 12px 15px; border-radius: 20px; font-size: 12px; line-height: 1.5; box-shadow: 0 8px 32px rgba(255, 255, 255, 0.1); display: flex; flex-direction: column; justify-content: center; }
         
-        .button-group { display: flex; flex-direction: column; gap: 8px; }
+        .button-group { display: flex; flex-direction: column; gap: 8px; justify-content: center; }
         .tos-btn { background: white; color: var(--accent-pink); padding: 10px; border-radius: 50px; text-decoration: none; font-weight: bold; text-align: center; border: 2px solid var(--primary-pink); font-size: 13px; transition: 0.3s; }
         .tos-btn:hover { background: var(--primary-pink); color: white; }
         .join-btn { background: var(--soft-green); color: white; padding: 10px; border-radius: 50px; text-decoration: none; font-weight: bold; text-align: center; border: 2px solid white; font-size: 13px; box-shadow: 0 4px 12px rgba(196, 225, 127, 0.3); transition: 0.3s; }
 
+        .status-container { display: flex; flex-direction: column; align-items: center; justify-content: center; }
         .status-badge { padding: 6px 15px; border-radius: 50px; font-weight: bold; color: white; border: 2px solid white; text-align: center; font-size: 13px; cursor: pointer; min-width: 100px; }
         .status-badge.on { background: #81c784; }
         .status-badge.off { background: var(--status-off); }
 
-        .active-label { font-weight: bold; font-size: 13px; background: white; padding: 5px 12px; border-radius: 50px; margin-top: 8px; text-align: center; }
+        .active-label { font-weight: bold; font-size: 13px; background: white; padding: 5px 12px; border-radius: 50px; margin-top: 8px; text-align: center; width: fit-content; }
         .update-time { font-size: 9px; opacity: 0.5; margin-top: 4px; text-align: center; }
 
         /* Announcement Bar */
@@ -57,8 +59,8 @@
 
         /* Table */
         .table-container { background: rgba(255, 255, 255, 0.25); border-radius: 20px; padding: 10px; overflow-x: auto; -webkit-overflow-scrolling: touch; }
-        table { width: 100%; border-collapse: collapse; min-width: 750px; }
-        th { padding: 12px; color: #8d6e63; font-weight: bold; border-bottom: 2px solid rgba(255,255,255,0.4); font-size: 13px; }
+        table { width: 100%; border-collapse: collapse; min-width: 800px; }
+        th { padding: 12px; color: #8d6e63; font-weight: bold; border-bottom: 2px solid rgba(255,255,255,0.4); font-size: 13px; text-align: center; }
         td { padding: 12px; text-align: center; border-bottom: 1px solid rgba(255,255,255,0.2); font-size: 12px; }
         .category-header td { padding: 10px; font-size: 14px; background: rgba(255, 183, 197, 0.3); color: var(--accent-pink); font-weight: bold; }
 
@@ -67,14 +69,12 @@
         .bg-doing { background: var(--status-doing-bg); color: var(--status-doing-text); }
         .bg-done { background: var(--status-done-bg); color: var(--status-done-text); }
 
-        /* Responsive Adjustments */
-        @media (max-width: 768px) {
+        /* Mobile Responsive */
+        @media (max-width: 850px) {
             .header-section { grid-template-columns: 1fr; gap: 15px; }
-            .glass-card { padding: 25px 15px; border-radius: 25px; }
-            .title-box h1 { font-size: 22px !important; }
-            .button-group { flex-direction: row; justify-content: center; }
-            .tos-btn, .join-btn { flex: 1; font-size: 12px; padding: 8px; }
-            .admin-shortcut { top: 10px; right: 10px; }
+            .button-group { flex-direction: row; }
+            .tos-btn, .join-btn { flex: 1; }
+            .admin-shortcut { margin-bottom: 10px; }
         }
     </style>
 </head>
@@ -83,8 +83,6 @@
     <div id="sakura-container"></div>
 
     <div class="glass-card">
-        <div class="admin-shortcut" onclick="goToSheet()" title="Manage Data">⚙️</div>
-
         <div class="header-section">
             <div class="title-box">
                 <h1 style="margin:0; color: var(--accent-pink); font-size: 26px;">Commission Queue</h1>
@@ -92,8 +90,8 @@
             </div>
             
             <div class="contact-bubble">
-                <b>Contact:</b><br>
-                สนใจจ้างงานหรือสอบถามรายละเอียดเพิ่มเติม ติดต่อ Facebook: นุเนะ แมวเม่น
+                <b>Contact:</b>
+                <span>สนใจจ้างงานหรือสอบถามรายละเอียดเพิ่มเติม ติดต่อ Facebook: นุเนะ แมวเม่น</span>
             </div>
 
             <div class="button-group">
@@ -101,7 +99,8 @@
                 <a href="https://www.facebook.com/akanemui2314" target="_blank" class="join-btn">Join Wait-list</a>
             </div>
             
-            <div style="display:flex; flex-direction:column; align-items: center;">
+            <div class="status-container">
+                <div class="admin-shortcut" onclick="goToSheet()" title="Manage Data">🔧</div>
                 <div id="shop-status" class="status-badge on" onclick="toggleStatus()">STATUS: ON</div>
                 <div id="active-count" class="active-label">Active: 0 orders</div>
                 <div id="last-updated" class="update-time">อัปเดตล่าสุด: -</div>
@@ -166,9 +165,7 @@
                     else { activeRows.push(cols); activeCount++; }
                 });
 
-                activeRows.reverse();
-                completedRows.reverse();
-
+                // NO REVERSE: Keep the sheet's natural order (New orders downwards)
                 activeRows.forEach(cols => table.appendChild(createRowElement(cols)));
 
                 if (completedRows.length > 0) {
