@@ -6,6 +6,8 @@
     <title>Commission Queue Akanezz2314's 2026</title>
     <style>
         :root {
+            /* กลับมาใช้โทนชมพู Original */
+            --bg-color: #fff0f5;
             --bg-gradient: linear-gradient(135deg, #fff0f5 0%, #ffdbdb 100%);
             --glass-bg: rgba(255, 255, 255, 0.45);
             --glass-border: rgba(255, 255, 255, 0.6);
@@ -18,15 +20,20 @@
             --status-doing-bg: #fff9c4; --status-doing-text: #827717;
             --status-done-bg: #c8e6c9; --status-done-text: #1b5e20;
             --status-off: #ff8a80;
+            --table-hover: rgba(255, 183, 197, 0.15);
         }
 
-        body { margin: 0; padding: 10px; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: var(--bg-gradient); min-height: 100vh; color: var(--text-main); display: flex; justify-content: center; align-items: flex-start; position: relative; overflow-x: hidden; }
+    
+        body { margin: 0; padding: 10px; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: var(--bg-color); background-image: var(--bg-gradient); min-height: 100vh; color: var(--text-main); display: flex; justify-content: center; align-items: flex-start; position: relative; overflow-x: hidden; }
+
+        /* Parallax Background Layer */
+        #parallax-bg { position: fixed; top: -5%; left: -5%; width: 110%; height: 110%; pointer-events: none; z-index: 0; background: radial-gradient(circle at 10% 10%, rgba(255, 255, 255, 0.2) 0%, transparent 50%); transition: transform 0.1s ease-out; }
 
         #sakura-container { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 1; }
-        .petal { position: absolute; top: -10%; background-color: #ffb7c5; border-radius: 150% 0 150% 0; opacity: 0; transform-origin: center; animation: fall linear infinite; }
-        @keyframes fall { 0% { transform: translateY(0) translateX(0) rotate(0deg); opacity: 0; } 10% { opacity: 0.7; } 90% { opacity: 0.7; } 100% { transform: translateY(110vh) translateX(120px) rotate(360deg); opacity: 0; } }
+        .petal { position: absolute; top: -10%; background-color: var(--primary-pink); border-radius: 150% 0 150% 0; opacity: 0; animation: fall linear infinite; }
+        @keyframes fall { 0% { transform: translateY(0) translateX(0) rotate(0deg); opacity: 0; } 10% { opacity: 0.7; } 90% { opacity: 0.7; } 100% { transform: translateY(110vh) translateX(100px) rotate(360deg); opacity: 0; } }
 
-        .glass-card { width: 100%; max-width: 1100px; background: var(--glass-bg); backdrop-filter: blur(25px); -webkit-backdrop-filter: blur(25px); border: 1px solid var(--glass-border); border-radius: 30px; padding: 25px; box-shadow: 0 15px 35px rgba(255, 183, 197, 0.3); margin-top: 15px; position: relative; z-index: 2; box-sizing: border-box; }
+        .glass-card { width: 100%; max-width: 1100px; background: var(--glass-bg); backdrop-filter: blur(25px); -webkit-backdrop-filter: blur(25px); border: 1px solid var(--glass-border); border-radius: 30px; padding: 25px; box-shadow: 0 15px 35px rgba(255, 183, 197, 0.2); margin-top: 15px; position: relative; z-index: 2; box-sizing: border-box; }
         
         .admin-shortcut { width: 30px; height: 30px; background: rgba(255,255,255,0.6); border-radius: 50%; border: 1px solid white; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 13px; transition: 0.3s; margin-bottom: 5px; margin-left: auto; }
         .admin-shortcut:hover { transform: scale(1.1) rotate(15deg); background: white; }
@@ -57,7 +64,8 @@
         .table-container { background: rgba(255, 255, 255, 0.25); border-radius: 20px; padding: 10px; overflow-x: auto; -webkit-overflow-scrolling: touch; }
         table { width: 100%; border-collapse: collapse; min-width: 800px; }
         th { padding: 12px; color: #8d6e63; font-weight: bold; border-bottom: 2px solid rgba(255,255,255,0.4); font-size: 13px; text-align: center; }
-        td { padding: 12px; text-align: center; border-bottom: 1px solid rgba(255,255,255,0.2); font-size: 12px; }
+        td { padding: 12px; text-align: center; border-bottom: 1px solid rgba(255,255,255,0.2); font-size: 12px; transition: 0.3s; }
+        tr:not(.category-header):hover td { background: var(--table-hover); }
         .category-header td { padding: 10px; font-size: 14px; background: rgba(255, 183, 197, 0.3); color: var(--accent-pink); font-weight: bold; }
 
         .bubble { padding: 5px 12px; border-radius: 50px; font-size: 11px; font-weight: bold; display: inline-block; min-width: 80px; }
@@ -75,6 +83,7 @@
 </head>
 <body>
 
+    <div id="parallax-bg"></div>
     <div id="sakura-container"></div>
 
     <div class="glass-card">
@@ -134,31 +143,29 @@
         const SHEET_EDIT_URL = 'https://docs.google.com/spreadsheets/d/1QyTn6jTpV_yHvf4MVBkwGdqJdjRd5B0Dm1YnWw0qJ0I/edit?gid=0#gid=0';
         const ADMIN_PW = '2314';
 
+        // 🖱️ Parallax Only (No petal interaction)
+        document.addEventListener('mousemove', (e) => {
+            const x = e.clientX / window.innerWidth;
+            const y = e.clientY / window.innerHeight;
+            document.getElementById('parallax-bg').style.transform = `translate(${x * 30}px, ${y * 30}px)`;
+        });
+
         async function loadData() {
             try {
                 const urlWithBust = SHEET_CSV_URL + '&t=' + new Date().getTime();
-                const res = await fetch(urlWithBust);
+                const res = await fetch(urlWithBust, { cache: "no-store" });
                 if (!res.ok) throw new Error('Network Error');
                 
                 const csv = await res.text();
                 const allRows = csv.trim().split(/\r?\n/);
                 
-                // --- Sync Shop Status from Cell H1 (Index 7 of Header Row) ---
                 const headerRow = allRows[0].split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/);
                 const h1Value = headerRow[7] ? headerRow[7].replace(/"/g, '').trim().toUpperCase() : 'ON';
                 const statusBadge = document.getElementById('shop-status');
                 
-                if (h1Value === 'OFF') {
-                    statusBadge.classList.remove('on');
-                    statusBadge.classList.add('off');
-                    statusBadge.innerText = 'STATUS: OFF';
-                } else {
-                    statusBadge.classList.remove('off');
-                    statusBadge.classList.add('on');
-                    statusBadge.innerText = 'STATUS: ON';
-                }
+                statusBadge.className = h1Value === 'OFF' ? 'status-badge off' : 'status-badge on';
+                statusBadge.innerText = 'STATUS: ' + h1Value;
 
-                // --- Process Table Rows (Skip Header) ---
                 const dataRows = allRows.slice(1);
                 const table = document.getElementById('queue-table');
                 table.innerHTML = '';
@@ -169,19 +176,13 @@
 
                 dataRows.forEach(row => {
                     const cols = row.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/).map(c => c.replace(/"/g, '').trim());
-                    
-                    // เพิ่มการตรวจสอบเพื่อข้ามแถวหัวข้อที่อาจหลุดมา หรือแถวที่ไม่มีข้อมูลสำคัญ
                     if (cols.length < 5 || cols[0] === "" || cols[0].toLowerCase() === "date") return;
-
                     const statusVal = cols[1] || '';
                     const isDone = statusVal.includes('สำเร็จ') || statusVal.includes('เสร็จ') || statusVal.includes('Done') || statusVal.includes('Finished') || statusVal.includes('เต็ม');
-
-                    if (isDone) { completedRows.push(cols); } 
-                    else { activeRows.push(cols); activeCount++; }
+                    if (isDone) completedRows.push(cols); else { activeRows.push(cols); activeCount++; }
                 });
 
                 activeRows.forEach(cols => table.appendChild(createRowElement(cols)));
-
                 if (completedRows.length > 0) {
                     const sep = document.createElement('tr');
                     sep.className = 'category-header';
@@ -191,16 +192,9 @@
                 }
 
                 document.getElementById('active-count').innerText = `Active: ${activeCount} orders`;
-                
                 const now = new Date();
-                const timeStr = now.toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
-                const dateStr = now.toLocaleDateString('th-TH', { day: 'numeric', month: 'short', year: 'numeric' });
-                document.getElementById('last-updated').innerText = `อัปเดตล่าสุด: ${dateStr} ${timeStr}`;
-
-            } catch (e) { 
-                console.error(e);
-                document.getElementById('last-updated').innerText = 'การซิงค์ขัดข้อง...';
-            }
+                document.getElementById('last-updated').innerText = `อัปเดตล่าสุด: ${now.toLocaleDateString('th-TH')} ${now.toLocaleTimeString('th-TH')}`;
+            } catch (e) { console.error(e); }
         }
 
         function createRowElement(cols) {
@@ -218,7 +212,6 @@
         }
 
         function getColorClass(t) {
-            if (!t) return 'bg-pending';
             const val = t.trim();
             if (val.includes('สำเร็จ') || val.includes('เสร็จ') || val.includes('Done') || val.includes('Finished') || val.includes('เต็ม')) return 'bg-done';
             if (val.includes('ทำ') || val.includes('มัดจำ') || val.includes('Progress')) return 'bg-doing';
@@ -226,22 +219,25 @@
         }
 
         function goToSheet() {
-            if (prompt('Password:') === ADMIN_PW) { window.open(SHEET_EDIT_URL, '_blank'); } 
-            else { alert('Wrong Password!'); }
+            if (prompt('Password:') === ADMIN_PW) window.open(SHEET_EDIT_URL, '_blank');
+            else alert('Wrong Password!');
         }
 
-        const sakuraContainer = document.getElementById('sakura-container');
-        for(let i=0; i<20; i++){
-            const petal = document.createElement('div');
-            petal.className = 'petal';
-            petal.style.left = Math.random() * 100 + 'vw';
-            petal.style.width = Math.random() * 10 + 10 + 'px';
-            petal.style.height = Math.random() * 10 + 5 + 'px';
-            petal.style.animationDelay = (Math.random() * 15) + 's';
-            petal.style.animationDuration = (Math.random() * 7 + 7) + 's';
-            sakuraContainer.appendChild(petal);
+        function createPetals() {
+            const container = document.getElementById('sakura-container');
+            for(let i=0; i<20; i++){
+                const petal = document.createElement('div');
+                petal.className = 'petal';
+                petal.style.left = Math.random() * 100 + 'vw';
+                petal.style.width = Math.random() * 10 + 10 + 'px';
+                petal.style.height = Math.random() * 10 + 5 + 'px';
+                petal.style.animationDelay = (Math.random() * 15) + 's';
+                petal.style.animationDuration = (Math.random() * 7 + 7) + 's';
+                container.appendChild(petal);
+            }
         }
 
+        createPetals();
         loadData();
         setInterval(loadData, 10000);
     </script>
