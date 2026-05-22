@@ -23,7 +23,10 @@
             --table-hover: rgba(255, 183, 197, 0.15);
         }
 
-    
+        /* Custom Full Sakura Flower Cursor */
+        * { cursor: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path fill="%23ffb7c5" d="M12 12c0-3 2-5 4-5s3 2 3 4s-2 4-4 4s-3-1-3-3zm0 0c-3 0-5-2-5-4s2-3 4-3s4 2 4 4s-1 3-3 3zm0 0c0 3-2 5-4 5s-3-2-3-4s2-4 4-4s3 1 3 3zm0 0c3 0 5 2 5 4s-2 3-4 3s-4-2-4-4s1-3 3-3zm0 0c-2-2-4-2-5-1s-1 4 1 5s4 1 5-1s1-2-1-3z" opacity="0.9"/></svg>'), auto; }
+        a, button, .admin-shortcut, .status-badge { cursor: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path fill="%23ff91a4" d="M12 12c0-3 2-5 4-5s3 2 3 4s-2 4-4 4s-3-1-3-3zm0 0c-3 0-5-2-5-4s2-3 4-3s4 2 4 4s-1 3-3 3zm0 0c0 3-2 5-4 5s-3-2-3-4s2-4 4-4s3 1 3 3zm0 0c3 0 5 2 5 4s-2 3-4 3s-4-2-4-4s1-3 3-3zm0 0c-2-2-4-2-5-1s-1 4 1 5s4 1 5-1s1-2-1-3z"/></svg>'), pointer; }
+
         body { margin: 0; padding: 10px; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: var(--bg-color); background-image: var(--bg-gradient); min-height: 100vh; color: var(--text-main); display: flex; justify-content: center; align-items: flex-start; position: relative; overflow-x: hidden; }
 
         /* Parallax Background Layer */
@@ -114,9 +117,7 @@
         <div class="announcement-bar">
             <span class="announcement-icon">📢</span>
             <div class="marquee-container">
-                <div class="marquee-text">
-                    ช่วงนี้นุเนะทำงานเป็นสาว OL เต็มตัว คิวงานอาจล่าช้าสักหน่อย ขออภัยสำหรับความล่าช้าด้วยนะคะ 🙇‍♀️
-                </div>
+                <div class="marquee-text" id="dynamic-marquee">กำลังโหลดประกาศ...</div>
             </div>
         </div>
 
@@ -159,12 +160,20 @@
                 const csv = await res.text();
                 const allRows = csv.trim().split(/\r?\n/);
                 
+                // Parse Header Row (Row 1 in sheet)
                 const headerRow = allRows[0].split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/);
+                
+                // --- Sync Shop Status from Cell H1 (Index 7) ---
                 const h1Value = headerRow[7] ? headerRow[7].replace(/"/g, '').trim().toUpperCase() : 'ON';
                 const statusBadge = document.getElementById('shop-status');
                 
                 statusBadge.className = h1Value === 'OFF' ? 'status-badge off' : 'status-badge on';
                 statusBadge.innerText = 'STATUS: ' + h1Value;
+
+                // --- Sync Announcement Marquee from Cell C1 (Index 2) ---
+                const c1Value = headerRow[2] ? headerRow[2].replace(/"/g, '').trim() : 'ไม่มีประกาศในขณะนี้';
+                document.getElementById('dynamic-marquee').innerText = c1Value;
+
 
                 const dataRows = allRows.slice(1);
                 const table = document.getElementById('queue-table');
@@ -186,7 +195,7 @@
                 if (completedRows.length > 0) {
                     const sep = document.createElement('tr');
                     sep.className = 'category-header';
-                    sep.innerHTML = `<td colspan="7">🌸 Zone: Completed Works (งานที่เสร็จสิ้นแล้ว) 🌸</td>`;
+                    sep.innerHTML = `<td colspan="7">🌸 Zone: Completed Works (งานที่เสร็จแล้ว) 🌸</td>`;
                     table.appendChild(sep);
                     completedRows.forEach(cols => table.appendChild(createRowElement(cols)));
                 }
