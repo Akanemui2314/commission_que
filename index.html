@@ -15,7 +15,7 @@
             --accent-pink: #ff91a4;
             --soft-green: #c4e17f;
             --text-main: #5a4a42;
-            
+
             --status-pending-bg: #f0f0f0; --status-pending-text: #757575;
             --status-doing-bg: #fff9c4; --status-doing-text: #827717;
             --status-done-bg: #c8e6c9; --status-done-text: #1b5e20;
@@ -23,9 +23,9 @@
             --table-hover: rgba(255, 183, 197, 0.15);
         }
 
-        /* Custom Full Sakura Flower Cursor */
-        * { cursor: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path fill="%23ffb7c5" d="M12 12c0-3 2-5 4-5s3 2 3 4s-2 4-4 4s-3-1-3-3zm0 0c-3 0-5-2-5-4s2-3 4-3s4 2 4 4s-1 3-3 3zm0 0c0 3-2 5-4 5s-3-2-3-4s2-4 4-4s3 1 3 3zm0 0c3 0 5 2 5 4s-2 3-4 3s-4-2-4-4s1-3 3-3zm0 0c-2-2-4-2-5-1s-1 4 1 5s4 1 5-1s1-2-1-3z" opacity="0.9"/></svg>'), auto; }
-        a, button, .admin-shortcut, .status-badge { cursor: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path fill="%23ff91a4" d="M12 12c0-3 2-5 4-5s3 2 3 4s-2 4-4 4s-3-1-3-3zm0 0c-3 0-5-2-5-4s2-3 4-3s4 2 4 4s-1 3-3 3zm0 0c0 3-2 5-4 5s-3-2-3-4s2-4 4-4s3 1 3 3zm0 0c3 0 5 2 5 4s-2 3-4 3s-4-2-4-4s1-3 3-3zm0 0c-2-2-4-2-5-1s-1 4 1 5s4 1 5-1s1-2-1-3z"/></svg>'), pointer; }
+        /* Custom Cat Paw Cursor */
+        * { cursor: url('cursor.png'), auto; }
+        a, button, .admin-shortcut, .status-badge { cursor: url('cursor.png'), pointer; }
 
         body { margin: 0; padding: 10px; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: var(--bg-color); background-image: var(--bg-gradient); min-height: 100vh; color: var(--text-main); display: flex; justify-content: center; align-items: flex-start; position: relative; overflow-x: hidden; }
 
@@ -37,14 +37,14 @@
         @keyframes fall { 0% { transform: translateY(0) translateX(0) rotate(0deg); opacity: 0; } 10% { opacity: 0.7; } 90% { opacity: 0.7; } 100% { transform: translateY(110vh) translateX(100px) rotate(360deg); opacity: 0; } }
 
         .glass-card { width: 100%; max-width: 1100px; background: var(--glass-bg); backdrop-filter: blur(25px); -webkit-backdrop-filter: blur(25px); border: 1px solid var(--glass-border); border-radius: 30px; padding: 25px; box-shadow: 0 15px 35px rgba(255, 183, 197, 0.2); margin-top: 15px; position: relative; z-index: 2; box-sizing: border-box; }
-        
+
         .admin-shortcut { width: 30px; height: 30px; background: rgba(255,255,255,0.6); border-radius: 50%; border: 1px solid white; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 13px; transition: 0.3s; margin-bottom: 5px; margin-left: auto; }
         .admin-shortcut:hover { transform: scale(1.1) rotate(15deg); background: white; }
 
         .header-section { display: grid; grid-template-columns: 1.2fr 1fr 0.8fr 0.6fr; gap: 15px; align-items: stretch; margin-bottom: 25px; }
         .title-box { background: rgba(255, 255, 255, 0.7); padding: 15px; border-radius: 20px; border: 1px solid white; display: flex; flex-direction: column; justify-content: center; }
         .contact-bubble { background: rgba(255, 255, 255, 0.5); backdrop-filter: blur(10px); border: 2px solid white; padding: 12px 15px; border-radius: 20px; font-size: 12px; line-height: 1.5; box-shadow: 0 8px 32px rgba(255, 255, 255, 0.1); display: flex; flex-direction: column; justify-content: center; }
-        
+
         .button-group { display: flex; flex-direction: column; gap: 8px; justify-content: center; }
         .tos-btn { background: white; color: var(--accent-pink); padding: 10px; border-radius: 50px; text-decoration: none; font-weight: bold; text-align: center; border: 2px solid var(--primary-pink); font-size: 13px; transition: 0.3s; }
         .tos-btn:hover { background: var(--primary-pink); color: white; }
@@ -95,7 +95,7 @@
                 <h1 style="margin:0; color: var(--accent-pink); font-size: 26px;">Commission Queue</h1>
                 <p style="margin:5px 0 0; opacity: 0.8; font-size: 14px;">นุเนะ แมวเม่น • 2026</p>
             </div>
-            
+
             <div class="contact-bubble">
                 <b>Contact:</b>
                 <span>สนใจจ้างงานหรือสอบถามรายละเอียดเพิ่มเติม ติดต่อ Facebook: นุเนะ แมวเม่น</span>
@@ -105,7 +105,7 @@
                 <a href="https://akanezz2314.carrd.co/#agreement" target="_blank" class="tos-btn">TOS / Agreement</a>
                 <a href="https://www.facebook.com/akanemui2314" target="_blank" class="join-btn">Join Wait-list</a>
             </div>
-            
+
             <div class="status-container">
                 <div class="admin-shortcut" onclick="goToSheet()" title="Manage Data">🔧</div>
                 <div id="shop-status" class="status-badge on">STATUS: ON</div>
@@ -156,17 +156,17 @@
                 const urlWithBust = SHEET_CSV_URL + '&t=' + new Date().getTime();
                 const res = await fetch(urlWithBust, { cache: "no-store" });
                 if (!res.ok) throw new Error('Network Error');
-                
+
                 const csv = await res.text();
                 const allRows = csv.trim().split(/\r?\n/);
-                
+
                 // Parse Header Row (Row 1 in sheet)
                 const headerRow = allRows[0].split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/);
-                
+
                 // --- Sync Shop Status from Cell H1 (Index 7) ---
                 const h1Value = headerRow[7] ? headerRow[7].replace(/"/g, '').trim().toUpperCase() : 'ON';
                 const statusBadge = document.getElementById('shop-status');
-                
+
                 statusBadge.className = h1Value === 'OFF' ? 'status-badge off' : 'status-badge on';
                 statusBadge.innerText = 'STATUS: ' + h1Value;
 
@@ -178,7 +178,7 @@
                 const dataRows = allRows.slice(1);
                 const table = document.getElementById('queue-table');
                 table.innerHTML = '';
-                
+
                 let activeRows = [];
                 let completedRows = [];
                 let activeCount = 0;
