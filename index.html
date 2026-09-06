@@ -8,7 +8,8 @@
         :root {
             --bg-color: #fff0f5;
             --bg-gradient: linear-gradient(135deg, #fff0f5 0%, #ffdbdb 100%);
-            --glass-bg: rgba(255, 255, 255, 0.45);
+            /* ลดค่า alpha ลง (จาก 0.90 เป็น 0.70) เพื่อให้รูปพื้นหลังทะลุชัดขึ้น */
+            --glass-bg: rgba(255, 255, 255, 0.70);
             --glass-border: rgba(255, 255, 255, 0.6);
             --primary-pink: #ffb7c5;
             --accent-pink: #ff91a4;
@@ -22,20 +23,29 @@
             --table-hover: rgba(255, 183, 197, 0.15);
         }
 
-        /* แก้ไขการคลุมดำข้อความเพื่อลดอาการกระตุกจาก OS Repaint */
         ::selection {
             background: var(--primary-pink);
             color: white;
         }
 
-        /* ย้าย Cursor มาไว้ที่ body เพื่อลดภาระของ Wildcard (*) */
         body { margin: 0; padding: 10px; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: var(--bg-color); background-image: var(--bg-gradient); min-height: 100vh; color: var(--text-main); display: flex; justify-content: center; align-items: flex-start; position: relative; overflow-x: hidden; cursor: url('cursor.png') 0 0, auto; }
         a, button, .admin-shortcut, .status-badge { cursor: url('cursor.png') 0 0, pointer; }
 
-        /* ลบ transition ออกเพื่อไม่ให้ตีกับ requestAnimationFrame ของ JS */
-        #parallax-bg { position: fixed; top: -5%; left: -5%; width: 110%; height: 110%; pointer-events: none; z-index: 0; background: radial-gradient(circle at 10% 10%, rgba(255, 255, 255, 0.2) 0%, transparent 50%); will-change: transform; }
+        /* คืนค่า will-change ให้ GPU จำรูปไว้ ไม่ต้องวาดใหม่ตอนขยับ */
+        #parallax-bg { 
+            position: fixed; 
+            top: -5%; left: -5%; 
+            width: 110%; height: 110%; 
+            pointer-events: none; 
+            z-index: 0; 
+            background-image: url('postcard.png'); 
+            background-size: cover; 
+            background-position: center;
+            opacity: 0.35; 
+            will-change: transform;
+        }
 
-        #sakura-container { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 1; }
+        #sakura-container { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 10; }
         
         .petal { position: absolute; top: -10%; background-color: var(--primary-pink); border-radius: 150% 0 150% 0; opacity: 0; animation: fall linear infinite; will-change: transform, opacity; }
         @keyframes fall { 
@@ -45,30 +55,40 @@
             100% { transform: translate3d(100px, 110vh, 0) rotate(360deg); opacity: 0; } 
         }
 
-        /* เพิ่ม will-change: transform ให้ GPU แยก Layer เพื่อลดการคำนวณเบลอใหม่เวลาลากเมาส์คลุมดำ */
-        .glass-card { width: 100%; max-width: 1100px; background: var(--glass-bg); backdrop-filter: blur(25px); -webkit-backdrop-filter: blur(25px); border: 1px solid var(--glass-border); border-radius: 30px; padding: 25px; box-shadow: 0 15px 35px rgba(255, 183, 197, 0.2); margin-top: 15px; position: relative; z-index: 2; box-sizing: border-box; will-change: transform; }
+        /* 🚀 ปิด backdrop-filter ทิ้ง อาการกระตุกจะหายไปทันที 100% */
+        .glass-card { 
+            width: 100%; max-width: 1100px; 
+            background: var(--glass-bg); 
+            border: 1px solid var(--glass-border); 
+            border-radius: 30px; padding: 25px; 
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05); 
+            margin-top: 15px; position: relative; z-index: 2; box-sizing: border-box; 
+        }
 
-        .admin-shortcut { width: 30px; height: 30px; background: rgba(255,255,255,0.6); border-radius: 50%; border: 1px solid white; display: flex; align-items: center; justify-content: center; font-size: 13px; transition: 0.3s; margin-bottom: 5px; margin-left: auto; }
+        .admin-shortcut { width: 30px; height: 30px; background: rgba(255,255,255,0.6); border-radius: 50%; border: 1px solid var(--primary-pink); display: flex; align-items: center; justify-content: center; font-size: 13px; transition: transform 0.2s ease, background-color 0.2s ease; margin-bottom: 5px; margin-left: auto; }
         .admin-shortcut:hover { transform: scale(1.1) rotate(15deg); background: white; }
 
         .header-section { display: grid; grid-template-columns: 1.2fr 1fr 0.8fr 0.6fr; gap: 15px; align-items: stretch; margin-bottom: 25px; }
-        .title-box { background: rgba(255, 255, 255, 0.7); padding: 15px; border-radius: 20px; border: 1px solid white; display: flex; flex-direction: column; justify-content: center; }
-        .contact-bubble { background: rgba(255, 255, 255, 0.5); backdrop-filter: blur(10px); border: 2px solid white; padding: 12px 15px; border-radius: 20px; font-size: 12px; line-height: 1.5; box-shadow: 0 8px 32px rgba(255, 255, 255, 0.1); display: flex; flex-direction: column; justify-content: center; }
+        
+        /* ปรับความใสให้กล่องข้อมูลด้านบน */
+        .title-box { background: rgba(255, 255, 255, 0.6); padding: 15px; border-radius: 20px; border: 1px solid white; display: flex; flex-direction: column; justify-content: center; }
+        .contact-bubble { background: rgba(255, 255, 255, 0.6); border: 2px solid white; padding: 12px 15px; border-radius: 20px; font-size: 12px; line-height: 1.5; display: flex; flex-direction: column; justify-content: center; }
 
         .button-group { display: flex; flex-direction: column; gap: 8px; justify-content: center; }
-        .tos-btn { background: white; color: var(--accent-pink); padding: 10px; border-radius: 50px; text-decoration: none; font-weight: bold; text-align: center; border: 2px solid var(--primary-pink); font-size: 13px; transition: 0.3s; }
+        .tos-btn { background: white; color: var(--accent-pink); padding: 10px; border-radius: 50px; text-decoration: none; font-weight: bold; text-align: center; border: 2px solid var(--primary-pink); font-size: 13px; transition: background-color 0.2s ease, color 0.2s ease; }
         .tos-btn:hover { background: var(--primary-pink); color: white; }
-        .join-btn { background: var(--soft-green); color: white; padding: 10px; border-radius: 50px; text-decoration: none; font-weight: bold; text-align: center; border: 2px solid white; font-size: 13px; box-shadow: 0 4px 12px rgba(196, 225, 127, 0.3); transition: 0.3s; }
+        .join-btn { background: var(--soft-green); color: white; padding: 10px; border-radius: 50px; text-decoration: none; font-weight: bold; text-align: center; border: 2px solid white; font-size: 13px; box-shadow: 0 4px 12px rgba(196, 225, 127, 0.3); transition: transform 0.2s ease; }
+        .join-btn:hover { transform: translateY(-2px); }
 
         .status-container { display: flex; flex-direction: column; align-items: center; justify-content: center; }
-        .status-badge { padding: 6px 15px; border-radius: 50px; font-weight: bold; color: white; border: 2px solid white; text-align: center; font-size: 13px; min-width: 100px; transition: 0.3s; }
+        .status-badge { padding: 6px 15px; border-radius: 50px; font-weight: bold; color: white; border: 2px solid white; text-align: center; font-size: 13px; min-width: 100px; transition: background-color 0.3s; }
         .status-badge.on { background: #81c784; }
         .status-badge.off { background: var(--status-off); }
 
         .active-label { font-weight: bold; font-size: 13px; background: white; padding: 5px 12px; border-radius: 50px; margin-top: 8px; text-align: center; width: fit-content; }
         .update-time { font-size: 9px; opacity: 0.5; margin-top: 4px; text-align: center; }
 
-        .announcement-bar { background: white; border-radius: 50px; padding: 8px 20px; margin-bottom: 20px; display: flex; align-items: center; border: 1px solid rgba(255,255,255,0.8); overflow: hidden; transform: translateZ(0); }
+        .announcement-bar { background: rgba(255, 255, 255, 0.85); border-radius: 50px; padding: 8px 20px; margin-bottom: 20px; display: flex; align-items: center; border: 1px solid rgba(255,255,255,0.8); overflow: hidden; transform: translateZ(0); }
         .announcement-icon { font-size: 18px; margin-right: 12px; flex-shrink: 0; }
         .marquee-container { flex-grow: 1; overflow: hidden; white-space: nowrap; }
         
@@ -78,12 +98,14 @@
             100% { transform: translate3d(-100%, 0, 0); } 
         }
 
-        .table-container { background: rgba(255, 255, 255, 0.25); border-radius: 20px; padding: 10px; overflow-x: auto; -webkit-overflow-scrolling: touch; }
+        /* ปรับลด opacity ของพื้นหลังตารางให้โปร่งแสงมากขึ้น */
+        .table-container { background: rgba(255, 255, 255, 0.35); border-radius: 20px; padding: 10px; overflow-x: auto; -webkit-overflow-scrolling: touch; border: 1px solid rgba(255,255,255,0.5); }
         table { width: 100%; border-collapse: collapse; min-width: 800px; }
-        th { padding: 12px; color: #8d6e63; font-weight: bold; border-bottom: 2px solid rgba(255,255,255,0.4); font-size: 13px; text-align: center; }
-        td { padding: 12px; text-align: center; border-bottom: 1px solid rgba(255,255,255,0.2); font-size: 12px; transition: background 0.3s; }
-        tr:not(.category-header):hover td { background: var(--table-hover); }
-        .category-header td { padding: 10px; font-size: 14px; background: rgba(255, 183, 197, 0.3); color: var(--accent-pink); font-weight: bold; }
+        th { padding: 12px; color: #8d6e63; font-weight: bold; border-bottom: 2px solid rgba(255,255,255,0.6); font-size: 13px; text-align: center; }
+        
+        td { padding: 12px; text-align: center; border-bottom: 1px solid rgba(255,255,255,0.3); font-size: 12px; transition: background-color 0.1s ease-out; }
+        tr:not(.category-header):hover td { background-color: var(--table-hover); }
+        .category-header td { padding: 10px; font-size: 14px; background: rgba(255, 183, 197, 0.2); color: var(--accent-pink); font-weight: bold; }
 
         .bubble { padding: 5px 12px; border-radius: 50px; font-size: 11px; font-weight: bold; display: inline-block; min-width: 80px; }
         .bg-pending { background: var(--status-pending-bg); color: var(--status-pending-text); }
@@ -112,7 +134,7 @@
 
             <div class="contact-bubble">
                 <b>Contact:</b>
-                <span>สนใจจ้างงานหรือสอบถามรายละเอียดเพิ่มเติม ติดต่อ Facebook: นุเนะ แมวเม่น</span>
+                <span>สนใจจ้างงานหรือสอบถามรายละเอียดเพิ่มเติม ติดต่อ <p> Facebook: นุเนะ แมวเม่น</p> </span>
             </div>
 
             <div class="button-group">
@@ -164,7 +186,6 @@
         document.addEventListener('mousemove', (e) => {
             if (!isTicking) {
                 window.requestAnimationFrame(() => {
-                    // ใช้ตัวคูณลดลงเล็กน้อยเพื่อไม่ให้ภาพเหวี่ยงแรงเกินไป
                     const x = (e.clientX / window.innerWidth) * 20;
                     const y = (e.clientY / window.innerHeight) * 20;
                     parallaxBg.style.transform = `translate3d(${x}px, ${y}px, 0)`;
@@ -256,7 +277,7 @@
         function createPetals() {
             const container = document.getElementById('sakura-container');
             const fragment = document.createDocumentFragment();
-            for(let i=0; i<20; i++){
+            for(let i=0; i<10; i++){
                 const petal = document.createElement('div');
                 petal.className = 'petal';
                 petal.style.left = Math.random() * 100 + 'vw';
