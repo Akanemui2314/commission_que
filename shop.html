@@ -1,0 +1,429 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Adoptable Shop - Akanezz2314</title>
+    <style>
+        :root {
+            --bg-color: #fff0f5;
+            --bg-gradient: linear-gradient(135deg, #fff0f5 0%, #ffdbdb 100%);
+            --glass-bg: rgba(255, 255, 255, 0.85);
+            --glass-border: rgba(255, 255, 255, 0.6);
+            --primary-pink: #ffb7c5;
+            --accent-pink: #ff91a4;
+            --text-main: #5a4a42;
+            
+            --badge-avail: #ff91a4;
+            --badge-sold: #757575;
+            --badge-custom: #aed581;
+        }
+
+        ::selection { background: var(--primary-pink); color: white; }
+
+        body { 
+            margin: 0; padding: 20px; 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+            background: var(--bg-color); background-image: var(--bg-gradient); 
+            min-height: 100vh; color: var(--text-main); 
+            cursor: url('cursor.png') 0 0, auto; 
+            display: flex; justify-content: center; align-items: flex-start;
+            position: relative; overflow-x: hidden;
+        }
+        
+        a, button, span { cursor: url('cursor.png') 0 0, pointer; text-decoration: none; color: inherit; }
+
+        /* 🌸 รูปพื้นหลัง (Parallax Background) */
+        #parallax-bg { 
+            position: fixed; 
+            top: -5%; left: -5%; 
+            width: 110%; height: 110%; 
+            pointer-events: none; 
+            z-index: 0; 
+            background-image: url('postcard.png'); 
+            background-size: cover; 
+            background-position: center;
+            opacity: 0.35; 
+            will-change: transform;
+        }
+
+        .layout-container { 
+            display: grid; grid-template-columns: 280px 1fr; gap: 30px; 
+            max-width: 1200px; width: 100%; margin: 0 auto; align-items: start; 
+            position: relative; z-index: 2;
+        }
+
+        .profile-sidebar {
+            background: var(--glass-bg); border: 1px solid var(--glass-border); border-radius: 20px;
+            padding: 30px 20px; text-align: center; position: sticky; top: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+        }
+        .avatar { width: 120px; height: 120px; border-radius: 50%; border: 4px solid white; object-fit: cover; background: white; margin-bottom: 15px; box-shadow: 0 5px 15px rgba(255, 145, 164, 0.2); }
+        .profile-name { font-size: 22px; margin: 0; color: var(--accent-pink); font-weight: bold; }
+        .profile-handle { font-size: 13px; color: #888; margin-top: 5px; margin-bottom: 20px; }
+        
+        .btn-nav { display: block; background: white; color: var(--text-main); padding: 10px; border-radius: 50px; font-weight: bold; font-size: 14px; margin-bottom: 10px; border: 1px solid var(--glass-border); transition: 0.2s; }
+        .btn-nav:hover { background: var(--primary-pink); color: white; }
+        
+        .social-links { text-align: left; margin-top: 30px; font-size: 13px; line-height: 2; }
+        .social-links a { display: block; color: var(--accent-pink); font-weight: bold; }
+
+        .top-bar { 
+            display: flex; justify-content: flex-start; align-items: center; 
+            margin-bottom: 20px; padding: 10px 25px; 
+            background: var(--glass-bg); border-radius: 50px; border: 1px solid var(--glass-border); 
+            box-shadow: 0 5px 15px rgba(0,0,0,0.02);
+        }
+        .nav-tabs { display: flex; gap: 25px; font-weight: bold; font-size: 15px; overflow-x: auto; white-space: nowrap; }
+        .nav-tabs span { color: #aaa; transition: 0.2s; padding: 5px 0; }
+        .nav-tabs .active { color: var(--text-main); border-bottom: 2px solid var(--accent-pink); }
+        .nav-tabs span:hover:not(.active) { color: var(--accent-pink); }
+        
+        .gallery-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 25px; }
+        #empty-state { grid-column: 1 / -1; text-align: center; padding: 40px; color: #888; font-size: 15px; }
+
+        .card { background: rgba(255, 255, 255, 0.85); border-radius: 18px; border: 1px solid var(--glass-border); overflow: hidden; box-shadow: 0 5px 15px rgba(0,0,0,0.05); transition: 0.2s; position: relative; cursor: pointer; }
+        .card:hover { transform: translateY(-5px); box-shadow: 0 8px 25px rgba(255,145,164,0.3); border-color: var(--primary-pink); }
+        
+        .card-img-wrapper { position: relative; aspect-ratio: 1/1; overflow: hidden; background: #fff; }
+        .card-img-wrapper img { width: 100%; height: 100%; object-fit: cover; transition: 0.3s; }
+        .card:hover .card-img-wrapper img { transform: scale(1.05); }
+
+        .badge { display: inline-block; padding: 5px 14px; border-radius: 50px; font-size: 12px; font-weight: bold; color: white; backdrop-filter: blur(4px); }
+        .card-img-wrapper .badge { position: absolute; top: 12px; left: 12px; z-index: 2; }
+        .badge.avail { background: rgba(255, 145, 164, 0.95); }
+        .badge.sold { background: rgba(117, 117, 117, 0.95); }
+        .badge.custom { background: rgba(174, 213, 129, 0.95); }
+
+        .card-info { padding: 18px; text-align: center; }
+        .card-title { font-size: 15px; margin: 0; font-weight: 600; color: #444; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+        /* Modal Popup */
+        .modal-overlay {
+            position: fixed; inset: 0; background: rgba(0, 0, 0, 0.45); backdrop-filter: blur(6px);
+            display: none; justify-content: center; align-items: center; z-index: 100; padding: 25px;
+        }
+        .modal-container {
+            background: #ffffff; width: 100%; max-width: 1200px; border-radius: 28px;
+            display: grid; grid-template-columns: 1.3fr 1fr; overflow: hidden; 
+            box-shadow: 0 30px 70px rgba(90, 74, 66, 0.2);
+            position: relative; animation: modalScale 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        @keyframes modalScale {
+            from { transform: scale(0.96); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
+        }
+        .modal-close {
+            position: absolute; top: 20px; right: 20px; background: #f2f2f2; color: #666;
+            width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center;
+            font-size: 15px; font-weight: bold; cursor: pointer; z-index: 10; border: none; transition: 0.2s;
+        }
+        .modal-close:hover { background: var(--accent-pink); color: white; }
+
+        .modal-img-area { 
+            background: #faf7f8; display: flex; align-items: center; justify-content: center; 
+            padding: 0; border-right: 1px solid #f0e6e8; min-height: 550px; max-height: 85vh; overflow: hidden; 
+            position: relative;
+        }
+        .modal-img-area img { 
+            width: 100%; height: 100%; object-fit: cover; display: block;
+            cursor: zoom-in; transition: transform 0.3s ease; 
+        }
+
+        .modal-nav-btn {
+            position: absolute; top: 50%; transform: translateY(-50%);
+            background: rgba(255, 255, 255, 0.85); color: var(--text-main);
+            width: 42px; height: 42px; border-radius: 50%; border: none;
+            display: flex; align-items: center; justify-content: center; font-size: 18px; font-weight: bold;
+            cursor: pointer; z-index: 10; transition: 0.2s; box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+        }
+        .modal-nav-btn:hover { background: var(--accent-pink); color: white; }
+        .modal-prev { left: 15px; }
+        .modal-next { right: 15px; }
+
+        .lightbox-overlay {
+            position: fixed; inset: 0; background: rgba(0, 0, 0, 0.85); backdrop-filter: blur(10px);
+            display: none; justify-content: center; align-items: center; z-index: 200; padding: 20px; cursor: zoom-out;
+        }
+        .lightbox-overlay img {
+            max-width: 95vw; max-height: 95vh; object-fit: contain; border-radius: 8px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.5);
+        }
+
+        .modal-details { 
+            padding: 45px 40px; display: flex; flex-direction: column; justify-content: flex-start; 
+            max-height: 85vh; overflow-y: auto; text-align: left;
+        }
+        
+        .modal-artist { display: flex; align-items: center; gap: 10px; font-size: 13px; color: #888; margin-bottom: 15px; font-weight: 500; }
+        .modal-artist img { width: 24px; height: 24px; border-radius: 50%; object-fit: cover; }
+        
+        .modal-title { font-size: 26px; font-weight: 700; color: var(--text-main); margin: 8px 0 20px 0; line-height: 1.3; }
+        
+        .modal-price-box { background: #fff5f7; padding: 16px 20px; border-radius: 16px; border: 1px solid #ffe0e6; margin-bottom: 16px; }
+        .modal-price-row { display: flex; justify-content: space-between; align-items: center; font-size: 14px; margin-bottom: 8px; color: #776b65; }
+        .modal-price-row:last-child { margin-bottom: 0; }
+        .modal-price-row b { color: var(--accent-pink); font-size: 16px; }
+
+        .modal-other-box { background: #faf9f9; padding: 14px 20px; border-radius: 16px; border: 1px solid #eee; margin-bottom: 25px; font-size: 14px; color: #665c56; line-height: 1.6; word-break: break-word; }
+        .modal-other-box strong { display: block; color: var(--text-main); margin-bottom: 4px; font-size: 12px; text-transform: uppercase; letter-spacing: 0.5px; }
+
+        .modal-btn { display: block; background: var(--accent-pink); color: white; padding: 14px 24px; border-radius: 50px; font-size: 14px; font-weight: bold; text-align: center; transition: 0.2s; box-shadow: 0 4px 15px rgba(255,145,164,0.3); margin-top: auto; }
+        .modal-btn:hover { background: #ff7990; transform: translateY(-1px); }
+
+        @media (max-width: 900px) {
+            .layout-container { grid-template-columns: 1fr; }
+            .profile-sidebar { position: relative; top: 0; }
+            .modal-container { grid-template-columns: 1fr; max-height: 90vh; }
+            .modal-img-area { min-height: 300px; max-height: 50vh; border-right: none; border-bottom: 1px solid #f0e6e8; }
+            .modal-details { padding: 30px 25px; max-height: none; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- 🌸 ฉากหลังภาพ postcard.png กลับมาแล้ว -->
+    <div id="parallax-bg"></div>
+
+    <div class="layout-container">
+        <!-- Sidebar Profile -->
+        <aside class="profile-sidebar">
+            <a href="admin-shop.html" target="_blank" rel="noopener"><img src="icon.png" alt="Profile" class="avatar" title="Admin Dashboard"></a>
+            <h1 class="profile-name">Akanezz2314</h1>
+            <p class="profile-handle">@AKANEzz2314</p>
+            
+            <a href="index.html" class="btn-nav">Back to Queue</a>
+
+            <div class="social-links">
+                <p>Hewwo! I'm Akane, happy to see you here.<br>If you have anything please contact me!</p>
+                <b>About me</b>
+                <a href="https://akanezz2314.carrd.co" target="_blank">Akane_Carrd</a>
+                <a href="https://www.facebook.com/akanemui2314" target="_blank">Facebook</a>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main>
+            <div class="top-bar">
+                <div class="nav-tabs">
+                    <span class="filter-tab active" onclick="filterGallery('ALL')">All</span>
+                    <span class="filter-tab" onclick="filterGallery('AVAILABLE')">Available</span>
+                    <span class="filter-tab" onclick="filterGallery('CUSTOM')">Custom</span>
+                    <span class="filter-tab" onclick="filterGallery('SOLD')">Sold</span>
+                </div>
+            </div>
+
+            <!-- Showcase Grid -->
+            <div class="gallery-grid" id="shop-gallery">
+                <div id="empty-state">Loading data...</div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Modal Popup -->
+    <div id="product-modal" class="modal-overlay" onclick="closeModal(event)">
+        <div class="modal-container" onclick="event.stopPropagation()">
+            <button class="modal-close" onclick="closeModalDirect()">✕</button>
+            <div class="modal-img-area">
+                <button class="modal-nav-btn modal-prev" onclick="changeSlide(-1)">&#10094;</button>
+                <img id="modal-img" src="" alt="Adoptable Art" onclick="openLightbox(this.src)" title="คลิกเพื่อขยายภาพใหญ่">
+                <button class="modal-nav-btn modal-next" onclick="changeSlide(1)">&#10095;</button>
+            </div>
+            <div class="modal-details">
+                <div class="modal-artist">
+                    <img src="icon.png" alt="Avatar">
+                    <span>Akanezz2314 @AKANEzz2314</span>
+                </div>
+                <div id="modal-badge-container"></div>
+                <h2 id="modal-title" class="modal-title">Title</h2>
+                <div id="modal-price-box" class="modal-price-box"></div>
+                <div id="modal-other-box" class="modal-other-box" style="display: none;"></div>
+                <div id="modal-btn-container"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Lightbox สำหรับแสดงภาพขยายเต็มจอ -->
+    <div id="lightbox" class="lightbox-overlay" onclick="closeLightbox()">
+        <img id="lightbox-img" src="" alt="Zoomed Art">
+    </div>
+
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+
+    <script>
+        const firebaseConfig = {
+            apiKey: "AIzaSyCGuowjScRtT3Xi451MIy_cfDRoFxwFIkg",
+            authDomain: "akane-adoptshop.firebaseapp.com",
+            projectId: "akane-adoptshop",
+            storageBucket: "akane-adoptshop.firebasestorage.app",
+            messagingSenderId: "431915875227",
+            appId: "1:431915875227:web:80ed5ed2788b88f56abf3e"
+        };
+        
+        if (!firebase.apps.length) { firebase.initializeApp(firebaseConfig); }
+        const db = firebase.firestore();
+
+        let allAdoptables = [];
+        let currentActiveList = []; 
+        let currentIndex = 0;       
+        let currentFilterType = 'ALL';
+
+        // 🌸 เอฟเฟกต์ขยับพื้นหลัง Parallax ตามเมาส์
+        let isTicking = false;
+        const parallaxBg = document.getElementById('parallax-bg');
+        
+        document.addEventListener('mousemove', (e) => {
+            if (!isTicking) {
+                window.requestAnimationFrame(() => {
+                    const x = (e.clientX / window.innerWidth) * 20;
+                    const y = (e.clientY / window.innerHeight) * 20;
+                    parallaxBg.style.transform = `translate3d(${x}px, ${y}px, 0)`;
+                    isTicking = false;
+                });
+                isTicking = true;
+            }
+        });
+
+        async function loadShopData() {
+            const gallery = document.getElementById('shop-gallery');
+            try {
+                const snapshot = await db.collection("adoptables").orderBy("order", "desc").get();
+                if (snapshot.empty) {
+                    gallery.innerHTML = '<div id="empty-state">Coming soon...</div>';
+                    return;
+                }
+                allAdoptables = [];
+                snapshot.forEach((doc) => { allAdoptables.push(doc.data()); });
+                renderGallery('ALL');
+            } catch (error) {
+                console.error(error);
+                gallery.innerHTML = '<div id="empty-state">Error loading data, please refresh.</div>';
+            }
+        }
+
+        function filterGallery(type) {
+            document.querySelectorAll('.filter-tab').forEach(tab => {
+                tab.classList.remove('active');
+                if (tab.getAttribute('onclick').includes(type)) { tab.classList.add('active'); }
+            });
+            renderGallery(type);
+        }
+
+        function renderGallery(filterType) {
+            currentFilterType = filterType;
+            const gallery = document.getElementById('shop-gallery');
+            gallery.innerHTML = '';
+
+            currentActiveList = filterType === 'ALL' 
+                ? allAdoptables 
+                : allAdoptables.filter(item => item.status === filterType);
+
+            if (currentActiveList.length === 0) {
+                gallery.innerHTML = '<div id="empty-state">Coming soon...</div>';
+                return;
+            }
+            
+            currentActiveList.forEach((data, index) => {
+                let badgeClass = 'avail';
+                let badgeText = 'Available';
+
+                if (data.status === 'SOLD') {
+                    badgeClass = 'sold'; badgeText = 'SOLD';
+                } else if (data.status === 'CUSTOM') {
+                    badgeClass = 'custom'; badgeText = 'Custom';
+                }
+
+                gallery.innerHTML += `
+                    <div class="card" onclick="openModal(${index})">
+                        <div class="card-img-wrapper">
+                            <div class="badge ${badgeClass}">${badgeText}</div>
+                            <img src="${data.imageUrl}" alt="${data.title}">
+                        </div>
+                        <div class="card-info">
+                            <h3 class="card-title">${data.title}</h3>
+                        </div>
+                    </div>
+                `;
+            });
+        }
+
+        function openModal(index) {
+            currentIndex = index;
+            updateModalContent();
+            document.getElementById('product-modal').style.display = 'flex';
+        }
+
+        function updateModalContent() {
+            const data = currentActiveList[currentIndex];
+            if (!data) return;
+
+            document.getElementById('modal-img').src = data.imageUrl;
+            document.getElementById('modal-title').innerText = data.title;
+
+            let badgeClass = 'avail'; let badgeText = 'Available';
+            if (data.status === 'SOLD') { badgeClass = 'sold'; badgeText = 'SOLD'; }
+            else if (data.status === 'CUSTOM') { badgeClass = 'custom'; badgeText = 'Custom'; }
+            document.getElementById('modal-badge-container').innerHTML = `<div class="badge ${badgeClass}">${badgeText}</div>`;
+
+            let priceHTML = '';
+            if (data.priceData) {
+                if (data.priceData.type === 'AUCTION') {
+                    priceHTML = `
+                        <div class="modal-price-row"><span>SB:</span> <b>${data.priceData.sb} THB</b></div>
+                        <div class="modal-price-row"><span>Min:</span> <b>${data.priceData.min} THB</b></div>
+                        <div class="modal-price-row"><span>AB:</span> <b>${data.priceData.ab} THB</b></div>
+                    `;
+                } else if (data.priceData.type === 'SET_PRICE') {
+                    if(data.priceData.sp1) priceHTML += `<div class="modal-price-row"><span>SP1:</span> <b>${data.priceData.sp1} THB</b></div>`;
+                    if(data.priceData.sp2) priceHTML += `<div class="modal-price-row"><span>SP2:</span> <b>${data.priceData.sp2} THB</b></div>`;
+                    if(data.priceData.sp3) priceHTML += `<div class="modal-price-row"><span>SP3:</span> <b>${data.priceData.sp3} THB</b></div>`;
+                } else if (data.priceData.type === 'CUSTOM') {
+                    priceHTML = `<div class="modal-price-row"><span>Price:</span> <b>${data.priceData.customPrice} THB</b></div>`;
+                }
+            } else if (data.price) {
+                priceHTML = `<div class="modal-price-row"><span>Price:</span> <b>${data.price} THB</b></div>`;
+            }
+            document.getElementById('modal-price-box').innerHTML = priceHTML;
+
+            const otherBox = document.getElementById('modal-other-box');
+            if (data.otherDetails && data.otherDetails.trim() !== '') {
+                otherBox.innerHTML = `<strong>Other Details</strong>${data.otherDetails}`;
+                otherBox.style.display = 'block';
+            } else {
+                otherBox.style.display = 'none';
+            }
+
+            let btnHTML = '';
+            if(data.platform && data.platform.trim() !== '') {
+                btnHTML = `<a href="${data.platform}" target="_blank" class="modal-btn">Visit Auction</a>`;
+            }
+            document.getElementById('modal-btn-container').innerHTML = btnHTML;
+        }
+
+        function changeSlide(direction) {
+            currentIndex += direction;
+            if (currentIndex < 0) {
+                currentIndex = currentActiveList.length - 1; 
+            } else if (currentIndex >= currentActiveList.length) {
+                currentIndex = 0; 
+            }
+            updateModalContent();
+        }
+
+        function closeModal(event) { document.getElementById('product-modal').style.display = 'none'; }
+        function closeModalDirect() { document.getElementById('product-modal').style.display = 'none'; }
+
+        function openLightbox(imgSrc) {
+            document.getElementById('lightbox-img').src = imgSrc;
+            document.getElementById('lightbox').style.display = 'flex';
+        }
+        function closeLightbox() {
+            document.getElementById('lightbox').style.display = 'none';
+        }
+
+        loadShopData();
+    </script>
+</body>
+</html>

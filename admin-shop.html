@@ -1,0 +1,472 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shop Admin Dashboard</title>
+    <!-- นำเข้า SortableJS สำหรับลากวางจัดลำดับ -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.15.0/Sortable.min.js"></script>
+    <style>
+        :root {
+            --bg-color: #fff0f5;
+            --primary-pink: #ffb7c5;
+            --accent-pink: #ff91a4;
+            --text-main: #5a4a42;
+            --glass-bg: rgba(255, 255, 255, 0.85);
+            --danger: #ff5252;
+        }
+
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: var(--bg-color); padding: 20px; color: var(--text-main); margin: 0; }
+        .dashboard-container { max-width: 1000px; margin: 0 auto; display: flex; flex-direction: column; gap: 30px; }
+
+        .dashboard-header { display: flex; justify-content: space-between; align-items: center; background: var(--glass-bg); padding: 15px 30px; border-radius: 20px; box-shadow: 0 5px 15px rgba(0,0,0,0.03); }
+        .dashboard-header h1 { margin: 0; font-size: 20px; color: var(--accent-pink); }
+        .btn-visit-shop { background: linear-gradient(135deg, #ff91a4 0%, #ffb7c5 100%); color: white; padding: 8px 20px; border-radius: 50px; font-weight: bold; font-size: 14px; text-decoration: none; box-shadow: 0 4px 10px rgba(255,145,164,0.3); transition: 0.2s; display: inline-flex; align-items: center; gap: 8px; }
+        .btn-visit-shop:hover { transform: translateY(-2px); }
+
+        .upload-section { background: var(--glass-bg); padding: 30px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.05); display: grid; grid-template-columns: 1fr 1fr; gap: 30px; align-items: start; }
+        
+        .image-upload-area { background: #f9f9f9; border: 2px dashed #ccc; border-radius: 15px; height: 100%; min-height: 400px; display: flex; align-items: center; justify-content: center; cursor: pointer; position: relative; overflow: hidden; transition: 0.3s; }
+        .image-upload-area:hover { border-color: var(--accent-pink); background: #fff0f5; }
+        .upload-placeholder { color: #888; font-weight: bold; text-align: center; }
+        #preview-img { width: 100%; height: 100%; object-fit: contain; display: none; position: absolute; top: 0; left: 0; background: white; }
+
+        h2 { margin-top: 0; color: var(--accent-pink); }
+        .form-group { margin-bottom: 15px; }
+        label { display: block; font-weight: bold; font-size: 13px; margin-bottom: 5px; color: #777; }
+        input, select, textarea { width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 10px; box-sizing: border-box; font-family: inherit; font-size: 14px; background: white; }
+        input:focus, select:focus, textarea:focus { outline: none; border-color: var(--accent-pink); }
+        
+        .price-section { background: #fff0f5; padding: 15px; border-radius: 10px; border: 1px solid #ffe4e8; margin-bottom: 15px; }
+        .price-section .form-group:last-child { margin-bottom: 0; }
+
+        .btn-group { display: flex; gap: 10px; margin-top: 20px; }
+        button { flex: 1; padding: 12px; border-radius: 50px; font-weight: bold; cursor: pointer; font-size: 15px; border: none; transition: 0.2s; }
+        .btn-confirm { background: var(--accent-pink); color: white; }
+        .btn-confirm:hover { background: #ff7990; }
+        .btn-cancel { background: #eee; color: #555; }
+        .btn-cancel:hover { background: #ddd; }
+
+        #status-msg { margin-top: 15px; font-weight: bold; text-align: center; font-size: 14px; grid-column: 1 / -1; }
+
+        .manage-section { background: var(--glass-bg); padding: 30px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.05); }
+        .manage-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+        .manage-header p { margin: 0; font-size: 13px; color: #888; }
+        
+        .manage-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 15px; margin-top: 15px; }
+        
+        /* สไตล์การ์ดตอนลาก */
+        .manage-card { background: white; border-radius: 15px; overflow: hidden; position: relative; border: 1px solid #eee; cursor: grab; transition: box-shadow 0.2s; }
+        .manage-card:active { cursor: grabbing; }
+        .sortable-ghost { opacity: 0.4; background: #ffd1dc; }
+
+        .manage-card img { width: 100%; aspect-ratio: 1/1; object-fit: cover; display: block; pointer-events: none; }
+        .manage-info { padding: 10px; font-size: 12px; }
+        .manage-info h4 { margin: 0 0 5px 0; font-size: 13px; color: #333; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        
+        .card-actions { display: flex; gap: 5px; padding: 0 10px 10px 10px; }
+        .btn-action { flex: 1; padding: 6px; border-radius: 8px; font-size: 12px; font-weight: bold; border: none; cursor: pointer; color: white; transition: 0.2s; }
+        .btn-edit-card { background: #60a5fa; }
+        .btn-edit-card:hover { background: #3b82f6; }
+        .btn-delete-card { background: var(--danger); }
+        .btn-delete-card:hover { background: #ef4444; }
+
+        @media (max-width: 768px) {
+            .upload-section { grid-template-columns: 1fr; }
+            .image-upload-area { height: 300px; min-height: auto; }
+            .dashboard-header { flex-direction: column; gap: 10px; text-align: center; }
+        }
+    </style>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+</head>
+<body>
+
+    <div class="dashboard-container">
+        
+        <div class="dashboard-header">
+            <h1>Shop Admin Dashboard</h1>
+            <a href="shop.html" target="_blank" class="btn-visit-shop">Open Shop (New Tab)</a>
+        </div>
+
+        <div class="upload-section">
+            <div class="image-upload-area" onclick="document.getElementById('imageFile').click()">
+                <div class="upload-placeholder" id="upload-placeholder">
+                    <br>Click to Upload Image
+                </div>
+                <img id="preview-img" alt="Preview">
+                <input type="file" id="imageFile" accept="image/*" style="display:none" onchange="handleImageUpload(event)">
+            </div>
+
+            <div class="form-area">
+                <h2 id="form-heading" style="margin-top:0; color:var(--accent-pink);">Upload Adoptable</h2>
+                <input type="hidden" id="edit-doc-id">
+                
+                <div class="form-group">
+                    <label>Title</label>
+                    <input type="text" id="title" placeholder="เช่น ADOPTABLE #96: Purple Queen">
+                </div>
+                
+                <div class="form-group">
+                    <label>Status</label>
+                    <select id="status" onchange="handleStatusChange()">
+                        <option value="AVAILABLE">Available</option>
+                        <option value="CUSTOM">Custom</option>
+                        <option value="SOLD">SOLD</option>
+                    </select>
+                </div>
+
+                <div id="pricing-group-wrapper">
+                    <div class="form-group">
+                        <label>Pricing Type</label>
+                        <select id="pricing-type" onchange="togglePriceFields()">
+                            <option value="AUCTION">Auction</option>
+                            <option value="SET_PRICE">Set Price</option>
+                        </select>
+                    </div>
+
+                    <div id="auction-fields" class="price-section">
+                        <div class="form-group">
+                            <label>SB (Start Bidding)</label>
+                            <input type="text" id="price-sb" placeholder="เช่น 500">
+                        </div>
+                        <div class="form-group">
+                            <label>Min (Minimum add)</label>
+                            <input type="text" id="price-min" placeholder="เช่น 50">
+                        </div>
+                        <div class="form-group">
+                            <label>AB (Auto Buy)</label>
+                            <input type="text" id="price-ab" placeholder="ราคาสุดท้าย (เว้นว่างได้ถ้าไม่มี)">
+                        </div>
+                    </div>
+
+                    <div id="setprice-fields" class="price-section" style="display:none;">
+                        <div class="form-group">
+                            <label>SP1</label>
+                            <input type="text" id="price-sp1" placeholder="เช่น 1000">
+                        </div>
+                        <div class="form-group">
+                            <label>SP2</label>
+                            <input type="text" id="price-sp2" placeholder="(เว้นว่างได้)">
+                        </div>
+                        <div class="form-group">
+                            <label>SP3</label>
+                            <input type="text" id="price-sp3" placeholder="(เว้นว่างได้)">
+                        </div>
+                    </div>
+                </div>
+
+                <div id="custom-price-section" class="price-section" style="display:none;">
+                    <div class="form-group">
+                        <label>Price THB</label>
+                        <input type="text" id="price-custom" placeholder="เช่น 800 หรือ 500+">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Other Details / Notes (อื่นๆ)</label>
+                    <textarea id="other-details" rows="3" placeholder="เช่น ของแถม, เงื่อนไขเพิ่มเติม, รายละเอียดอื่นๆ (เว้นว่างได้)"></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label>Platform Link</label>
+                    <input type="text" id="platform" placeholder="เช่น https://www.facebook.com/... (เว้นว่างได้)">
+                </div>
+
+                <div class="btn-group">
+                    <button onclick="uploadData()" class="btn-confirm" id="btn-submit-text">Confirm</button>
+                    <button onclick="cancelUpload()" class="btn-cancel">Cancel</button>
+                </div>
+            </div>
+            
+            <div id="status-msg"></div>
+        </div>
+
+        <div class="manage-section">
+            <div class="manage-header">
+                <h2>Manage Portfolio</h2>
+                <p>💡 สามารถคลิกเมาส์ค้างแล้วลากการ์ดเพื่อสลับตำแหน่งจัดลำดับได้เลย</p>
+            </div>
+            <div id="manage-grid" class="manage-grid">
+                <p>Loading data...</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const firebaseConfig = {
+            apiKey: "AIzaSyCGuowjScRtT3Xi451MIy_cfDRoFxwFIkg",
+            authDomain: "akane-adoptshop.firebaseapp.com",
+            projectId: "akane-adoptshop",
+            storageBucket: "akane-adoptshop.firebasestorage.app",
+            messagingSenderId: "431915875227",
+            appId: "1:431915875227:web:80ed5ed2788b88f56abf3e"
+        };
+        if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+
+        const ADMIN_PW = '2314';
+        if(prompt('Admin Password:') !== ADMIN_PW) { document.body.innerHTML = '<h2 style="text-align:center; margin-top:50px;">Access Denied</h2>'; }
+
+        let currentImageBase64 = '';
+        let allAdoptablesCache = [];
+
+        function handleImageUpload(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const img = new Image();
+                img.onload = function() {
+                    const canvas = document.createElement('canvas');
+                    const MAX_SIZE = 1600; 
+                    let width = img.width, height = img.height;
+                    
+                    if (width > MAX_SIZE || height > MAX_SIZE) {
+                        if (width > height) { height *= MAX_SIZE / width; width = MAX_SIZE; }
+                        else { width *= MAX_SIZE / height; height = MAX_SIZE; }
+                    }
+                    canvas.width = width; canvas.height = height;
+                    const ctx = canvas.getContext('2d');
+                    ctx.drawImage(img, 0, 0, width, height);
+                    
+                    currentImageBase64 = canvas.toDataURL('image/webp', 0.9); 
+                    
+                    document.getElementById('preview-img').src = currentImageBase64;
+                    document.getElementById('preview-img').style.display = 'block';
+                    document.getElementById('upload-placeholder').style.display = 'none';
+                };
+                img.src = e.target.result;
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function handleStatusChange() {
+            const status = document.getElementById('status').value;
+            const pricingGroupWrapper = document.getElementById('pricing-group-wrapper');
+            const customPriceSection = document.getElementById('custom-price-section');
+
+            if (status === 'CUSTOM') {
+                pricingGroupWrapper.style.display = 'none';
+                customPriceSection.style.display = 'block';
+            } else {
+                pricingGroupWrapper.style.display = 'block';
+                customPriceSection.style.display = 'none';
+            }
+        }
+
+        function togglePriceFields() {
+            const type = document.getElementById('pricing-type').value;
+            if (type === 'AUCTION') {
+                document.getElementById('auction-fields').style.display = 'block';
+                document.getElementById('setprice-fields').style.display = 'none';
+            } else {
+                document.getElementById('auction-fields').style.display = 'none';
+                document.getElementById('setprice-fields').style.display = 'block';
+            }
+        }
+
+        function cancelUpload() {
+            document.getElementById('edit-doc-id').value = '';
+            document.getElementById('imageFile').value = '';
+            currentImageBase64 = '';
+            document.getElementById('title').value = '';
+            document.getElementById('status').value = 'AVAILABLE';
+            handleStatusChange();
+            document.getElementById('pricing-type').value = 'AUCTION';
+            togglePriceFields();
+            document.getElementById('price-sb').value = '';
+            document.getElementById('price-min').value = '';
+            document.getElementById('price-ab').value = '';
+            document.getElementById('price-sp1').value = '';
+            document.getElementById('price-sp2').value = '';
+            document.getElementById('price-sp3').value = '';
+            document.getElementById('price-custom').value = '';
+            document.getElementById('other-details').value = '';
+            document.getElementById('platform').value = '';
+            document.getElementById('preview-img').style.display = 'none';
+            document.getElementById('preview-img').src = '';
+            document.getElementById('upload-placeholder').style.display = 'block';
+            document.getElementById('form-heading').innerText = 'Upload Adoptable';
+            document.getElementById('btn-submit-text').innerText = 'Confirm';
+            document.getElementById('status-msg').innerText = '';
+        }
+
+        function editAdoptable(docId) {
+            const data = allAdoptablesCache.find(item => item.id === docId);
+            if (!data) return;
+
+            document.getElementById('edit-doc-id').value = data.id;
+            document.getElementById('title').value = data.title || '';
+            document.getElementById('status').value = data.status || 'AVAILABLE';
+            handleStatusChange();
+            document.getElementById('other-details').value = data.otherDetails || '';
+            document.getElementById('platform').value = data.platform || '';
+
+            if (data.status === 'CUSTOM') {
+                document.getElementById('price-custom').value = data.priceData ? (data.priceData.customPrice || '') : '';
+            } else if (data.priceData) {
+                document.getElementById('pricing-type').value = data.priceData.type || 'AUCTION';
+                togglePriceFields();
+                if (data.priceData.type === 'AUCTION') {
+                    document.getElementById('price-sb').value = data.priceData.sb || '';
+                    document.getElementById('price-min').value = data.priceData.min || '';
+                    document.getElementById('price-ab').value = data.priceData.ab || '';
+                } else {
+                    document.getElementById('price-sp1').value = data.priceData.sp1 || '';
+                    document.getElementById('price-sp2').value = data.priceData.sp2 || '';
+                    document.getElementById('price-sp3').value = data.priceData.sp3 || '';
+                }
+            }
+
+            if (data.imageUrl) {
+                currentImageBase64 = data.imageUrl;
+                document.getElementById('preview-img').src = data.imageUrl;
+                document.getElementById('preview-img').style.display = 'block';
+                document.getElementById('upload-placeholder').style.display = 'none';
+            }
+
+            document.getElementById('form-heading').innerText = 'Edit Adoptable';
+            document.getElementById('btn-submit-text').innerText = 'Save Changes';
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        async function uploadData() {
+            const editId = document.getElementById('edit-doc-id').value;
+            const title = document.getElementById('title').value;
+            const status = document.getElementById('status').value;
+            const otherDetails = document.getElementById('other-details').value;
+            const platform = document.getElementById('platform').value;
+            const statusMsg = document.getElementById('status-msg');
+
+            let priceData = {};
+            let hasRequiredPrice = false;
+
+            if (status === 'CUSTOM') {
+                const customPrice = document.getElementById('price-custom').value;
+                priceData = { type: 'CUSTOM', customPrice: customPrice };
+                if (customPrice) hasRequiredPrice = true;
+            } else {
+                const pricingType = document.getElementById('pricing-type').value;
+                priceData.type = pricingType;
+                if (pricingType === 'AUCTION') {
+                    priceData.sb = document.getElementById('price-sb').value;
+                    priceData.min = document.getElementById('price-min').value;
+                    priceData.ab = document.getElementById('price-ab').value || 'N/A';
+                    if (priceData.sb && priceData.min) hasRequiredPrice = true;
+                } else {
+                    priceData.sp1 = document.getElementById('price-sp1').value;
+                    priceData.sp2 = document.getElementById('price-sp2').value;
+                    priceData.sp3 = document.getElementById('price-sp3').value;
+                    if (priceData.sp1) hasRequiredPrice = true;
+                }
+            }
+
+            if(!currentImageBase64 || !title || !hasRequiredPrice) {
+                statusMsg.style.color = 'red'; statusMsg.innerText = 'Please fill in all required fields.';
+                return;
+            }
+
+            statusMsg.style.color = '#827717'; statusMsg.innerText = 'Saving data...';
+
+            try {
+                const payload = {
+                    title: title,
+                    priceData: priceData,
+                    status: status,
+                    otherDetails: otherDetails,
+                    platform: platform,
+                    imageUrl: currentImageBase64,
+                };
+
+                if (editId) {
+                    await db.collection("adoptables").doc(editId).update(payload);
+                    statusMsg.style.color = '#1b5e20'; statusMsg.innerText = 'Update successful!';
+                } else {
+                    // ให้รูปใหม่ที่อัปโหลดไปอยู่ลำดับแรกสุดโดยอัตโนมัติ
+                    payload.order = Date.now(); 
+                    payload.timestamp = firebase.firestore.FieldValue.serverTimestamp();
+                    await db.collection("adoptables").add(payload);
+                    statusMsg.style.color = '#1b5e20'; statusMsg.innerText = 'Upload successful!';
+                }
+
+                cancelUpload();
+                loadManageData();
+            } catch (error) {
+                statusMsg.style.color = 'red'; statusMsg.innerText = 'Error: ' + error.message;
+            }
+        }
+
+        async function loadManageData() {
+            const grid = document.getElementById('manage-grid');
+            try {
+                // เรียงลำดับตามฟิลด์ order ถ้าไม่มีให้เรียงตาม timestamp ล่าสุด
+                const snapshot = await db.collection("adoptables").orderBy("order", "desc").get();
+                if(snapshot.empty) { grid.innerHTML = '<p>No items found.</p>'; return; }
+                
+                allAdoptablesCache = [];
+                grid.innerHTML = '';
+                snapshot.forEach(doc => {
+                    const data = doc.data();
+                    data.id = doc.id;
+                    allAdoptablesCache.push(data);
+
+                    grid.innerHTML += `
+                        <div class="manage-card" data-id="${doc.id}">
+                            <img src="${data.imageUrl}" alt="${data.title}">
+                            <div class="manage-info">
+                                <h4>${data.title}</h4>
+                                <span style="color:#888;">${data.status}</span>
+                            </div>
+                            <div class="card-actions">
+                                <button class="btn-action btn-edit-card" onclick="editAdoptable('${doc.id}')">Edit</button>
+                                <button class="btn-action btn-delete-card" onclick="deleteAdoptable('${doc.id}')">Delete</button>
+                            </div>
+                        </div>
+                    `;
+                });
+
+                // เปิดใช้งานการลากสลับการ์ดด้วย SortableJS
+                new Sortable(grid, {
+                    animation: 150,
+                    onEnd: async function () {
+                        // เมื่อลากวางเสร็จ ทำการอัปเดตลำดับ (order) ใหม่ลง Firebase
+                        const cards = grid.querySelectorAll('.manage-card');
+                        const batch = db.batch();
+                        
+                        cards.forEach((card, index) => {
+                            const docId = card.getAttribute('data-id');
+                            // คำนวณค่า order ใหม่ (เรียงจากมากไปน้อย เพื่อให้ตัวแรกสุดอยู่บนสุด)
+                            const newOrder = cards.length - index;
+                            const docRef = db.collection("adoptables").doc(docId);
+                            batch.update(docRef, { order: newOrder });
+                        });
+
+                        try {
+                            await batch.commit();
+                            console.log("Order updated successfully!");
+                        } catch (e) {
+                            console.error("Error updating order: ", e);
+                        }
+                    }
+                });
+
+            } catch (e) { console.error(e); }
+        }
+
+        async function deleteAdoptable(docId) {
+            if(confirm("Are you sure you want to delete this item?")) {
+                try {
+                    await db.collection("adoptables").doc(docId).delete();
+                    alert("Deleted successfully!");
+                    loadManageData();
+                } catch(e) {
+                    alert("Error deleting: " + e.message);
+                }
+            }
+        }
+
+        loadManageData();
+    </script>
+</body>
+</html>
