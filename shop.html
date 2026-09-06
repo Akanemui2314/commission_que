@@ -166,9 +166,9 @@
         .modal-price-row:last-child { margin-bottom: 0; }
         .modal-price-row b { color: var(--accent-pink); font-size: 16px; }
 
-        .modal-other-box { background: #faf9f9; padding: 14px 20px; border-radius: 16px; border: 1px solid #eee; margin-bottom: 25px; font-size: 14px; color: #665c56; line-height: 1.6; word-break: break-word; }
+        /* 🌸 เพิ่ม white-space: pre-wrap เพื่อรองรับการกด Enter บรรทัดใหม่ */
+        .modal-other-box { background: #faf9f9; padding: 14px 20px; border-radius: 16px; border: 1px solid #eee; margin-bottom: 25px; font-size: 14px; color: #665c56; line-height: 1.6; word-break: break-word; white-space: pre-wrap; }
         .modal-other-box strong { display: block; color: var(--text-main); margin-bottom: 4px; font-size: 12px; text-transform: uppercase; letter-spacing: 0.5px; }
-        /* 🌸 สไตล์ให้ลิงก์ที่อยู่ในช่อง Other Details กดคลิกได้ */
         .modal-other-box a { color: var(--accent-pink); font-weight: bold; text-decoration: underline; }
         .modal-other-box a:hover { color: #ff7990; }
 
@@ -393,11 +393,17 @@
 
             const otherBox = document.getElementById('modal-other-box');
             if (data.otherDetails && data.otherDetails.trim() !== '') {
-                // 🌸 แปลงลิงก์ URL ใน Other Details ให้อัตโนมัติเป็นปุ่มกดคลิกได้
-                let formattedDetails = data.otherDetails.replace(
+                // 🌸 ป้องกัน XSS เบื้องต้น และแปลงลิงก์ URL ให้อัตโนมัติ โดยรองรับการกด Enter บรรทัดใหม่
+                let escapedDetails = data.otherDetails
+                    .replace(/&/g, "&amp;")
+                    .replace(/</g, "&lt;")
+                    .replace(/>/g, "&gt;");
+                
+                let formattedDetails = escapedDetails.replace(
                     /(https?:\/\/[^\s]+)/g, 
                     '<a href="$1" target="_blank" rel="noopener">$1</a>'
                 );
+
                 otherBox.innerHTML = `<strong>Other Details</strong>${formattedDetails}`;
                 otherBox.style.display = 'block';
             } else {
