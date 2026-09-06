@@ -85,7 +85,6 @@
         .card { background: rgba(255, 255, 255, 0.85); border-radius: 18px; border: 1px solid var(--glass-border); overflow: hidden; box-shadow: 0 5px 15px rgba(0,0,0,0.05); transition: 0.2s; position: relative; cursor: pointer; }
         .card:hover { transform: translateY(-5px); box-shadow: 0 8px 25px rgba(255,145,164,0.3); border-color: var(--primary-pink); }
         
-        /* 🌸 ปรับให้รูปในการ์ดแสดงผลครบถ้วนไม่โดน crop หัวขาด */
         .card-img-wrapper { position: relative; aspect-ratio: 1/1; overflow: hidden; background: #fff5f7; display: flex; align-items: center; justify-content: center; }
         .card-img-wrapper img { width: 100%; height: 100%; object-fit: contain; transition: 0.3s; }
         .card:hover .card-img-wrapper img { transform: scale(1.05); }
@@ -102,10 +101,10 @@
         /* Modal Popup */
         .modal-overlay {
             position: fixed; inset: 0; background: rgba(0, 0, 0, 0.45); backdrop-filter: blur(6px);
-            display: none; justify-content: center; align-items: center; z-index: 100; padding: 25px;
+            display: none; justify-content: center; align-items: center; z-index: 100; padding: 15px;
         }
         .modal-container {
-            background: #ffffff; width: 100%; max-width: 1200px; border-radius: 28px;
+            background: #ffffff; width: 100%; max-width: 1200px; max-height: 90vh; border-radius: 28px;
             display: grid; grid-template-columns: 1.3fr 1fr; overflow: hidden; 
             box-shadow: 0 30px 70px rgba(90, 74, 66, 0.2);
             position: relative; animation: modalScale 0.25s cubic-bezier(0.16, 1, 0.3, 1);
@@ -123,7 +122,7 @@
 
         .modal-img-area { 
             background: #faf7f8; display: flex; align-items: center; justify-content: center; 
-            padding: 0; border-right: 1px solid #f0e6e8; min-height: 550px; max-height: 85vh; overflow: hidden; 
+            padding: 0; border-right: 1px solid #f0e6e8; min-height: 350px; overflow: hidden; 
             position: relative;
         }
         .modal-img-area img { 
@@ -152,8 +151,8 @@
         }
 
         .modal-details { 
-            padding: 45px 40px; display: flex; flex-direction: column; justify-content: flex-start; 
-            max-height: 85vh; overflow-y: auto; text-align: left;
+            padding: 40px; display: flex; flex-direction: column; justify-content: flex-start; 
+            max-height: 85vh; overflow-y: auto; text-align: left; -webkit-overflow-scrolling: touch;
         }
         
         .modal-artist { display: flex; align-items: center; gap: 10px; font-size: 13px; color: #888; margin-bottom: 15px; font-weight: 500; }
@@ -166,7 +165,6 @@
         .modal-price-row:last-child { margin-bottom: 0; }
         .modal-price-row b { color: var(--accent-pink); font-size: 16px; }
 
-        /* 🌸 เพิ่ม white-space: pre-wrap เพื่อรองรับการกด Enter บรรทัดใหม่ */
         .modal-other-box { background: #faf9f9; padding: 14px 20px; border-radius: 16px; border: 1px solid #eee; margin-bottom: 25px; font-size: 14px; color: #665c56; line-height: 1.6; word-break: break-word; white-space: pre-wrap; }
         .modal-other-box strong { display: block; color: var(--text-main); margin-bottom: 4px; font-size: 12px; text-transform: uppercase; letter-spacing: 0.5px; }
         .modal-other-box a { color: var(--accent-pink); font-weight: bold; text-decoration: underline; }
@@ -175,12 +173,27 @@
         .modal-btn { display: block; background: var(--accent-pink); color: white; padding: 14px 24px; border-radius: 50px; font-size: 14px; font-weight: bold; text-align: center; transition: 0.2s; box-shadow: 0 4px 15px rgba(255,145,164,0.3); margin-top: auto; }
         .modal-btn:hover { background: #ff7990; transform: translateY(-1px); }
 
+        /* 🌸 ปรับแต่งการเลื่อนหน้าจอสำหรับโทรศัพท์มือถือให้อ่านและเลื่อนดูข้อมูลง่ายขึ้น 100% */
         @media (max-width: 900px) {
+            body { padding: 10px; }
             .layout-container { grid-template-columns: 1fr; }
             .profile-sidebar { position: relative; top: 0; }
-            .modal-container { grid-template-columns: 1fr; max-height: 90vh; }
-            .modal-img-area { min-height: 300px; max-height: 50vh; border-right: none; border-bottom: 1px solid #f0e6e8; }
-            .modal-details { padding: 30px 25px; max-height: none; }
+            
+            .modal-overlay { padding: 10px; align-items: flex-end; }
+            .modal-container { 
+                grid-template-columns: 1fr; 
+                max-height: 92vh; 
+                border-bottom-left-radius: 0; 
+                border-bottom-right-radius: 0;
+                overflow-y: auto; 
+                -webkit-overflow-scrolling: touch;
+            }
+            .modal-img-area { min-height: 280px; max-height: 45vh; border-right: none; border-bottom: 1px solid #f0e6e8; }
+            .modal-details { 
+                max-height: none; 
+                overflow-y: visible; 
+                padding: 25px 20px 40px 20px; 
+            }
         }
     </style>
 </head>
@@ -393,7 +406,6 @@
 
             const otherBox = document.getElementById('modal-other-box');
             if (data.otherDetails && data.otherDetails.trim() !== '') {
-                // 🌸 ป้องกัน XSS เบื้องต้น และแปลงลิงก์ URL ให้อัตโนมัติ โดยรองรับการกด Enter บรรทัดใหม่
                 let escapedDetails = data.otherDetails
                     .replace(/&/g, "&amp;")
                     .replace(/</g, "&lt;")
