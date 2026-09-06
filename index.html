@@ -6,7 +6,6 @@
     <title>Commission Queue Akanezz2314's 2026</title>
     <style>
         :root {
-            /* กลับมาใช้โทนชมพู Original */
             --bg-color: #fff0f5;
             --bg-gradient: linear-gradient(135deg, #fff0f5 0%, #ffdbdb 100%);
             --glass-bg: rgba(255, 255, 255, 0.45);
@@ -23,22 +22,33 @@
             --table-hover: rgba(255, 183, 197, 0.15);
         }
 
-        /* Custom Cat Paw Cursor */
-        * { cursor: url('cursor.png'), auto; }
-        a, button, .admin-shortcut, .status-badge { cursor: url('cursor.png'), pointer; }
+        /* แก้ไขการคลุมดำข้อความเพื่อลดอาการกระตุกจาก OS Repaint */
+        ::selection {
+            background: var(--primary-pink);
+            color: white;
+        }
 
-        body { margin: 0; padding: 10px; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: var(--bg-color); background-image: var(--bg-gradient); min-height: 100vh; color: var(--text-main); display: flex; justify-content: center; align-items: flex-start; position: relative; overflow-x: hidden; }
+        /* ย้าย Cursor มาไว้ที่ body เพื่อลดภาระของ Wildcard (*) */
+        body { margin: 0; padding: 10px; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: var(--bg-color); background-image: var(--bg-gradient); min-height: 100vh; color: var(--text-main); display: flex; justify-content: center; align-items: flex-start; position: relative; overflow-x: hidden; cursor: url('cursor.png') 0 0, auto; }
+        a, button, .admin-shortcut, .status-badge { cursor: url('cursor.png') 0 0, pointer; }
 
-        /* Parallax Background Layer */
-        #parallax-bg { position: fixed; top: -5%; left: -5%; width: 110%; height: 110%; pointer-events: none; z-index: 0; background: radial-gradient(circle at 10% 10%, rgba(255, 255, 255, 0.2) 0%, transparent 50%); transition: transform 0.1s ease-out; }
+        /* ลบ transition ออกเพื่อไม่ให้ตีกับ requestAnimationFrame ของ JS */
+        #parallax-bg { position: fixed; top: -5%; left: -5%; width: 110%; height: 110%; pointer-events: none; z-index: 0; background: radial-gradient(circle at 10% 10%, rgba(255, 255, 255, 0.2) 0%, transparent 50%); will-change: transform; }
 
         #sakura-container { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 1; }
-        .petal { position: absolute; top: -10%; background-color: var(--primary-pink); border-radius: 150% 0 150% 0; opacity: 0; animation: fall linear infinite; }
-        @keyframes fall { 0% { transform: translateY(0) translateX(0) rotate(0deg); opacity: 0; } 10% { opacity: 0.7; } 90% { opacity: 0.7; } 100% { transform: translateY(110vh) translateX(100px) rotate(360deg); opacity: 0; } }
+        
+        .petal { position: absolute; top: -10%; background-color: var(--primary-pink); border-radius: 150% 0 150% 0; opacity: 0; animation: fall linear infinite; will-change: transform, opacity; }
+        @keyframes fall { 
+            0% { transform: translate3d(0, 0, 0) rotate(0deg); opacity: 0; } 
+            10% { opacity: 0.7; } 
+            90% { opacity: 0.7; } 
+            100% { transform: translate3d(100px, 110vh, 0) rotate(360deg); opacity: 0; } 
+        }
 
-        .glass-card { width: 100%; max-width: 1100px; background: var(--glass-bg); backdrop-filter: blur(25px); -webkit-backdrop-filter: blur(25px); border: 1px solid var(--glass-border); border-radius: 30px; padding: 25px; box-shadow: 0 15px 35px rgba(255, 183, 197, 0.2); margin-top: 15px; position: relative; z-index: 2; box-sizing: border-box; }
+        /* เพิ่ม will-change: transform ให้ GPU แยก Layer เพื่อลดการคำนวณเบลอใหม่เวลาลากเมาส์คลุมดำ */
+        .glass-card { width: 100%; max-width: 1100px; background: var(--glass-bg); backdrop-filter: blur(25px); -webkit-backdrop-filter: blur(25px); border: 1px solid var(--glass-border); border-radius: 30px; padding: 25px; box-shadow: 0 15px 35px rgba(255, 183, 197, 0.2); margin-top: 15px; position: relative; z-index: 2; box-sizing: border-box; will-change: transform; }
 
-        .admin-shortcut { width: 30px; height: 30px; background: rgba(255,255,255,0.6); border-radius: 50%; border: 1px solid white; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 13px; transition: 0.3s; margin-bottom: 5px; margin-left: auto; }
+        .admin-shortcut { width: 30px; height: 30px; background: rgba(255,255,255,0.6); border-radius: 50%; border: 1px solid white; display: flex; align-items: center; justify-content: center; font-size: 13px; transition: 0.3s; margin-bottom: 5px; margin-left: auto; }
         .admin-shortcut:hover { transform: scale(1.1) rotate(15deg); background: white; }
 
         .header-section { display: grid; grid-template-columns: 1.2fr 1fr 0.8fr 0.6fr; gap: 15px; align-items: stretch; margin-bottom: 25px; }
@@ -51,23 +61,27 @@
         .join-btn { background: var(--soft-green); color: white; padding: 10px; border-radius: 50px; text-decoration: none; font-weight: bold; text-align: center; border: 2px solid white; font-size: 13px; box-shadow: 0 4px 12px rgba(196, 225, 127, 0.3); transition: 0.3s; }
 
         .status-container { display: flex; flex-direction: column; align-items: center; justify-content: center; }
-        .status-badge { padding: 6px 15px; border-radius: 50px; font-weight: bold; color: white; border: 2px solid white; text-align: center; font-size: 13px; cursor: default; min-width: 100px; transition: 0.3s; }
+        .status-badge { padding: 6px 15px; border-radius: 50px; font-weight: bold; color: white; border: 2px solid white; text-align: center; font-size: 13px; min-width: 100px; transition: 0.3s; }
         .status-badge.on { background: #81c784; }
         .status-badge.off { background: var(--status-off); }
 
         .active-label { font-weight: bold; font-size: 13px; background: white; padding: 5px 12px; border-radius: 50px; margin-top: 8px; text-align: center; width: fit-content; }
         .update-time { font-size: 9px; opacity: 0.5; margin-top: 4px; text-align: center; }
 
-        .announcement-bar { background: white; border-radius: 50px; padding: 8px 20px; margin-bottom: 20px; display: flex; align-items: center; border: 1px solid rgba(255,255,255,0.8); overflow: hidden; }
+        .announcement-bar { background: white; border-radius: 50px; padding: 8px 20px; margin-bottom: 20px; display: flex; align-items: center; border: 1px solid rgba(255,255,255,0.8); overflow: hidden; transform: translateZ(0); }
         .announcement-icon { font-size: 18px; margin-right: 12px; flex-shrink: 0; }
         .marquee-container { flex-grow: 1; overflow: hidden; white-space: nowrap; }
-        .marquee-text { display: inline-block; padding-left: 100%; animation: marquee 20s linear infinite; font-size: 13px; color: var(--text-main); }
-        @keyframes marquee { 0% { transform: translate(0, 0); } 100% { transform: translate(-100%, 0); } }
+        
+        .marquee-text { display: inline-block; padding-left: 100%; animation: marquee 20s linear infinite; font-size: 13px; color: var(--text-main); will-change: transform; }
+        @keyframes marquee { 
+            0% { transform: translate3d(0, 0, 0); } 
+            100% { transform: translate3d(-100%, 0, 0); } 
+        }
 
         .table-container { background: rgba(255, 255, 255, 0.25); border-radius: 20px; padding: 10px; overflow-x: auto; -webkit-overflow-scrolling: touch; }
         table { width: 100%; border-collapse: collapse; min-width: 800px; }
         th { padding: 12px; color: #8d6e63; font-weight: bold; border-bottom: 2px solid rgba(255,255,255,0.4); font-size: 13px; text-align: center; }
-        td { padding: 12px; text-align: center; border-bottom: 1px solid rgba(255,255,255,0.2); font-size: 12px; transition: 0.3s; }
+        td { padding: 12px; text-align: center; border-bottom: 1px solid rgba(255,255,255,0.2); font-size: 12px; transition: background 0.3s; }
         tr:not(.category-header):hover td { background: var(--table-hover); }
         .category-header td { padding: 10px; font-size: 14px; background: rgba(255, 183, 197, 0.3); color: var(--accent-pink); font-weight: bold; }
 
@@ -144,11 +158,20 @@
         const SHEET_EDIT_URL = 'https://docs.google.com/spreadsheets/d/1QyTn6jTpV_yHvf4MVBkwGdqJdjRd5B0Dm1YnWw0qJ0I/edit?gid=0#gid=0';
         const ADMIN_PW = '2314';
 
-        // 🖱️ Parallax Only (No petal interaction)
+        let isTicking = false;
+        const parallaxBg = document.getElementById('parallax-bg');
+        
         document.addEventListener('mousemove', (e) => {
-            const x = e.clientX / window.innerWidth;
-            const y = e.clientY / window.innerHeight;
-            document.getElementById('parallax-bg').style.transform = `translate(${x * 30}px, ${y * 30}px)`;
+            if (!isTicking) {
+                window.requestAnimationFrame(() => {
+                    // ใช้ตัวคูณลดลงเล็กน้อยเพื่อไม่ให้ภาพเหวี่ยงแรงเกินไป
+                    const x = (e.clientX / window.innerWidth) * 20;
+                    const y = (e.clientY / window.innerHeight) * 20;
+                    parallaxBg.style.transform = `translate3d(${x}px, ${y}px, 0)`;
+                    isTicking = false;
+                });
+                isTicking = true;
+            }
         });
 
         async function loadData() {
@@ -160,27 +183,25 @@
                 const csv = await res.text();
                 const allRows = csv.trim().split(/\r?\n/);
 
-                // Parse Header Row (Row 1 in sheet)
                 const headerRow = allRows[0].split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/);
-
-                // --- Sync Shop Status from Cell H1 (Index 7) ---
                 const h1Value = headerRow[7] ? headerRow[7].replace(/"/g, '').trim().toUpperCase() : 'ON';
                 const statusBadge = document.getElementById('shop-status');
 
-                statusBadge.className = h1Value === 'OFF' ? 'status-badge off' : 'status-badge on';
-                statusBadge.innerText = 'STATUS: ' + h1Value;
+                if (statusBadge.innerText !== 'STATUS: ' + h1Value) {
+                    statusBadge.className = h1Value === 'OFF' ? 'status-badge off' : 'status-badge on';
+                    statusBadge.innerText = 'STATUS: ' + h1Value;
+                }
 
-                // --- Sync Announcement Marquee from Cell C1 (Index 2) ---
                 const c1Value = headerRow[2] ? headerRow[2].replace(/"/g, '').trim() : 'ไม่มีประกาศในขณะนี้';
-                document.getElementById('dynamic-marquee').innerText = c1Value;
-
+                const marquee = document.getElementById('dynamic-marquee');
+                if (marquee.innerText !== c1Value) {
+                    marquee.innerText = c1Value;
+                }
 
                 const dataRows = allRows.slice(1);
-                const table = document.getElementById('queue-table');
-                table.innerHTML = '';
-
-                let activeRows = [];
-                let completedRows = [];
+                
+                let activeRowsHTML = '';
+                let completedRowsHTML = '';
                 let activeCount = 0;
 
                 dataRows.forEach(row => {
@@ -188,36 +209,36 @@
                     if (cols.length < 5 || cols[0] === "" || cols[0].toLowerCase() === "date") return;
                     const statusVal = cols[1] || '';
                     const isDone = statusVal.includes('สำเร็จ') || statusVal.includes('เสร็จ') || statusVal.includes('Done') || statusVal.includes('Finished') || statusVal.includes('เต็ม');
-                    if (isDone) completedRows.push(cols); else { activeRows.push(cols); activeCount++; }
+                    
+                    const rowHTML = `
+                        <tr>
+                            <td>${cols[0] || '-'}</td>
+                            <td><div class="bubble ${getColorClass(statusVal)}">${statusVal || '-'}</div></td>
+                            <td>${cols[2] && cols[2].includes('http') ? `<a href="${cols[2]}" target="_blank" style="color:var(--accent-pink); font-weight:bold;">Link</a>` : (cols[2] || '-')}</td>
+                            <td>${cols[3] || '-'}</td>
+                            <td><div class="bubble ${getColorClass(cols[4] || '')}">${cols[4] || '-'}</div></td>
+                            <td>${cols[5] || '-'}</td>
+                            <td>${cols[6] || '-'}</td> 
+                        </tr>`;
+
+                    if (isDone) completedRowsHTML += rowHTML; 
+                    else { activeRowsHTML += rowHTML; activeCount++; }
                 });
 
-                activeRows.forEach(cols => table.appendChild(createRowElement(cols)));
-                if (completedRows.length > 0) {
-                    const sep = document.createElement('tr');
-                    sep.className = 'category-header';
-                    sep.innerHTML = `<td colspan="7">🌸 Zone: Completed Works (งานที่เสร็จแล้ว) 🌸</td>`;
-                    table.appendChild(sep);
-                    completedRows.forEach(cols => table.appendChild(createRowElement(cols)));
+                let finalHTML = activeRowsHTML;
+                if (completedRowsHTML !== '') {
+                    finalHTML += `<tr class="category-header"><td colspan="7">🌸 Zone: Completed Works (งานที่เสร็จแล้ว) 🌸</td></tr>` + completedRowsHTML;
+                }
+
+                const table = document.getElementById('queue-table');
+                if (table.innerHTML !== finalHTML) {
+                    table.innerHTML = finalHTML;
                 }
 
                 document.getElementById('active-count').innerText = `Active: ${activeCount} orders`;
                 const now = new Date();
                 document.getElementById('last-updated').innerText = `อัปเดตล่าสุด: ${now.toLocaleDateString('th-TH')} ${now.toLocaleTimeString('th-TH')}`;
             } catch (e) { console.error(e); }
-        }
-
-        function createRowElement(cols) {
-            const tr = document.createElement('tr');
-            tr.innerHTML = `
-                <td>${cols[0] || '-'}</td>
-                <td><div class="bubble ${getColorClass(cols[1])}">${cols[1] || '-'}</div></td>
-                <td>${cols[2] && cols[2].includes('http') ? `<a href="${cols[2]}" target="_blank" style="color:var(--accent-pink); font-weight:bold;">Link</a>` : (cols[2] || '-')}</td>
-                <td>${cols[3] || '-'}</td>
-                <td><div class="bubble ${getColorClass(cols[4])}">${cols[4] || '-'}</div></td>
-                <td>${cols[5] || '-'}</td>
-                <td>${cols[6] || '-'}</td> 
-            `;
-            return tr;
         }
 
         function getColorClass(t) {
@@ -234,6 +255,7 @@
 
         function createPetals() {
             const container = document.getElementById('sakura-container');
+            const fragment = document.createDocumentFragment();
             for(let i=0; i<20; i++){
                 const petal = document.createElement('div');
                 petal.className = 'petal';
@@ -242,13 +264,14 @@
                 petal.style.height = Math.random() * 10 + 5 + 'px';
                 petal.style.animationDelay = (Math.random() * 15) + 's';
                 petal.style.animationDuration = (Math.random() * 7 + 7) + 's';
-                container.appendChild(petal);
+                fragment.appendChild(petal);
             }
+            container.appendChild(fragment);
         }
 
         createPetals();
         loadData();
-        setInterval(loadData, 10000);
+        setInterval(loadData, 30000);
     </script>
 </body>
 </html>
