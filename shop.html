@@ -85,8 +85,9 @@
         .card { background: rgba(255, 255, 255, 0.85); border-radius: 18px; border: 1px solid var(--glass-border); overflow: hidden; box-shadow: 0 5px 15px rgba(0,0,0,0.05); transition: 0.2s; position: relative; cursor: pointer; }
         .card:hover { transform: translateY(-5px); box-shadow: 0 8px 25px rgba(255,145,164,0.3); border-color: var(--primary-pink); }
         
-        .card-img-wrapper { position: relative; aspect-ratio: 1/1; overflow: hidden; background: #fff; }
-        .card-img-wrapper img { width: 100%; height: 100%; object-fit: cover; transition: 0.3s; }
+        /* 🌸 ปรับให้รูปในการ์ดแสดงผลครบถ้วนไม่โดน crop หัวขาด */
+        .card-img-wrapper { position: relative; aspect-ratio: 1/1; overflow: hidden; background: #fff5f7; display: flex; align-items: center; justify-content: center; }
+        .card-img-wrapper img { width: 100%; height: 100%; object-fit: contain; transition: 0.3s; }
         .card:hover .card-img-wrapper img { transform: scale(1.05); }
 
         .badge { display: inline-block; padding: 5px 14px; border-radius: 50px; font-size: 12px; font-weight: bold; color: white; backdrop-filter: blur(4px); }
@@ -126,7 +127,7 @@
             position: relative;
         }
         .modal-img-area img { 
-            width: 100%; height: 100%; object-fit: cover; display: block;
+            width: 100%; height: 100%; object-fit: contain; display: block;
             cursor: zoom-in; transition: transform 0.3s ease; 
         }
 
@@ -167,6 +168,9 @@
 
         .modal-other-box { background: #faf9f9; padding: 14px 20px; border-radius: 16px; border: 1px solid #eee; margin-bottom: 25px; font-size: 14px; color: #665c56; line-height: 1.6; word-break: break-word; }
         .modal-other-box strong { display: block; color: var(--text-main); margin-bottom: 4px; font-size: 12px; text-transform: uppercase; letter-spacing: 0.5px; }
+        /* 🌸 สไตล์ให้ลิงก์ที่อยู่ในช่อง Other Details กดคลิกได้ */
+        .modal-other-box a { color: var(--accent-pink); font-weight: bold; text-decoration: underline; }
+        .modal-other-box a:hover { color: #ff7990; }
 
         .modal-btn { display: block; background: var(--accent-pink); color: white; padding: 14px 24px; border-radius: 50px; font-size: 14px; font-weight: bold; text-align: center; transition: 0.2s; box-shadow: 0 4px 15px rgba(255,145,164,0.3); margin-top: auto; }
         .modal-btn:hover { background: #ff7990; transform: translateY(-1px); }
@@ -182,7 +186,6 @@
 </head>
 <body>
 
-    <!-- 🌸 ฉากหลังภาพ postcard.png กลับมาแล้ว -->
     <div id="parallax-bg"></div>
 
     <div class="layout-container">
@@ -270,7 +273,6 @@
         let currentIndex = 0;       
         let currentFilterType = 'ALL';
 
-        // 🌸 เอฟเฟกต์ขยับพื้นหลัง Parallax ตามเมาส์
         let isTicking = false;
         const parallaxBg = document.getElementById('parallax-bg');
         
@@ -389,7 +391,12 @@
 
             const otherBox = document.getElementById('modal-other-box');
             if (data.otherDetails && data.otherDetails.trim() !== '') {
-                otherBox.innerHTML = `<strong>Other Details</strong>${data.otherDetails}`;
+                // 🌸 แปลงลิงก์ URL ใน Other Details ให้อัตโนมัติเป็นปุ่มกดคลิกได้
+                let formattedDetails = data.otherDetails.replace(
+                    /(https?:\/\/[^\s]+)/g, 
+                    '<a href="$1" target="_blank" rel="noopener">$1</a>'
+                );
+                otherBox.innerHTML = `<strong>Other Details</strong>${formattedDetails}`;
                 otherBox.style.display = 'block';
             } else {
                 otherBox.style.display = 'none';
