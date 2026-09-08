@@ -14,6 +14,10 @@
             --text-main: #5a4a42;
             --glass-bg: rgba(255, 255, 255, 0.85);
             --danger: #ff5252;
+            
+            --badge-avail: #66bb6a;
+            --badge-custom: #42a5f5;
+            --badge-sold: #757575;
         }
 
         body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: var(--bg-color); padding: 20px; color: var(--text-main); margin: 0; }
@@ -49,21 +53,33 @@
 
         #status-msg { margin-top: 15px; font-weight: bold; text-align: center; font-size: 14px; grid-column: 1 / -1; }
 
+        /* จัดการพอร์ตโฟลิโอ & แยก Type แท็บหมวดหมู่ */
         .manage-section { background: var(--glass-bg); padding: 30px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.05); }
-        .manage-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
-        .manage-header p { margin: 0; font-size: 13px; color: #888; }
+        .manage-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; flex-wrap: wrap; gap: 10px; }
+        .manage-header p { margin: 0; font-size: 13px; color: #888; width: 100%; }
         
-        .manage-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 15px; margin-top: 15px; }
+        .admin-tabs { display: flex; gap: 10px; }
+        .admin-tab-btn { padding: 8px 16px; border-radius: 50px; font-size: 13px; font-weight: bold; background: white; border: 1px solid #ddd; color: #666; cursor: pointer; transition: 0.2s; flex: unset; }
+        .admin-tab-btn.active { background: var(--accent-pink); color: white; border-color: var(--accent-pink); }
+
+        .manage-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(210px, 1fr)); gap: 15px; margin-top: 15px; min-height: 150px; }
         
-        /* สไตล์การ์ดตอนลาก */
-        .manage-card { background: white; border-radius: 15px; overflow: hidden; position: relative; border: 1px solid #eee; cursor: grab; transition: box-shadow 0.2s; }
+        /* สไตล์การ์ดจัดการ */
+        .manage-card { background: white; border-radius: 15px; overflow: hidden; position: relative; border: 1px solid #eee; cursor: grab; transition: box-shadow 0.2s; display: flex; flex-direction: column; }
         .manage-card:active { cursor: grabbing; }
         .sortable-ghost { opacity: 0.4; background: #ffd1dc; }
 
-        .manage-card img { width: 100%; aspect-ratio: 1/1; object-fit: cover; display: block; pointer-events: none; }
-        .manage-info { padding: 10px; font-size: 12px; }
+        .manage-card img { width: 100%; aspect-ratio: 1/1; object-fit: contain; background: #fff5f7; display: block; pointer-events: none; }
+        .manage-info { padding: 10px; font-size: 12px; flex-grow: 1; }
         .manage-info h4 { margin: 0 0 5px 0; font-size: 13px; color: #333; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
         
+        /* ปุ่มสลับ Status แบบด่วน (Quick Toggle) บนการ์ด */
+        .status-toggle-bar { display: flex; gap: 3px; padding: 0 10px 8px 10px; }
+        .btn-status-toggle { flex: 1; padding: 5px 2px; border-radius: 6px; font-size: 11px; font-weight: bold; border: 1px solid #ddd; background: #f9f9f9; color: #777; cursor: pointer; text-align: center; transition: 0.2s; }
+        .btn-status-toggle.active-AVAILABLE { background: var(--badge-avail); color: white; border-color: var(--badge-avail); }
+        .btn-status-toggle.active-CUSTOM { background: var(--badge-custom); color: white; border-color: var(--badge-custom); }
+        .btn-status-toggle.active-SOLD { background: var(--badge-sold); color: white; border-color: var(--badge-sold); }
+
         .card-actions { display: flex; gap: 5px; padding: 0 10px 10px 10px; }
         .btn-action { flex: 1; padding: 6px; border-radius: 8px; font-size: 12px; font-weight: bold; border: none; cursor: pointer; color: white; transition: 0.2s; }
         .btn-edit-card { background: #60a5fa; }
@@ -185,6 +201,12 @@
         <div class="manage-section">
             <div class="manage-header">
                 <h2>Manage Portfolio</h2>
+                <div class="admin-tabs">
+                    <button class="admin-tab-btn active" onclick="filterAdminGrid('ALL')">All</button>
+                    <button class="admin-tab-btn" onclick="filterAdminGrid('AVAILABLE')">Available</button>
+                    <button class="admin-tab-btn" onclick="filterAdminGrid('CUSTOM')">Custom</button>
+                    <button class="admin-tab-btn" onclick="filterAdminGrid('SOLD')">Sold</button>
+                </div>
                 <p>💡 สามารถคลิกเมาส์ค้างแล้วลากการ์ดเพื่อสลับตำแหน่งจัดลำดับได้เลย</p>
             </div>
             <div id="manage-grid" class="manage-grid">
@@ -210,6 +232,8 @@
 
         let currentImageBase64 = '';
         let allAdoptablesCache = [];
+        let currentAdminFilter = 'ALL';
+        let sortableInstance = null;
 
         function handleImageUpload(event) {
             const file = event.target.files[0];
@@ -383,7 +407,6 @@
                     await db.collection("adoptables").doc(editId).update(payload);
                     statusMsg.style.color = '#1b5e20'; statusMsg.innerText = 'Update successful!';
                 } else {
-                    // ให้รูปใหม่ที่อัปโหลดไปอยู่ลำดับแรกสุดโดยอัตโนมัติ
                     payload.order = Date.now(); 
                     payload.timestamp = firebase.firestore.FieldValue.serverTimestamp();
                     await db.collection("adoptables").add(payload);
@@ -398,67 +421,109 @@
         }
 
         async function loadManageData() {
-            const grid = document.getElementById('manage-grid');
             try {
-                // เรียงลำดับตามฟิลด์ order ถ้าไม่มีให้เรียงตาม timestamp ล่าสุด
                 const snapshot = await db.collection("adoptables").orderBy("order", "desc").get();
-                if(snapshot.empty) { grid.innerHTML = '<p>No items found.</p>'; return; }
-                
                 allAdoptablesCache = [];
-                grid.innerHTML = '';
                 snapshot.forEach(doc => {
                     const data = doc.data();
                     data.id = doc.id;
                     allAdoptablesCache.push(data);
-
-                    grid.innerHTML += `
-                        <div class="manage-card" data-id="${doc.id}">
-                            <img src="${data.imageUrl}" alt="${data.title}">
-                            <div class="manage-info">
-                                <h4>${data.title}</h4>
-                                <span style="color:#888;">${data.status}</span>
-                            </div>
-                            <div class="card-actions">
-                                <button class="btn-action btn-edit-card" onclick="editAdoptable('${doc.id}')">Edit</button>
-                                <button class="btn-action btn-delete-card" onclick="deleteAdoptable('${doc.id}')">Delete</button>
-                            </div>
-                        </div>
-                    `;
                 });
-
-                // เปิดใช้งานการลากสลับการ์ดด้วย SortableJS
-                new Sortable(grid, {
-                    animation: 150,
-                    onEnd: async function () {
-                        // เมื่อลากวางเสร็จ ทำการอัปเดตลำดับ (order) ใหม่ลง Firebase
-                        const cards = grid.querySelectorAll('.manage-card');
-                        const batch = db.batch();
-                        
-                        cards.forEach((card, index) => {
-                            const docId = card.getAttribute('data-id');
-                            // คำนวณค่า order ใหม่ (เรียงจากมากไปน้อย เพื่อให้ตัวแรกสุดอยู่บนสุด)
-                            const newOrder = cards.length - index;
-                            const docRef = db.collection("adoptables").doc(docId);
-                            batch.update(docRef, { order: newOrder });
-                        });
-
-                        try {
-                            await batch.commit();
-                            console.log("Order updated successfully!");
-                        } catch (e) {
-                            console.error("Error updating order: ", e);
-                        }
-                    }
-                });
-
+                renderAdminGrid();
             } catch (e) { console.error(e); }
+        }
+
+        function filterAdminGrid(type) {
+            currentAdminFilter = type;
+            document.querySelectorAll('.admin-tab-btn').forEach(btn => {
+                btn.classList.remove('active');
+                if (btn.textContent.toUpperCase() === type || (type === 'ALL' && btn.textContent === 'All')) {
+                    btn.classList.add('active');
+                }
+            });
+            renderAdminGrid();
+        }
+
+        function renderAdminGrid() {
+            const grid = document.getElementById('manage-grid');
+            grid.innerHTML = '';
+
+            const filteredList = currentAdminFilter === 'ALL' 
+                ? allAdoptablesCache 
+                : allAdoptablesCache.filter(item => item.status === currentAdminFilter);
+
+            if (filteredList.length === 0) {
+                grid.innerHTML = '<p style="grid-column: 1/-1; text-align:center; color:#888;">No items found in this category.</p>';
+                if (sortableInstance) sortableInstance.destroy();
+                return;
+            }
+
+            filteredList.forEach(data => {
+                const isAvail = data.status === 'AVAILABLE' ? 'active-AVAILABLE' : '';
+                const isCustom = data.status === 'CUSTOM' ? 'active-CUSTOM' : '';
+                const isSold = data.status === 'SOLD' ? 'active-SOLD' : '';
+
+                grid.innerHTML += `
+                    <div class="manage-card" data-id="${data.id}">
+                        <img src="${data.imageUrl}" alt="${data.title}">
+                        <div class="manage-info">
+                            <h4>${data.title}</h4>
+                        </div>
+                        <div class="status-toggle-bar">
+                            <button class="btn-status-toggle ${isAvail}" onclick="quickChangeStatus('${data.id}', 'AVAILABLE')">Avail</button>
+                            <button class="btn-status-toggle ${isCustom}" onclick="quickChangeStatus('${data.id}', 'CUSTOM')">Custom</button>
+                            <button class="btn-status-toggle ${isSold}" onclick="quickChangeStatus('${data.id}', 'SOLD')">Sold</button>
+                        </div>
+                        <div class="card-actions">
+                            <button class="btn-action btn-edit-card" onclick="editAdoptable('${data.id}')">Edit</button>
+                            <button class="btn-action btn-delete-card" onclick="deleteAdoptable('${data.id}')">Delete</button>
+                        </div>
+                    </div>
+                `;
+            });
+
+            if (sortableInstance) sortableInstance.destroy();
+
+            // 🌸 เปิดใช้งานฟังก์ชันลากสลับตำแหน่งทุกแท็บหมวดหมู่
+            sortableInstance = new Sortable(grid, {
+                animation: 150,
+                onEnd: async function () {
+                    const cards = grid.querySelectorAll('.manage-card');
+                    const batch = db.batch();
+                    
+                    cards.forEach((card, index) => {
+                        const docId = card.getAttribute('data-id');
+                        const newOrder = cards.length - index;
+                        const docRef = db.collection("adoptables").doc(docId);
+                        batch.update(docRef, { order: newOrder });
+                    });
+
+                    try {
+                        await batch.commit();
+                        console.log("Order updated successfully!");
+                    } catch (e) {
+                        console.error("Error updating order: ", e);
+                    }
+                }
+            });
+        }
+
+        // ฟังก์ชันกดเปลี่ยนสถานะแบบด่วนทันทีบนการ์ด
+        async function quickChangeStatus(docId, newStatus) {
+            try {
+                await db.collection("adoptables").doc(docId).update({ status: newStatus });
+                const item = allAdoptablesCache.find(i => i.id === docId);
+                if (item) item.status = newStatus;
+                renderAdminGrid();
+            } catch (e) {
+                alert("Error updating status: " + e.message);
+            }
         }
 
         async function deleteAdoptable(docId) {
             if(confirm("Are you sure you want to delete this item?")) {
                 try {
                     await db.collection("adoptables").doc(docId).delete();
-                    alert("Deleted successfully!");
                     loadManageData();
                 } catch(e) {
                     alert("Error deleting: " + e.message);
