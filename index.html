@@ -130,6 +130,13 @@
         tr:not(.category-header):hover td { background-color: var(--table-hover); }
         .category-header td { padding: 10px; font-size: 14px; background: rgba(255, 183, 197, 0.2); color: var(--accent-pink); font-weight: bold; }
 
+        .pagination { display: flex; justify-content: flex-end; align-items: center; gap: 6px; flex-wrap: wrap; margin-top: 15px; }
+        .pagination button { min-width: 36px; min-height: 36px; padding: 6px 10px; border: 1px solid var(--primary-pink); border-radius: 12px; background: rgba(255,255,255,0.85); color: var(--text-main); font: inherit; font-size: 13px; }
+        .pagination button:hover:not(:disabled), .pagination button[aria-current="page"] { background: var(--primary-pink); color: var(--text-main); }
+        .pagination button:disabled { opacity: 0.4; cursor: default; }
+        .pagination button:focus-visible { outline: 2px solid var(--text-main); outline-offset: 2px; }
+        .pagination-label, .pagination-ellipsis { font-size: 13px; padding: 0 4px; }
+
         .bubble { padding: 5px 12px; border-radius: 50px; font-size: 11px; font-weight: bold; display: inline-block; min-width: 80px; }
         .bg-pending { background: var(--status-pending-bg); color: var(--status-pending-text); }
         .bg-doing { background: var(--status-doing-bg); color: var(--status-doing-text); }
@@ -197,12 +204,57 @@
                 <tbody id="queue-table"></tbody>
             </table>
         </div>
+        <nav id="queue-pagination" class="pagination" aria-label="หน้าของคิวงาน"></nav>
     </div>
 
     <script>
         const SHEET_CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTWq26jrX4nDcIGzIaO-XQW0saxFlwZO2H7SVakkr45n3Bx5SfmsNxVpQhhBSlf2bOt73DIY2pvkgtB/pub?output=csv';
         const SHEET_EDIT_URL = 'https://docs.google.com/spreadsheets/d/1QyTn6jTpV_yHvf4MVBkwGdqJdjRd5B0Dm1YnWw0qJ0I/edit?gid=0#gid=0';
         const ADMIN_PW = '2314';
+
+        const PAGE_SIZE = 10;
+        let currentPage = 1;
+        let queueRows = [];
+
+        function renderQueue() {
+            const totalPages = Math.max(1, Math.ceil(queueRows.length / PAGE_SIZE));
+            currentPage = Math.min(currentPage, totalPages);
+            const pageRows = queueRows.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE);
+            let finalHTML = '';
+            let completedHeaderShown = false;
+            pageRows.forEach(row => {
+                if (row.isDone && !completedHeaderShown) {
+                    finalHTML += '<tr class="category-header"><td colspan="7">🌸 Zone: Completed Works (งานที่เสร็จแล้ว) 🌸</td></tr>';
+                    completedHeaderShown = true;
+                }
+                finalHTML += row.html;
+            });
+            const table = document.getElementById('queue-table');
+            if (table.innerHTML !== finalHTML) table.innerHTML = finalHTML;
+
+            const pagination = document.getElementById('queue-pagination');
+            const pages = new Set([1, totalPages]);
+            for (let page = Math.max(1, currentPage - 1); page <= Math.min(totalPages, currentPage + 1); page++) pages.add(page);
+            if (totalPages <= 7) for (let page = 1; page <= totalPages; page++) pages.add(page);
+            let controls = `<button type="button" data-page="${currentPage - 1}" aria-label="หน้าก่อนหน้า" ${currentPage === 1 ? 'disabled' : ''}>&lt;</button><span class="pagination-label">Page</span>`;
+            let previous = 0;
+            [...pages].sort((a, b) => a - b).forEach(page => {
+                if (previous && page - previous > 1) controls += '<span class="pagination-ellipsis">…</span>';
+                controls += `<button type="button" data-page="${page}" aria-label="หน้า ${page}" ${page === currentPage ? 'aria-current="page"' : ''}>${page}</button>`;
+                previous = page;
+            });
+            controls += `<button type="button" data-page="${currentPage + 1}" aria-label="หน้าถัดไป" ${currentPage === totalPages ? 'disabled' : ''}>&gt;</button>`;
+            if (pagination.innerHTML !== controls) pagination.innerHTML = controls;
+        }
+
+        document.getElementById('queue-pagination').addEventListener('click', event => {
+            const button = event.target.closest('button[data-page]');
+            if (!button || button.disabled) return;
+            currentPage = Number(button.dataset.page);
+            renderQueue();
+            const selected = document.querySelector('#queue-pagination button[aria-current="page"]');
+            if (selected) selected.focus({ preventScroll: true });
+        });
 
         let isTicking = false;
         const parallaxBg = document.getElementById('parallax-bg');
@@ -245,8 +297,8 @@
 
                 const dataRows = allRows.slice(1);
                 
-                let activeRowsHTML = '';
-                let completedRowsHTML = '';
+                const activeRows = [];
+                const completedRows = [];
                 let activeCount = 0;
 
                 dataRows.forEach(row => {
@@ -266,19 +318,12 @@
                             <td>${cols[6] || '-'}</td> 
                         </tr>`;
 
-                    if (isDone) completedRowsHTML += rowHTML; 
-                    else { activeRowsHTML += rowHTML; activeCount++; }
+                    if (isDone) completedRows.push({ html: rowHTML, isDone: true });
+                    else { activeRows.push({ html: rowHTML, isDone: false }); activeCount++; }
                 });
 
-                let finalHTML = activeRowsHTML;
-                if (completedRowsHTML !== '') {
-                    finalHTML += `<tr class="category-header"><td colspan="7">🌸 Zone: Completed Works (งานที่เสร็จแล้ว) 🌸</td></tr>` + completedRowsHTML;
-                }
-
-                const table = document.getElementById('queue-table');
-                if (table.innerHTML !== finalHTML) {
-                    table.innerHTML = finalHTML;
-                }
+                queueRows = [...activeRows, ...completedRows];
+                renderQueue();
 
                 document.getElementById('active-count').innerText = `Active: ${activeCount} orders`;
                 const now = new Date();
