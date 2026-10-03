@@ -1,0 +1,86 @@
+{
+  "language": "th",
+  "artworks": [],
+  "offers": [],
+  "pricing": {
+    "Character": [
+      [
+        0,
+        0,
+        0
+      ],
+      [
+        0,
+        0,
+        0
+      ],
+      [
+        0,
+        0,
+        0
+      ],
+      [
+        0,
+        0,
+        0
+      ],
+      [
+        0,
+        0,
+        0
+      ]
+    ],
+    "Chibi": [
+      [
+        0,
+        0
+      ],
+      [
+        0,
+        0
+      ],
+      [
+        0,
+        0
+      ]
+    ]
+  },
+  "terms": [
+    {
+      "thTitle": "",
+      "enTitle": "",
+      "th": "",
+      "en": ""
+    },
+    {
+      "thTitle": "",
+      "enTitle": "",
+      "th": "",
+      "en": ""
+    },
+    {
+      "thTitle": "",
+      "enTitle": "",
+      "th": "",
+      "en": ""
+    },
+    {
+      "thTitle": "",
+      "enTitle": "",
+      "th": "",
+      "en": ""
+    },
+    {
+      "thTitle": "",
+      "enTitle": "",
+      "th": "",
+      "en": ""
+    },
+    {
+      "thTitle": "",
+      "enTitle": "",
+      "th": "",
+      "en": ""
+    }
+  ]
+}

@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Commission Queue Akanezz2314's 2026</title>
+    <!-- 🌸 ใส่ไอคอนเว็บเรียบร้อยแล้ว -->
+    <link rel="icon" type="image/png" href="icon3.svg">
+    <style>
+        :root {
+            --bg-color: #fff0f5;
+            --bg-gradient: linear-gradient(135deg, #fff0f5 0%, #ffdbdb 100%);
+            /* ลดค่า alpha ลง (จาก 0.90 เป็น 0.70) เพื่อให้รูปพื้นหลังทะลุชัดขึ้น */
+            --glass-bg: rgba(255, 255, 255, 0.70);
+            --glass-border: rgba(255, 255, 255, 0.6);
+            --primary-pink: #ffb7c5;
+            --accent-pink: #ff91a4;
+            --soft-green: #c4e17f;
+            --text-main: #5a4a42;
+
+            --status-pending-bg: #f0f0f0; --status-pending-text: #757575;
+            --status-doing-bg: #fff9c4; --status-doing-text: #827717;
+            --status-done-bg: #c8e6c9; --status-done-text: #1b5e20;
+            --status-off: #ff8a80;
+            --table-hover: rgba(255, 183, 197, 0.15);
+        }
+
+        ::selection {
+            background: var(--primary-pink);
+            color: white;
+        }
+
+        body { margin: 0; padding: 10px; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: var(--bg-color); background-image: var(--bg-gradient); min-height: 100vh; color: var(--text-main); display: flex; justify-content: center; align-items: flex-start; position: relative; overflow-x: hidden; cursor: url('cursor.png') 0 0, auto; }
+        a, button, .admin-shortcut, .status-badge { cursor: url('cursor.png') 0 0, pointer; }
+
+        /* คืนค่า will-change ให้ GPU จำรูปไว้ ไม่ต้องวาดใหม่ตอนขยับ */
+        #parallax-bg { 
+            position: fixed; 
+            top: -5%; left: -5%; 
+            width: 110%; height: 110%; 
+            pointer-events: none; 
+            z-index: 0; 
+            background-image: url('postcard.png'); 
+            background-size: cover; 
+            background-position: center;
+            opacity: 0.35; 
+            will-change: transform;
+        }
+
+        #sakura-container { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 10; }
+        
+        .petal { position: absolute; top: -10%; background-color: var(--primary-pink); border-radius: 150% 0 150% 0; opacity: 0; animation: fall linear infinite; will-change: transform, opacity; }
+        @keyframes fall { 
+            0% { transform: translate3d(0, 0, 0) rotate(0deg); opacity: 0; } 
+            10% { opacity: 0.7; } 
+            90% { opacity: 0.7; } 
+            100% { transform: translate3d(100px, 110vh, 0) rotate(360deg); opacity: 0; } 
+        }
+
+        /* 🚀 ปิด backdrop-filter ทิ้ง อาการกระตุกจะหายไปทันที 100% */
+        .glass-card { 
+            width: 100%; max-width: 1100px; 
+            background: var(--glass-bg); 
+            border: 1px solid var(--glass-border); 
+            border-radius: 30px; padding: 25px; 
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05); 
+            margin-top: 15px; position: relative; z-index: 2; box-sizing: border-box; 
+        }
+
+        .admin-shortcut { width: 30px; height: 30px; background: rgba(255,255,255,0.6); border-radius: 50%; border: 1px solid var(--primary-pink); display: flex; align-items: center; justify-content: center; font-size: 13px; transition: transform 0.2s ease, background-color 0.2s ease; margin-bottom: 5px; margin-left: auto; }
+        .admin-shortcut:hover { transform: scale(1.1) rotate(15deg); background: white; }
+
+        .header-section { display: grid; grid-template-columns: 1.2fr 1fr 0.8fr 0.6fr; gap: 15px; align-items: stretch; margin-bottom: 25px; }
+        
+        /* ปรับความใสให้กล่องข้อมูลด้านบน */
+        .title-box { background: rgba(255, 255, 255, 0.6); padding: 15px; border-radius: 20px; border: 1px solid white; display: flex; flex-direction: column; justify-content: center; }
+        .contact-bubble { background: rgba(255, 255, 255, 0.6); border: 2px solid white; padding: 12px 15px; border-radius: 20px; font-size: 12px; line-height: 1.5; display: flex; flex-direction: column; justify-content: center; }
+
+        .button-group { display: flex; flex-direction: column; gap: 8px; justify-content: center; }
+        .tos-btn { background: white; color: var(--accent-pink); padding: 10px; border-radius: 50px; text-decoration: none; font-weight: bold; text-align: center; border: 2px solid var(--primary-pink); font-size: 13px; transition: background-color 0.2s ease, color 0.2s ease; }
+        .tos-btn:hover { background: var(--primary-pink); color: white; }
+        .join-btn { background: var(--soft-green); color: white; padding: 10px; border-radius: 50px; text-decoration: none; font-weight: bold; text-align: center; border: 2px solid white; font-size: 13px; box-shadow: 0 4px 12px rgba(196, 225, 127, 0.3); transition: transform 0.2s ease; }
+        .join-btn:hover { transform: translateY(-2px); }
+
+        /* ปุ่ม Shop */
+        .shop-link-btn {
+            display: inline-block;
+            margin-top: 10px;
+            background: linear-gradient(135deg, #ff91a4 0%, #ffb7c5 100%);
+            color: white;
+            padding: 8px 15px;
+            border-radius: 50px;
+            text-decoration: none;
+            font-weight: bold;
+            font-size: 14px;
+            text-align: center;
+            border: 2px solid white;
+            box-shadow: 0 4px 10px rgba(255, 145, 164, 0.3);
+            transition: transform 0.2s;
+            width: fit-content;
+        }
+        .shop-link-btn:hover {
+            transform: translateY(-2px);
+        }
+
+        .status-container { display: flex; flex-direction: column; align-items: center; justify-content: center; }
+        .status-badge { padding: 6px 15px; border-radius: 50px; font-weight: bold; color: white; border: 2px solid white; text-align: center; font-size: 13px; min-width: 100px; transition: background-color 0.3s; }
+        .status-badge.on { background: #81c784; }
+        .status-badge.off { background: var(--status-off); }
+
+        .active-label { font-weight: bold; font-size: 13px; background: white; padding: 5px 12px; border-radius: 50px; margin-top: 8px; text-align: center; width: fit-content; }
+        .update-time { font-size: 9px; opacity: 0.5; margin-top: 4px; text-align: center; }
+
+        .announcement-bar { background: rgba(255, 255, 255, 0.85); border-radius: 50px; padding: 8px 20px; margin-bottom: 20px; display: flex; align-items: center; border: 1px solid rgba(255,255,255,0.8); overflow: hidden; transform: translateZ(0); }
+        .announcement-icon { font-size: 18px; margin-right: 12px; flex-shrink: 0; }
+        .marquee-container { flex-grow: 1; overflow: hidden; white-space: nowrap; }
+        
+        .marquee-text { display: inline-block; padding-left: 100%; animation: marquee 20s linear infinite; font-size: 13px; color: var(--text-main); will-change: transform; }
+        @keyframes marquee { 
+            0% { transform: translate3d(0, 0, 0); } 
+            100% { transform: translate3d(-100%, 0, 0); } 
+        }
+
+        /* ปรับลด opacity ของพื้นหลังตารางให้โปร่งแสงมากขึ้น */
+        .table-container { background: rgba(255, 255, 255, 0.35); border-radius: 20px; padding: 10px; overflow-x: auto; -webkit-overflow-scrolling: touch; border: 1px solid rgba(255,255,255,0.5); }
+        table { width: 100%; border-collapse: collapse; min-width: 800px; }
+        th { padding: 12px; color: #8d6e63; font-weight: bold; border-bottom: 2px solid rgba(255,255,255,0.6); font-size: 13px; text-align: center; }
+        
+        td { padding: 12px; text-align: center; border-bottom: 1px solid rgba(255,255,255,0.3); font-size: 12px; transition: background-color 0.1s ease-out; }
+        tr:not(.category-header):hover td { background-color: var(--table-hover); }
+        .category-header td { padding: 10px; font-size: 14px; background: rgba(255, 183, 197, 0.2); color: var(--accent-pink); font-weight: bold; }
+
+        .pagination { display: flex; justify-content: flex-end; align-items: center; gap: 6px; flex-wrap: wrap; margin-top: 15px; }
+        .pagination button { min-width: 36px; min-height: 36px; padding: 6px 10px; border: 1px solid var(--primary-pink); border-radius: 12px; background: rgba(255,255,255,0.85); color: var(--text-main); font: inherit; font-size: 13px; }
+        .pagination button:hover:not(:disabled), .pagination button[aria-current="page"] { background: var(--primary-pink); color: var(--text-main); }
+        .pagination button:disabled { opacity: 0.4; cursor: default; }
+        .pagination button:focus-visible { outline: 2px solid var(--text-main); outline-offset: 2px; }
+        .pagination-label, .pagination-ellipsis { font-size: 13px; padding: 0 4px; }
+
+        .bubble { padding: 5px 12px; border-radius: 50px; font-size: 11px; font-weight: bold; display: inline-block; min-width: 80px; }
+        .bg-pending { background: var(--status-pending-bg); color: var(--status-pending-text); }
+        .bg-doing { background: var(--status-doing-bg); color: var(--status-doing-text); }
+        .bg-done { background: var(--status-done-bg); color: var(--status-done-text); }
+
+        @media (max-width: 850px) {
+            .header-section { grid-template-columns: 1fr; gap: 15px; }
+            .button-group { flex-direction: row; }
+            .tos-btn, .join-btn { flex: 1; }
+            .admin-shortcut { margin-bottom: 10px; }
+        }
+    </style>
+</head>
+<body>
+
+    <div id="parallax-bg"></div>
+    <div id="sakura-container"></div>
+
+    <div class="glass-card">
+        <div class="header-section">
+            <div class="title-box">
+                <h1 style="margin:0; color: var(--accent-pink); font-size: 26px;">Commission Queue</h1>
+                <p style="margin:5px 0 0; opacity: 0.8; font-size: 14px;">นุเนะ แมวเม่น • 2026</p>
+                <a href="shop.html" class="shop-link-btn">🛒 Adoptable Shop</a>
+            </div>
+
+            <div class="contact-bubble">
+                <b>Contact:</b>
+                <span>สนใจจ้างงานหรือสอบถามรายละเอียดเพิ่มเติม ติดต่อ <p> Facebook: นุเนะ แมวเม่น</p> </span>
+            </div>
+
+            <div class="button-group">
+                <a href="gallery.html" class="tos-btn">Gallery / Commission</a>
+                <a href="https://akanezz2314.carrd.co/#agreement" target="_blank" class="tos-btn">TOS / Agreement</a>
+                <a href="https://www.facebook.com/akanemui2314" target="_blank" class="join-btn">Join Wait-list</a>
+            </div>
+
+            <div class="status-container">
+                <div class="admin-shortcut" onclick="goToSheet()" title="Manage Data">🔧</div>
+                <div id="shop-status" class="status-badge on">STATUS: ON</div>
+                <div id="active-count" class="active-label">Active: 0 orders</div>
+                <div id="last-updated" class="update-time">อัปเดตล่าสุด: -</div>
+            </div>
+        </div>
+
+        <div class="announcement-bar">
+            <span class="announcement-icon">📢</span>
+            <div class="marquee-container">
+                <div class="marquee-text" id="dynamic-marquee">กำลังโหลดประกาศ...</div>
+            </div>
+        </div>
+
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Status</th>
+                        <th>Contact</th>
+                        <th>Deadline</th>
+                        <th>Payment</th>
+                        <th>Type</th>
+                        <th>Note</th>
+                    </tr>
+                </thead>
+                <tbody id="queue-table"></tbody>
+            </table>
+        </div>
+        <nav id="queue-pagination" class="pagination" aria-label="หน้าของคิวงาน"></nav>
+    </div>
+
+    <script>
+        const SHEET_CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTWq26jrX4nDcIGzIaO-XQW0saxFlwZO2H7SVakkr45n3Bx5SfmsNxVpQhhBSlf2bOt73DIY2pvkgtB/pub?output=csv';
+        const SHEET_EDIT_URL = 'https://docs.google.com/spreadsheets/d/1QyTn6jTpV_yHvf4MVBkwGdqJdjRd5B0Dm1YnWw0qJ0I/edit?gid=0#gid=0';
+        const ADMIN_PW = '2314';
+
+        const PAGE_SIZE = 10;
+        let currentPage = 1;
+        let queueRows = [];
+
+        function renderQueue() {
+            const totalPages = Math.max(1, Math.ceil(queueRows.length / PAGE_SIZE));
+            currentPage = Math.min(currentPage, totalPages);
+            const pageRows = queueRows.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE);
+            let finalHTML = '';
+            let completedHeaderShown = false;
+            pageRows.forEach(row => {
+                if (row.isDone && !completedHeaderShown) {
+                    finalHTML += '<tr class="category-header"><td colspan="7">🌸 Zone: Completed Works (งานที่เสร็จแล้ว) 🌸</td></tr>';
+                    completedHeaderShown = true;
+                }
+                finalHTML += row.html;
+            });
+            const table = document.getElementById('queue-table');
+            if (table.innerHTML !== finalHTML) table.innerHTML = finalHTML;
+
+            const pagination = document.getElementById('queue-pagination');
+            const pages = new Set([1, totalPages]);
+            for (let page = Math.max(1, currentPage - 1); page <= Math.min(totalPages, currentPage + 1); page++) pages.add(page);
+            if (totalPages <= 7) for (let page = 1; page <= totalPages; page++) pages.add(page);
+            let controls = `<button type="button" data-page="${currentPage - 1}" aria-label="หน้าก่อนหน้า" ${currentPage === 1 ? 'disabled' : ''}>&lt;</button><span class="pagination-label">Page</span>`;
+            let previous = 0;
+            [...pages].sort((a, b) => a - b).forEach(page => {
+                if (previous && page - previous > 1) controls += '<span class="pagination-ellipsis">…</span>';
+                controls += `<button type="button" data-page="${page}" aria-label="หน้า ${page}" ${page === currentPage ? 'aria-current="page"' : ''}>${page}</button>`;
+                previous = page;
+            });
+            controls += `<button type="button" data-page="${currentPage + 1}" aria-label="หน้าถัดไป" ${currentPage === totalPages ? 'disabled' : ''}>&gt;</button>`;
+            if (pagination.innerHTML !== controls) pagination.innerHTML = controls;
+        }
+
+        document.getElementById('queue-pagination').addEventListener('click', event => {
+            const button = event.target.closest('button[data-page]');
+            if (!button || button.disabled) return;
+            currentPage = Number(button.dataset.page);
+            renderQueue();
+            const selected = document.querySelector('#queue-pagination button[aria-current="page"]');
+            if (selected) selected.focus({ preventScroll: true });
+        });
+
+        let isTicking = false;
+        const parallaxBg = document.getElementById('parallax-bg');
+        
+        document.addEventListener('mousemove', (e) => {
+            if (!isTicking) {
+                window.requestAnimationFrame(() => {
+                    const x = (e.clientX / window.innerWidth) * 20;
+                    const y = (e.clientY / window.innerHeight) * 20;
+                    parallaxBg.style.transform = `translate3d(${x}px, ${y}px, 0)`;
+                    isTicking = false;
+                });
+                isTicking = true;
+            }
+        });
+
+        async function loadData() {
+            try {
+                const urlWithBust = SHEET_CSV_URL + '&t=' + new Date().getTime();
+                const res = await fetch(urlWithBust, { cache: "no-store" });
+                if (!res.ok) throw new Error('Network Error');
+
+                const csv = await res.text();
+                const allRows = csv.trim().split(/\r?\n/);
+
+                const headerRow = allRows[0].split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/);
+                const h1Value = headerRow[7] ? headerRow[7].replace(/"/g, '').trim().toUpperCase() : 'ON';
+                const statusBadge = document.getElementById('shop-status');
+
+                if (statusBadge.innerText !== 'STATUS: ' + h1Value) {
+                    statusBadge.className = h1Value === 'OFF' ? 'status-badge off' : 'status-badge on';
+                    statusBadge.innerText = 'STATUS: ' + h1Value;
+                }
+
+                const c1Value = headerRow[2] ? headerRow[2].replace(/"/g, '').trim() : 'ไม่มีประกาศในขณะนี้';
+                const marquee = document.getElementById('dynamic-marquee');
+                if (marquee.innerText !== c1Value) {
+                    marquee.innerText = c1Value;
+                }
+
+                const dataRows = allRows.slice(1);
+                
+                const activeRows = [];
+                const completedRows = [];
+                let activeCount = 0;
+
+                dataRows.forEach(row => {
+                    const cols = row.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/).map(c => c.replace(/"/g, '').trim());
+                    if (cols.length < 5 || cols[0] === "" || cols[0].toLowerCase() === "date") return;
+                    const statusVal = cols[1] || '';
+                    const isDone = statusVal.includes('สำเร็จ') || statusVal.includes('เสร็จ') || statusVal.includes('Done') || statusVal.includes('Finished') || statusVal.includes('เต็ม');
+                    
+                    const rowHTML = `
+                        <tr>
+                            <td>${cols[0] || '-'}</td>
+                            <td><div class="bubble ${getColorClass(statusVal)}">${statusVal || '-'}</div></td>
+                            <td>${cols[2] && cols[2].includes('http') ? `<a href="${cols[2]}" target="_blank" style="color:var(--accent-pink); font-weight:bold;">Link</a>` : (cols[2] || '-')}</td>
+                            <td>${cols[3] || '-'}</td>
+                            <td><div class="bubble ${getColorClass(cols[4] || '')}">${cols[4] || '-'}</div></td>
+                            <td>${cols[5] || '-'}</td>
+                            <td>${cols[6] || '-'}</td> 
+                        </tr>`;
+
+                    if (isDone) completedRows.push({ html: rowHTML, isDone: true });
+                    else { activeRows.push({ html: rowHTML, isDone: false }); activeCount++; }
+                });
+
+                queueRows = [...activeRows, ...completedRows];
+                renderQueue();
+
+                document.getElementById('active-count').innerText = `Active: ${activeCount} orders`;
+                const now = new Date();
+                document.getElementById('last-updated').innerText = `อัปเดตล่าสุด: ${now.toLocaleDateString('th-TH')} ${now.toLocaleTimeString('th-TH')}`;
+            } catch (e) { console.error(e); }
+        }
+
+        function getColorClass(t) {
+            const val = t.trim();
+            if (val.includes('สำเร็จ') || val.includes('เสร็จ') || val.includes('Done') || val.includes('Finished') || val.includes('เต็ม')) return 'bg-done';
+            if (val.includes('ทำ') || val.includes('มัดจำ') || val.includes('Progress')) return 'bg-doing';
+            return 'bg-pending';
+        }
+
+        function goToSheet() {
+            if (prompt('Password:') === ADMIN_PW) window.open(SHEET_EDIT_URL, '_blank');
+            else alert('Wrong Password!');
+        }
+
+        function createPetals() {
+            const container = document.getElementById('sakura-container');
+            const fragment = document.createDocumentFragment();
+            for(let i=0; i<10; i++){
+                const petal = document.createElement('div');
+                petal.className = 'petal';
+                petal.style.left = Math.random() * 100 + 'vw';
+                petal.style.width = Math.random() * 10 + 10 + 'px';
+                petal.style.height = Math.random() * 10 + 5 + 'px';
+                petal.style.animationDelay = (Math.random() * 15) + 's';
+                petal.style.animationDuration = (Math.random() * 7 + 7) + 's';
+                fragment.appendChild(petal);
+            }
+            container.appendChild(fragment);
+        }
+
+        createPetals();
+        loadData();
+        setInterval(loadData, 30000);
+    </script>
+</body>
+</html>
