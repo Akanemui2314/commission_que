@@ -520,12 +520,12 @@
 @media(max-width:480px){#akane-concepts .ak .showcase-sort-dialog{padding:16px}#akane-concepts .ak .showcase-sort-row{gap:5px}#akane-concepts .ak .showcase-sort-state{display:none}#akane-concepts .ak .showcase-sort-thumb{width:34px;height:34px}#akane-concepts .ak .showcase-sort-name{font-size:13px}}
 </style>
 <div id="akane-concepts"  aria-label="แบบร่างเว็บคอมมิชชั่น Akane" data-previous-label="แบบก่อนหน้า" data-next-label="แบบถัดไป">
-<section class="ak" aria-label="Akane Commission Gallery"></section>
+<p id="initial-load-status" role="status" style="padding:24px;font:18px Tahoma,sans-serif;color:#806959">กำลังเปิดหน้า Commission…</p><section class="ak" aria-label="Akane Commission Gallery"></section>
 
 </div>
-<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
-<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
-<script src="commission-cloud.js"></script>
+<script defer src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+<script defer src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+<script defer src="commission-cloud.js"></script>
 <script>
 (async()=>{
 const root=document.getElementById('akane-concepts');
@@ -533,9 +533,7 @@ const prices={Character:[[200,250,350],[300,350,500],[400,450,700],[500,600,850]
 const scales={Character:['Head shot','Bust-up','Half body','Knee-up','Full body'],Chibi:['Head shot','Half body','Full body']};
 const finishes={Character:['Sketch','Flat Color','Full Color'],Chibi:['Sketch','Full Color']};
 const categories=['Full Body','Half Body','Bust-up','Head Shot','Knee-up','Chibi'];
-let cloudError='';let published=null;try{published=await window.AkaneCloud.load();}catch(error){cloudError=window.AkaneCloud?.errorMessage(error)||'เชื่อมต่อ Firebase ไม่ได้ค่ะ';}
-// Do not migrate browser-only dummy uploads to the public database.
-if(!published&&!cloudError){try{const response=await fetch('site-data.json',{cache:'no-store'});if(response.ok)published=await response.json();}catch{}}const saved=published;let previewCache=saved;
+let cloudError='';const saved=null;let previewCache=null;let cloudReady=false;
 function readPreview(){return previewCache;}
 const typeNames={Character:'Full Scale',Chibi:'Chibi',...(saved?.typeNames||{})};
 if(saved?.scales)Object.assign(scales,saved.scales);if(saved?.finishes)Object.assign(finishes,saved.finishes);if(saved?.pricing)Object.assign(prices,saved.pricing);
@@ -673,7 +671,7 @@ translate(surface);
 surface._drawGallery=drawGallery;
 query('.category-filters').addEventListener('click',async event=>{const button=event.target.closest('button[data-category]');if(!button)return;category=button.dataset.category;galleryScale='All';galleryFinish='All';drawGallery();});
 
-async function remember(){if(root.dataset.admin!=='true'||!adminUnlocked())return true;const data={language,pricing:prices,animation:look.animation,terms,scales,finishes,typeNames,categories,galleryTypes,galleryScales,galleryFinishes,artworks,offers:offers.map(({cover,...item})=>item)};const buttons=[...surface.querySelectorAll('.admin-preview button,.offers-admin button,.tos-admin button')];buttons.forEach(b=>b.disabled=true);query('.cloud-status').textContent='กำลังบันทึกและเผยแพร่…';try{await window.AkaneCloud.save(data);previewCache=data;query('.cloud-status').textContent='บันทึกเข้า Firebase และเผยแพร่แล้วค่ะ';return true;}catch(error){cloudError=window.AkaneCloud?.errorMessage(error)||error.message;query('.cloud-status').textContent=cloudError;return false;}finally{buttons.forEach(b=>b.disabled=false);}}
+async function remember(){if(!cloudReady)return false;if(root.dataset.admin!=='true'||!adminUnlocked())return true;const data={language,pricing:prices,animation:look.animation,terms,scales,finishes,typeNames,categories,galleryTypes,galleryScales,galleryFinishes,artworks,offers:offers.map(({cover,...item})=>item)};const buttons=[...surface.querySelectorAll('.admin-preview button,.offers-admin button,.tos-admin button')];buttons.forEach(b=>b.disabled=true);query('.cloud-status').textContent='กำลังบันทึกและเผยแพร่…';try{await window.AkaneCloud.save(data);previewCache=data;query('.cloud-status').textContent='บันทึกเข้า Firebase และเผยแพร่แล้วค่ะ';return true;}catch(error){cloudError=window.AkaneCloud?.errorMessage(error)||error.message;query('.cloud-status').textContent=cloudError;return false;}finally{buttons.forEach(b=>b.disabled=false);}}
 
 function render(){if(!scales[state.type])state.type=Object.keys(scales)[0];state.scale=Math.min(Math.max(0,state.scale),scales[state.type].length-1);state.finish=Math.min(Math.max(0,state.finish),finishes[state.type].length-1);
 [['.types',Object.keys(scales),'type'],['.scales',scales[state.type],'scale'],['.finishes',finishes[state.type],'finish']].forEach(([selector,labels,key])=>{query(selector).innerHTML=labels.map((label,i)=>`<button class="cursor-interaction" type="button" data-key="${key}" data-value="${escapeText(key==='type'?label:i)}" aria-pressed="${state[key]===(key==='type'?label:i)}">${escapeText(key==='type'?(typeNames[label]||label):label)}</button>`).join('');});
@@ -719,7 +717,7 @@ let termsLanguage=language;
 function syncScaleTags(){const list=query('.custom-scale-list');list.replaceChildren();const sel=query('.new-scale-type');const old=sel.value;sel.replaceChildren(...Object.keys(scales).map(id=>new Option(typeNames[id]||id,id)));if(scales[old])sel.value=old;drawTaxonomy();}
 query('.add-scale').addEventListener('click',async ()=>{const type=query('.new-scale-type').value;const name=query('.new-scale-name').value.trim();if(!name||scales[type].some(v=>v.toLowerCase()===name.toLowerCase())){query('.scale-result').textContent='ใส่ชื่อสเกลใหม่ที่ยังไม่ซ้ำค่ะ';return;}scales[type].push(name);prices[type].push(finishes[type].map(()=>0));if(!galleryScales.some(v=>v.toLowerCase()===name.toLowerCase()))galleryScales.push(name);drawPriceSettings();syncScaleTags();drawGallery();render();await remember();query('.new-scale-name').value='';query('.scale-result').textContent='เพิ่มสเกลแล้วค่ะ ตั้งราคาในตารางแล้วกด Save prices ได้เลย';});
 let editingOffer=-1;let offerCover='';let offerImages=[];let offerCrops=[];
-function makeMedia(src,label){const video=/^data:video\//i.test(src||'');const media=document.createElement(video?'video':'img');media.src=src;if(video){media.controls=true;media.playsInline=true;media.preload='metadata';media.setAttribute('aria-label',label||'Video preview');}else media.alt=label||'Preview';return media;}
+function makeMedia(src,label){const video=/^data:video\//i.test(src||'');const media=document.createElement(video?'video':'img');media.src=src;if(video){media.controls=true;media.playsInline=true;media.preload='none';media.setAttribute('aria-label',label||'Video preview');}else {media.alt=label||'Preview';media.loading='lazy';media.decoding='async';}return media;}
 let workCrop={x:50,y:50,zoom:1};let editingWork=-1;
 function showUploadMedia(src){const old=query('.upload img,.upload video');const media=makeMedia(src,'ภาพตัวอย่างที่เลือก');old.replaceWith(media);workCrop=cropValue();drawWorkCrop(src);}
 function drawWorkCrop(src){const editor=query('.work-crop-editor');editor.hidden=false;editor.replaceChildren();const section=document.createElement('section');section.className='crop-item';const heading=document.createElement('h3');heading.textContent='Crop artwork';const frame=document.createElement('div');frame.className='crop-frame';const media=makeMedia(src,'Artwork crop preview');frame.append(media);applyCrop(media,workCrop);section.append(heading,frame);for(const [key,name,min,max,step] of [['x','ตำแหน่งซ้าย / ขวา',0,100,1],['y','ตำแหน่งบน / ล่าง',0,100,1],['zoom','Zoom',1,3,.05]]){const label=document.createElement('label');label.textContent=name;const output=document.createElement('output');const input=document.createElement('input');input.type='range';input.min=min;input.max=max;input.step=step;input.value=workCrop[key];input.setAttribute('aria-label',`${name} · Artwork`);const update=()=>{output.textContent=key==='zoom'?`${Number(input.value).toFixed(2)}×`:`${input.value}%`;};input.addEventListener('input',async ()=>{workCrop[key]=Number(input.value);applyCrop(media,workCrop);update();});update();label.append(output,input);section.append(label);}const reset=document.createElement('button');reset.type='button';reset.textContent='Reset crop';reset.className='cursor-interaction';reset.addEventListener('click',async ()=>{workCrop=cropValue();drawWorkCrop(src);});section.append(reset);editor.append(section);}
@@ -785,7 +783,20 @@ query('.admin-login-form').addEventListener('submit',async event=>{event.prevent
 function appearance(){surface.dataset.animation=look.animation;surface.querySelectorAll('[data-effect]').forEach(button=>button.setAttribute('aria-pressed',String(button.dataset.effect===look.animation)));query('.sparkles').querySelectorAll('span').forEach((span,i)=>{span.textContent=look.animation==='petals'?'❀':look.animation==='dots'?'•':i%3?'✧':'✦';});query('.calculator').style.borderRadius=look.radius+'px';query('.sparkles').style.display=look.motion&&look.animation!=='none'?'':'none';const admin=look.view==='admin';const locked=admin&&!adminUnlocked();query('.admin-entry').hidden=admin;query('.admin-preview').hidden=!admin||locked;query('.tos-admin').hidden=!admin||locked;query('.offers-admin').hidden=!admin||locked;query('.backup-admin').hidden=!admin||locked;query('.content-grid').hidden=admin;query('.footer').hidden=admin;query('.hero').hidden=admin||!query('.calculator').hidden;query('header nav').hidden=admin;query('.contact-top').hidden=admin;}
 render();drawTaxonomy();drawGallery();drawLatest();drawWorkLibrary();appearance();query('.cloud-status').textContent=cloudError||'เชื่อมต่อ Firebase แล้วค่ะ';if(root.dataset.admin==='true'&&!adminUnlocked())showAdminLogin();if(globalThis.Tweak){const tweak=new Tweak({container:surface,onChange:appearance});tweak.addSlider(look,'radius',{label:'ความโค้งของกล่องเลือกงาน',min:8,max:32,unit:'px'});tweak.addSelect(look,'animation',{label:'แอนิเมชันพื้นหลัง',options:[{label:'ประกาย',value:'sparkles'},{label:'กลีบดอกไม้',value:'petals'},{label:'จุดลอย',value:'dots'},{label:'ไม่ใช้แอนิเมชัน',value:'none'}]});tweak.addSelect(look,'view',{label:'หน้าที่แสดงในพรีวิว',options:[{label:'หน้าลูกค้า',value:'customer'},{label:'หลังบ้าน',value:'admin'}]});}
 });
-window.AkaneCloud?.subscribe(data=>{root.querySelectorAll('.ak').forEach(s=>s._applyCloud?.(data));},message=>{root.querySelectorAll('.cloud-status').forEach(s=>s.textContent=message);});
+const loadStatus=document.getElementById('initial-load-status');
+loadStatus.textContent='กำลังโหลดผลงานและข้อมูลคอมมิชชั่น…';
+// Show the interface before Firebase downloads the artwork files.
+await new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve)));
+if(document.readyState!=='complete')await new Promise(resolve=>window.addEventListener('load',resolve,{once:true}));
+try{
+ if(!window.AkaneCloud)throw new Error('โหลดการเชื่อมต่อไม่สำเร็จ กรุณารีเฟรชหน้า');
+ let data=await window.AkaneCloud.load();
+ if(!data){const response=await fetch('site-data.json',{cache:'no-store'});if(!response.ok)throw new Error('โหลดข้อมูลไม่สำเร็จ');data=await response.json();}
+ root.querySelectorAll('.ak').forEach(surface=>surface._applyCloud?.(data));
+ cloudReady=true;loadStatus.hidden=true;
+ window.AkaneCloud.subscribe(data=>{root.querySelectorAll('.ak').forEach(surface=>surface._applyCloud?.(data));},message=>{root.querySelectorAll('.cloud-status').forEach(status=>status.textContent=message);});
+}catch(error){loadStatus.textContent=window.AkaneCloud?.errorMessage(error)||error.message;loadStatus.setAttribute('role','alert');}
+
 window.addEventListener('openai:set_globals',async event=>{const incoming=event.detail?.globals?.widgetState?.modelContent;if(incoming?.language){language=incoming.language==='en'?'en':'th';root.querySelectorAll('.ak').forEach(translate);}});
 })();
 </script>
