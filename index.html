@@ -784,7 +784,7 @@ function appearance(){surface.dataset.animation=look.animation;surface.querySele
 render();drawTaxonomy();drawGallery();drawLatest();drawWorkLibrary();appearance();query('.cloud-status').textContent=cloudError||'เชื่อมต่อ Firebase แล้วค่ะ';if(root.dataset.admin==='true'&&!adminUnlocked())showAdminLogin();if(globalThis.Tweak){const tweak=new Tweak({container:surface,onChange:appearance});tweak.addSlider(look,'radius',{label:'ความโค้งของกล่องเลือกงาน',min:8,max:32,unit:'px'});tweak.addSelect(look,'animation',{label:'แอนิเมชันพื้นหลัง',options:[{label:'ประกาย',value:'sparkles'},{label:'กลีบดอกไม้',value:'petals'},{label:'จุดลอย',value:'dots'},{label:'ไม่ใช้แอนิเมชัน',value:'none'}]});tweak.addSelect(look,'view',{label:'หน้าที่แสดงในพรีวิว',options:[{label:'หน้าลูกค้า',value:'customer'},{label:'หลังบ้าน',value:'admin'}]});}
 });
 const loadStatus=document.getElementById('initial-load-status');
-loadStatus.textContent='กำลังโหลดผลงานและข้อมูลคอมมิชชั่น…';
+loadStatus.textContent='Loading…';
 // Show the interface before Firebase downloads the artwork files.
 await new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve)));
 if(document.readyState!=='complete')await new Promise(resolve=>window.addEventListener('load',resolve,{once:true}));
