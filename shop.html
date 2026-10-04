@@ -520,5 +520,21 @@
 
         loadShopData();
     </script>
+    <script>
+document.addEventListener('keydown', function (event) {
+    if (event.key !== 'Escape') return;
+
+    const lightbox = document.getElementById('lightbox');
+    const modal = document.getElementById('product-modal');
+
+    if (lightbox && getComputedStyle(lightbox).display !== 'none') {
+        event.preventDefault();
+        closeLightbox();
+    } else if (modal && getComputedStyle(modal).display !== 'none') {
+        event.preventDefault();
+        closeModalDirect();
+    }
+});
+</script>
 </body>
 </html>
