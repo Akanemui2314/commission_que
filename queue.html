@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Commission Queue Akanezz2314's 2026</title>
     <!-- 🌸 ใส่ไอคอนเว็บเรียบร้อยแล้ว -->
-    <link rel="icon" type="image/png" href="icon3.svg">
+    <link rel="icon" type="image/svg+xml" href="icon3.svg">
     <style>
         :root {
             --bg-color: #fff0f5;
@@ -148,7 +148,15 @@
             .tos-btn, .join-btn { flex: 1; }
             .admin-shortcut { margin-bottom: 10px; }
         }
-    </style>
+    
+        .queue-admin-dialog{box-sizing:border-box;width:360px;max-width:calc(100vw - 32px);padding:24px;border:2px solid #ffb7c5;border-radius:24px;background:#fffaf5;color:#5a4a42;font-family:inherit;box-shadow:0 16px 60px #5a4a4226}
+        .queue-admin-dialog::backdrop{background:rgba(65,40,48,.35);backdrop-filter:blur(5px)}
+        .queue-admin-heading{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-bottom:24px}.queue-admin-heading h2{margin:0;font-size:24px;font-weight:500}
+        .queue-admin-close{width:40px;height:40px;flex:none;padding:0;border:2px solid #ffb7c5;border-radius:50%;background:white;color:#ff91a4;font-size:22px}
+        .queue-admin-dialog label{display:block;font-size:16px}.queue-admin-dialog input{box-sizing:border-box;width:100%;margin-top:8px;padding:12px 14px;border:1px solid #ffb7c5;border-radius:12px;background:#fffaf0;font:inherit;color:#5a4a42}
+        .queue-admin-dialog input:focus-visible{outline:2px solid #ff91a4;outline-offset:2px}.queue-admin-error{min-height:24px;color:#b94462;font-size:14px;margin:12px 0}
+        .queue-admin-submit{padding:12px 18px;border:2px solid white;border-radius:999px;background:#ffa6ba;color:white;font:inherit;font-weight:bold;box-shadow:0 4px 12px #ff91a433}
+        </style>
 </head>
 <body>
 
@@ -175,7 +183,7 @@
             </div>
 
             <div class="status-container">
-                <div class="admin-shortcut" onclick="goToSheet()" title="Manage Data">🔧</div>
+                <button type="button" class="admin-shortcut" onclick="goToSheet()" title="Manage Data" aria-label="จัดการตารางคิว">🔧</button>
                 <div id="shop-status" class="status-badge on">STATUS: ON</div>
                 <div id="active-count" class="active-label">Active: 0 orders</div>
                 <div id="last-updated" class="update-time">อัปเดตล่าสุด: -</div>
@@ -208,6 +216,7 @@
         <nav id="queue-pagination" class="pagination" aria-label="หน้าของคิวงาน"></nav>
     </div>
 
+<dialog class="queue-admin-dialog" aria-labelledby="queue-admin-title"><form id="queue-admin-form"><div class="queue-admin-heading"><h2 id="queue-admin-title">Admin access</h2><button type="button" class="queue-admin-close" aria-label="ปิด">×</button></div><label for="queue-admin-pin">รหัสเข้าหลังบ้าน</label><input id="queue-admin-pin" type="password" inputmode="numeric" autocomplete="off" required><p class="queue-admin-error" role="alert"></p><button type="submit" class="queue-admin-submit">เข้าสู่หลังบ้าน</button></form></dialog>
     <script>
         const SHEET_CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTWq26jrX4nDcIGzIaO-XQW0saxFlwZO2H7SVakkr45n3Bx5SfmsNxVpQhhBSlf2bOt73DIY2pvkgtB/pub?output=csv';
         const SHEET_EDIT_URL = 'https://docs.google.com/spreadsheets/d/1QyTn6jTpV_yHvf4MVBkwGdqJdjRd5B0Dm1YnWw0qJ0I/edit?gid=0#gid=0';
@@ -339,10 +348,12 @@
             return 'bg-pending';
         }
 
-        function goToSheet() {
-            if (prompt('Password:') === ADMIN_PW) window.open(SHEET_EDIT_URL, '_blank');
-            else alert('Wrong Password!');
-        }
+        const queueAdminDialog=document.querySelector('.queue-admin-dialog');
+        const queueAdminPin=document.getElementById('queue-admin-pin');
+        const queueAdminError=document.querySelector('.queue-admin-error');
+        function goToSheet(){queueAdminPin.value='';queueAdminError.textContent='';queueAdminDialog.showModal();queueAdminPin.focus();}
+        document.querySelector('.queue-admin-close').addEventListener('click',()=>queueAdminDialog.close());
+        document.getElementById('queue-admin-form').addEventListener('submit',event=>{event.preventDefault();if(queueAdminPin.value!==ADMIN_PW){queueAdminError.textContent='รหัสไม่ถูกต้อง กรุณาลองอีกครั้งค่ะ';queueAdminPin.select();return;}queueAdminDialog.close();window.open(SHEET_EDIT_URL,'_blank','noopener');});
 
         function createPetals() {
             const container = document.getElementById('sakura-container');
