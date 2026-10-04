@@ -49,7 +49,7 @@
         }
 
         .layout-container { 
-            display: grid; grid-template-columns: 280px 1fr; gap: 30px; 
+            display: grid; grid-template-columns: 280px minmax(0, 1fr); gap: 30px; 
             max-width: 1200px; width: 100%; margin: 0 auto; align-items: start; 
             position: relative; z-index: 2;
         }
@@ -80,7 +80,15 @@
         .nav-tabs .active { color: var(--text-main); border-bottom: 2px solid var(--accent-pink); }
         .nav-tabs span:hover:not(.active) { color: var(--accent-pink); }
         
-        .gallery-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 25px; }
+        .layout-container > main { min-width: 0; }
+        .gallery-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 280px), 1fr)); gap: 25px; }
+        .shop-pagination { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 8px; margin-top: 26px; }
+        .shop-pagination[hidden] { display: none; }
+        .shop-pagination button { min-width: 42px; min-height: 42px; padding: 8px 14px; border: 1px solid var(--primary-pink); border-radius: 24px; background: white; color: var(--text-main); font: inherit; cursor: pointer; }
+        .shop-pagination button[aria-current="page"] { background: var(--accent-pink); color: white; border-color: var(--accent-pink); font-weight: bold; }
+        .shop-pagination button:disabled { opacity: .4; cursor: default; }
+        .shop-pagination button:focus-visible { outline: 2px solid var(--accent-pink); outline-offset: 3px; }
+        .shop-page-summary { flex-basis: 100%; text-align: center; color: var(--text-main); font-size: 13px; margin-bottom: 4px; }
         #empty-state { grid-column: 1 / -1; text-align: center; padding: 40px; color: #888; font-size: 15px; }
 
         .card { background: rgba(255, 255, 255, 0.85); border-radius: 18px; border: 1px solid var(--glass-border); overflow: hidden; box-shadow: 0 5px 15px rgba(0,0,0,0.05); transition: 0.2s; position: relative; cursor: pointer; }
@@ -238,6 +246,7 @@
             <div class="gallery-grid" id="shop-gallery">
                 <div id="empty-state">Loading data...</div>
             </div>
+            <nav id="shop-pagination" class="shop-pagination" aria-label="Adoptable pages" hidden></nav>
         </main>
     </div>
 
@@ -290,6 +299,8 @@
         let currentActiveList = []; 
         let currentIndex = 0;       
         let currentFilterType = 'ALL';
+        const SHOP_PAGE_SIZE = 9;
+        let currentPage = 1;
 
         async function loadShopData() {
             const gallery = document.getElementById('shop-gallery');
@@ -313,6 +324,7 @@
                 tab.classList.remove('active');
                 if (tab.getAttribute('onclick').includes(type)) { tab.classList.add('active'); }
             });
+            currentPage = 1;
             renderGallery(type);
         }
 
@@ -325,12 +337,18 @@
                 ? allAdoptables 
                 : allAdoptables.filter(item => item.status === filterType);
 
+            const pageCount = Math.max(1, Math.ceil(currentActiveList.length / SHOP_PAGE_SIZE));
+            currentPage = Math.max(1, Math.min(currentPage, pageCount));
+            renderPagination(pageCount);
+
             if (currentActiveList.length === 0) {
                 gallery.innerHTML = '<div id="empty-state">Coming soon...</div>';
                 return;
             }
             
-            currentActiveList.forEach((data, index) => {
+            const startIndex = (currentPage - 1) * SHOP_PAGE_SIZE;
+            currentActiveList.slice(startIndex, startIndex + SHOP_PAGE_SIZE).forEach((data, pageIndex) => {
+                const index = startIndex + pageIndex;
                 let badgeClass = 'avail';
                 let badgeText = 'Available';
 
@@ -352,6 +370,49 @@
                     </div>
                 `;
             });
+        }
+
+        function renderPagination(pageCount) {
+            const nav = document.getElementById('shop-pagination');
+            nav.hidden = pageCount <= 1;
+            nav.innerHTML = '';
+            if (nav.hidden) return;
+            const first = (currentPage - 1) * SHOP_PAGE_SIZE + 1;
+            const last = Math.min(currentPage * SHOP_PAGE_SIZE, currentActiveList.length);
+            nav.innerHTML = `<span class="shop-page-summary" role="status">${first}–${last} / ${currentActiveList.length}</span>`;
+            const addButton = (label, page, disabled, active = false) => {
+                const button = document.createElement('button');
+                button.type = 'button';
+                button.textContent = label;
+                button.disabled = disabled;
+                if (active) button.setAttribute('aria-current', 'page');
+                button.addEventListener('click', () => changeShopPage(page));
+                nav.appendChild(button);
+            };
+            addButton('‹', currentPage - 1, currentPage === 1);
+            const pages = new Set([1, pageCount]);
+            for (let page = currentPage - 2; page <= currentPage + 2; page++) {
+                if (page > 0 && page <= pageCount) pages.add(page);
+            }
+            if (pageCount <= 7) for (let page = 1; page <= pageCount; page++) pages.add(page);
+            let previousPage = 0;
+            [...pages].sort((a, b) => a - b).forEach(page => {
+                if (previousPage && page > previousPage + 1) {
+                    const gap = document.createElement('span');
+                    gap.textContent = '…';
+                    nav.appendChild(gap);
+                }
+                addButton(`P ${page}`, page, false, page === currentPage);
+                previousPage = page;
+            });
+            addButton('›', currentPage + 1, currentPage === pageCount);
+        }
+
+        function changeShopPage(page) {
+            const pageCount = Math.max(1, Math.ceil(currentActiveList.length / SHOP_PAGE_SIZE));
+            currentPage = Math.max(1, Math.min(page, pageCount));
+            renderGallery(currentFilterType);
+            document.getElementById('shop-gallery').scrollIntoView({ block: 'start' });
         }
 
         function openModal(index) {
