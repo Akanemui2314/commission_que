@@ -775,7 +775,72 @@ let termsLanguage=language;
 function syncScaleTags(){const list=query('.custom-scale-list');list.replaceChildren();const sel=query('.new-scale-type');const old=sel.value;sel.replaceChildren(...Object.keys(scales).map(id=>new Option(typeNames[id]||id,id)));if(scales[old])sel.value=old;drawTaxonomy();}
 query('.add-scale').addEventListener('click',async ()=>{const type=query('.new-scale-type').value;const name=query('.new-scale-name').value.trim();if(!name||scales[type].some(v=>v.toLowerCase()===name.toLowerCase())){query('.scale-result').textContent='ใส่ชื่อสเกลใหม่ที่ยังไม่ซ้ำค่ะ';return;}scales[type].push(name);prices[type].push(finishes[type].map(()=>0));if(!galleryScales.some(v=>v.toLowerCase()===name.toLowerCase()))galleryScales.push(name);drawPriceSettings();syncScaleTags();drawGallery();render();await remember();query('.new-scale-name').value='';query('.scale-result').textContent='เพิ่มสเกลแล้วค่ะ ตั้งราคาในตารางแล้วกด Save prices ได้เลย';});
 let editingOffer=-1;let offerCover='';let offerImages=[];let offerCrops=[];
-function makeMedia(src,label){const video=/^data:video\//i.test(src||'');const media=document.createElement(video?'video':'img');media.src=src;if(video){media.controls=true;media.playsInline=true;media.preload='none';media.setAttribute('aria-label',label||'Video preview');}else {media.alt=label||'Preview';media.loading='lazy';media.decoding='async';}return media;}
+function videoPoster(src) {
+    const cache = window.akaneVideoPosterCache ||= new Map();
+    if (cache.has(src)) return cache.get(src);
+    const promise = new Promise(resolve => {
+        const probe = document.createElement('video');
+        probe.muted = true;
+        probe.playsInline = true;
+        probe.preload = 'auto';
+        let done = false;
+        const finish = poster => {
+            if (done) return;
+            done = true;
+            clearTimeout(timer);
+            probe.pause();
+            probe.removeAttribute('src');
+            probe.load();
+            resolve(poster);
+        };
+        const capture = () => {
+            if (done || probe.readyState < 2 || !probe.videoWidth) return;
+            try {
+                const canvas = document.createElement('canvas');
+                canvas.width = Math.min(960, probe.videoWidth);
+                canvas.height = Math.max(1, Math.round(canvas.width * probe.videoHeight / probe.videoWidth));
+                canvas.getContext('2d').drawImage(probe, 0, 0, canvas.width, canvas.height);
+                finish(canvas.toDataURL('image/jpeg', 0.85));
+            } catch { finish(''); }
+        };
+        const timer = setTimeout(() => finish(''), 20000);
+        probe.addEventListener('error', () => finish(''), { once: true });
+        probe.addEventListener('loadedmetadata', () => {
+            const time = Number.isFinite(probe.duration) ? Math.min(1, probe.duration / 2) : 0;
+            if (time > 0) {
+                probe.addEventListener('seeked', capture, { once: true });
+                probe.currentTime = time;
+            } else {
+                probe.addEventListener('loadeddata', capture, { once: true });
+                capture();
+            }
+        }, { once: true });
+        probe.src = src;
+        probe.load();
+    });
+    cache.set(src, promise);
+    return promise;
+}
+function makeMedia(src, label) {
+    const isVideo = /^data:video\//i.test(src || '');
+    const media = document.createElement(isVideo ? 'video' : 'img');
+    if (isVideo) {
+        media.controls = true;
+        media.playsInline = true;
+        media.preload = 'none';
+        media.setAttribute('aria-label', label || 'Video preview');
+        videoPoster(src).then(poster => {
+            if (poster) media.poster = poster;
+        });
+    } else {
+        media.alt = label || 'Preview';
+        media.loading = 'lazy';
+        media.decoding = 'async';
+    }
+    media.src = src;
+    return media;
+}
+
 let workCrop={x:50,y:50,zoom:1};let editingWork=-1;
 function showUploadMedia(src){const old=query('.upload img,.upload video');const media=makeMedia(src,'ภาพตัวอย่างที่เลือก');old.replaceWith(media);workCrop=cropValue();drawWorkCrop(src);}
 function drawWorkCrop(src){query('.work-crop-tools').hidden=false;applyCrop(query('.upload img,.upload video'),workCrop);const editor=query('.work-crop-editor');editor.hidden=false;editor.replaceChildren();const section=document.createElement('section');section.className='crop-item';const heading=document.createElement('h3');heading.textContent='Crop artwork';const frame=document.createElement('div');frame.className='crop-frame';const media=makeMedia(src,'Artwork crop preview');frame.append(media);applyCrop(media,workCrop);section.append(heading,frame);for(const [key,name,min,max,step] of [['x','ตำแหน่งซ้าย / ขวา',0,100,1],['y','ตำแหน่งบน / ล่าง',0,100,1],['zoom','Zoom',1,3,.05]]){const label=document.createElement('label');label.textContent=name;const output=document.createElement('output');const input=document.createElement('input');input.type='range';input.min=min;input.max=max;input.step=step;input.value=workCrop[key];input.setAttribute('aria-label',`${name} · Artwork`);const update=()=>{output.textContent=key==='zoom'?`${Number(input.value).toFixed(2)}×`:`${input.value}%`;};input.addEventListener('input',async ()=>{workCrop[key]=Number(input.value);applyCrop(media,workCrop);applyCrop(query('.upload img,.upload video'),workCrop);update();});update();label.append(output,input);section.append(label);}const reset=document.createElement('button');reset.type='button';reset.textContent='Reset crop';reset.className='cursor-interaction';reset.addEventListener('click',async ()=>{workCrop=cropValue();drawWorkCrop(src);});section.append(reset);editor.append(section);}
