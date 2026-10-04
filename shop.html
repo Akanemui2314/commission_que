@@ -82,10 +82,12 @@
         
         .layout-container > main { min-width: 0; }
         .gallery-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 280px), 1fr)); gap: 25px; }
-        .shop-pagination { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 8px; margin-top: 26px; }
+        .shop-pagination { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 6px; margin-top: 26px; }
         .shop-pagination[hidden] { display: none; }
-        .shop-pagination button { min-width: 42px; min-height: 42px; padding: 8px 14px; border: 1px solid var(--primary-pink); border-radius: 24px; background: white; color: var(--text-main); font: inherit; cursor: pointer; }
-        .shop-pagination button[aria-current="page"] { background: var(--accent-pink); color: white; border-color: var(--accent-pink); font-weight: bold; }
+        .shop-pagination button { min-width: 36px; min-height: 36px; padding: 6px 10px; border: 1px solid var(--primary-pink); border-radius: 12px; background: rgba(255,255,255,0.85); color: var(--text-main); font: inherit; font-size: 13px; cursor: pointer; }
+        .shop-pagination button[aria-current="page"] { background: var(--primary-pink); color: var(--text-main); }
+        .shop-pagination button:hover:not(:disabled) { background: var(--primary-pink); color: var(--text-main); }
+        .shop-pagination .pagination-label { font-size: 13px; padding: 0 4px; }
         .shop-pagination button:disabled { opacity: .4; cursor: default; }
         .shop-pagination button:focus-visible { outline: 2px solid var(--accent-pink); outline-offset: 3px; }
         .shop-page-summary { flex-basis: 100%; text-align: center; color: var(--text-main); font-size: 13px; margin-bottom: 4px; }
@@ -389,7 +391,11 @@
                 button.addEventListener('click', () => changeShopPage(page));
                 nav.appendChild(button);
             };
-            addButton('‹', currentPage - 1, currentPage === 1);
+            addButton('<', currentPage - 1, currentPage === 1);
+            const label = document.createElement('span');
+            label.className = 'pagination-label';
+            label.textContent = 'Page';
+            nav.appendChild(label);
             const pages = new Set([1, pageCount]);
             for (let page = currentPage - 2; page <= currentPage + 2; page++) {
                 if (page > 0 && page <= pageCount) pages.add(page);
@@ -402,10 +408,10 @@
                     gap.textContent = '…';
                     nav.appendChild(gap);
                 }
-                addButton(`P ${page}`, page, false, page === currentPage);
+                addButton(String(page), page, false, page === currentPage);
                 previousPage = page;
             });
-            addButton('›', currentPage + 1, currentPage === pageCount);
+            addButton('>', currentPage + 1, currentPage === pageCount);
         }
 
         function changeShopPage(page) {
