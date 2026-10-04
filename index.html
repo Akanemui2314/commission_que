@@ -518,6 +518,7 @@
 #akane-concepts .ak .showcase-move{padding:5px;width:34px;height:34px;flex-shrink:0}
 #akane-concepts .ak .showcase-sort-footer{justify-content:flex-end;gap:10px}
 @media(max-width:480px){#akane-concepts .ak .showcase-sort-dialog{padding:16px}#akane-concepts .ak .showcase-sort-row{gap:5px}#akane-concepts .ak .showcase-sort-state{display:none}#akane-concepts .ak .showcase-sort-thumb{width:34px;height:34px}#akane-concepts .ak .showcase-sort-name{font-size:13px}}
+#akane-concepts .ak .category-section{content-visibility:auto;contain-intrinsic-size:auto 420px}
 </style>
 <div id="akane-concepts"  aria-label="แบบร่างเว็บคอมมิชชั่น Akane" data-previous-label="แบบก่อนหน้า" data-next-label="แบบถัดไป">
 <p id="initial-load-status" role="status" style="padding:24px;font:18px Tahoma,sans-serif;color:#806959">กำลังเปิดหน้า Commission…</p><section class="ak" aria-label="Akane Commission Gallery"></section>
@@ -603,7 +604,7 @@ root.querySelectorAll('.ak').forEach((surface,index)=>{
 let state={type:'Character',scale:1,finish:2,commercial:false,...(saved?.selections?.[index]||{})};
 const characters=[state];let activeCharacter=0;let orderCommercial=state.commercial;
 const look={radius:22,motion:true,animation:saved?.animation||'petals',view:root.dataset.admin==='true'?'admin':'customer'};
-surface.innerHTML=`<div class="sparkles" aria-hidden="true">${Array.from({length:48},(_,i)=>`<span style="left:${(i*29)%98}%;top:${(i*17)%96}%;animation-delay:-${i}s">${i%3?'✧':'❀'}</span>`).join('')}</div><div class="interior">
+surface.innerHTML=`<div class="sparkles" aria-hidden="true">${Array.from({length:16},(_,i)=>`<span style="left:${(i*29)%98}%;top:${(i*17)%96}%;animation-delay:-${i}s">${i%3?'✧':'❀'}</span>`).join('')}</div><div class="interior">
 <header><div class="brand">Akanezz2314 <small>COMMISSION / GALLERY</small></div><nav aria-label="เมนูเว็บไซต์"><a href="#" data-local="gallery">Commission</a><a href="shop.html" target="_blank" rel="noopener">Adoptable</a><div class="row" aria-label="Language"><button type="button" class="language cursor-interaction" data-language="th">TH</button><button type="button" class="language cursor-interaction" data-language="en">EN</button></div><button type="button" class="admin-entry cursor-interaction" aria-label="Open admin">🔧</button></nav></header><div class="contact-top"><span>Contact</span><a href="https://twitter.com/AKANEzz2314" target="_blank" rel="noopener">X / Twitter</a><a href="https://www.deviantart.com/akanezz2314" target="_blank" rel="noopener">DeviantArt</a><a href="https://www.facebook.com/akanemui2314" target="_blank" rel="noopener">Facebook</a><a href="mailto:akanezz2314@gmail.com">Email</a><a href="https://toyhou.se/Akanezz2314" target="_blank" rel="noopener">Toyhouse</a></div>
 <section class="hero"><div><span class="eyebrow">Hewwo!</span><h1>Akanezz2314<br><span style="display:block;font-size:21px;font-family:Tahoma,sans-serif;margin-top:8px">Commission</span></h1><p>สนใจงานหรือมีคำถามเพิ่มเติม ทักมาสอบถามได้เสมอเลยนะคะ ♥️</p><div class="row"><a href="#" data-local="commission">เช็คราคา</a><a class="pill" href="queue.html" target="_blank" rel="noopener">สถานะรับงาน / ตารางคิว</a></div></div><div class="hero-art"><div><i data-lucide="image" aria-hidden="true"></i>พื้นที่ภาพแนะนำของ Akane<br><span class="small">เลือกจากผลงานที่อัปโหลด</span></div></div></section>
 <div class="content-grid"><section class="works"><section class="open-commissions"><div class="available-heading row"><h2>Available</h2><span class="availability-toggle" role="status" aria-live="polite"><span class="availability-knob" aria-hidden="true"></span><span class="availability-label">OFF</span></span></div><div class="offer-list"></div></section><span class="eyebrow">Gallery</span><h2>Showcase</h2><section class="latest-carousel" aria-label="Showcase artwork"><div class="latest-stage"></div><div class="latest-controls row"><button type="button" class="cursor-interaction latest-prev" aria-label="Previous artwork">‹</button><span class="latest-count"></span><button type="button" class="cursor-interaction latest-next" aria-label="Next artwork">›</button></div></section><h2 class="category-title">Overview</h2><div class="category-filters choices" aria-label="หมวดผลงาน"></div><div class="gallery-tag-filters row"></div><div class="grouped-gallery" aria-live="polite"></div></section>
@@ -622,7 +623,7 @@ let latestIndex=0, playing=true, hovering=false;
 const reduced=window.matchMedia('(prefers-reduced-motion: reduce)');
 if(reduced.matches)playing=false;
 let rotationPhase=0;let tiltFrame=0;let manualPosition=0;let manualTarget=0;
-function drawLatest(){
+function drawLatest(){if(root.dataset.admin==='true')return;
  const latestArtworks=orderedArtworkEntries(artworks).slice(0,10).map(entry=>entry.art);
  cancelAnimationFrame(tiltFrame);manualPosition=0;manualTarget=0;
  const stage=query('.latest-stage');stage.replaceChildren();query('.latest-controls').hidden=latestArtworks.length<2;query('.latest-carousel').hidden=latestArtworks.length===0;if(!latestArtworks.length)return;const track=document.createElement('div');track.className='latest-track';
@@ -632,19 +633,20 @@ function drawLatest(){
  function frame(time){if(!stage.isConnected)return;const delta=previous?Math.min((time-previous)/1000,.05):0;previous=time;const reduced=matchMedia('(prefers-reduced-motion: reduce)').matches;manualPosition=reduced?manualTarget:manualPosition+(manualTarget-manualPosition)*(1-Math.exp(-delta*7));if(Math.abs(manualTarget-manualPosition)<.0005){manualPosition=manualTarget;if(Math.abs(manualPosition)>=latestArtworks.length){const turns=Math.trunc(manualPosition/latestArtworks.length)*latestArtworks.length;manualPosition-=turns;manualTarget-=turns;}}query('.latest-prev').disabled=false;query('.latest-next').disabled=false;
  const bounds=stage.getBoundingClientRect();const width=cells[0].getBoundingClientRect().width;const shift=bounds.width/2-width/2-((latestArtworks.length>1?2*latestArtworks.length:0)+manualPosition)*width;track.style.transform=`translate3d(${shift}px,0,0)`;
  const center=bounds.left+bounds.width/2;cells.forEach(cell=>cell.style.transform='');cells.forEach(cell=>{const box=cell.getBoundingClientRect();const offset=Math.max(-1,Math.min(1,(box.left+box.width/2-center)/(bounds.width*.5)));const figure=cell.firstElementChild;figure.style.transform=`rotateY(${-offset*26}deg)`;figure.style.opacity=String(1-Math.abs(offset)*.2);figure.style.setProperty('--tilt-shade',String(Math.abs(offset)*.19));figure.style.setProperty('--tilt-direction',offset<0?'to left':'to right');});
- const projected=cells.map(cell=>cell.firstElementChild.getBoundingClientRect());let anchor=0;let nearest=Infinity;projected.forEach((rect,i)=>{const distance=Math.abs(rect.left+rect.width/2-center);if(distance<nearest){nearest=distance;anchor=i;}});const shifts=Array(cells.length).fill(0);for(let i=anchor+1;i<cells.length;i++)shifts[i]=projected[i-1].right+shifts[i-1]-projected[i].left;for(let i=anchor-1;i>=0;i--)shifts[i]=projected[i+1].left+shifts[i+1]-projected[i].right;cells.forEach((cell,i)=>cell.style.transform=`translateX(${shifts[i]}px)`);tiltFrame=requestAnimationFrame(frame);
- }tiltFrame=requestAnimationFrame(frame);translate(surface);
+ const projected=cells.map(cell=>cell.firstElementChild.getBoundingClientRect());let anchor=0;let nearest=Infinity;projected.forEach((rect,i)=>{const distance=Math.abs(rect.left+rect.width/2-center);if(distance<nearest){nearest=distance;anchor=i;}});const shifts=Array(cells.length).fill(0);for(let i=anchor+1;i<cells.length;i++)shifts[i]=projected[i-1].right+shifts[i-1]-projected[i].left;for(let i=anchor-1;i>=0;i--)shifts[i]=projected[i+1].left+shifts[i+1]-projected[i].right;cells.forEach((cell,i)=>cell.style.transform=`translateX(${shifts[i]}px)`);tiltFrame=Math.abs(manualTarget-manualPosition)>.0005?requestAnimationFrame(frame):0;
+ }surface._wakeLatest=()=>{if(!tiltFrame){previous=0;tiltFrame=requestAnimationFrame(frame);}};tiltFrame=requestAnimationFrame(frame);translate(surface);
 }
-function positionRotation(){manualTarget=rotationPhase;}
+function positionRotation(){manualTarget=rotationPhase;surface._wakeLatest?.();}
 function updatePlayback(){}
-query('.latest-prev').addEventListener('click',async ()=>{manualTarget--;rotationPhase=manualTarget;});
-query('.latest-next').addEventListener('click',async ()=>{manualTarget++;rotationPhase=manualTarget;});
+window.addEventListener('resize',()=>surface._wakeLatest?.(),{passive:true});
+query('.latest-prev').addEventListener('click',async ()=>{manualTarget--;rotationPhase=manualTarget;surface._wakeLatest?.();});
+query('.latest-next').addEventListener('click',async ()=>{manualTarget++;rotationPhase=manualTarget;surface._wakeLatest?.();});
 
 query('.latest-carousel').addEventListener('mouseenter',async ()=>hovering=true);
 query('.latest-carousel').addEventListener('mouseleave',async ()=>hovering=false);
 let touchStart=null;
 query('.latest-stage').addEventListener('touchstart',async event=>{touchStart=event.changedTouches[0].clientX;},{passive:true});
-query('.latest-stage').addEventListener('touchend',async event=>{if(touchStart===null)return;const delta=event.changedTouches[0].clientX-touchStart;if(Math.abs(delta)>45){manualTarget+=delta<0?1:-1;rotationPhase=manualTarget;}touchStart=null;},{passive:true});
+query('.latest-stage').addEventListener('touchend',async event=>{if(touchStart===null)return;const delta=event.changedTouches[0].clientX-touchStart;if(Math.abs(delta)>45){manualTarget+=delta<0?1:-1;rotationPhase=manualTarget;surface._wakeLatest?.();}touchStart=null;},{passive:true});
 
 let fullArtworkItems=[];let fullArtworkIndex=0;
 function renderFullArtwork(){const art=fullArtworkItems[fullArtworkIndex];if(!art)return;const target=query('.artwork-lightbox-content');target.querySelectorAll('video').forEach(video=>video.pause());target.replaceChildren();const media=makeMedia(art.image,art.title);media.draggable=false;if(media.tagName==='VIDEO')media.setAttribute('controlsList','nodownload');target.append(media);query('.artwork-lightbox-prev').hidden=fullArtworkItems.length<2;query('.artwork-lightbox-next').hidden=fullArtworkItems.length<2;}
@@ -657,7 +659,7 @@ query('.artwork-lightbox').addEventListener('contextmenu',async event=>event.pre
 query('.artwork-lightbox').addEventListener('dragstart',async event=>event.preventDefault());
 query('.artwork-lightbox').addEventListener('close',async ()=>query('.artwork-lightbox-content').replaceChildren());
 query('.grouped-gallery').addEventListener('contextmenu',async event=>event.preventDefault());
-function drawGallery(){
+function drawGallery(){if(root.dataset.admin==='true')return;
 if(category!=='All'&&!categories.includes(category))category='All';if(galleryScale!=='All'&&!galleryScales.includes(galleryScale))galleryScale='All';if(galleryFinish!=='All'&&!galleryFinishes.includes(galleryFinish))galleryFinish='All';
 query('.category-filters').replaceChildren();
 ['All',...categories].forEach(tag=>{const button=document.createElement('button');button.type='button';button.className='cursor-interaction';button.dataset.category=tag;button.setAttribute('aria-pressed',String(category===tag));button.textContent=tag==='All'?'ทั้งหมด':tag;query('.category-filters').appendChild(button);});
@@ -720,7 +722,7 @@ let editingOffer=-1;let offerCover='';let offerImages=[];let offerCrops=[];
 function videoPoster(src) {
     const cache = window.akaneVideoPosterCache ||= new Map();
     if (cache.has(src)) return cache.get(src);
-    const promise = new Promise(resolve => {
+    const promise = (async()=>{const cached=await window.AkaneCloud?.getPoster?.(src);if(cached)return cached;return new Promise(resolve => {
         const probe = document.createElement('video');
         probe.muted = true;
         probe.playsInline = true;
@@ -733,7 +735,7 @@ function videoPoster(src) {
             probe.pause();
             probe.removeAttribute('src');
             probe.load();
-            resolve(poster);
+            if(poster)window.AkaneCloud?.putPoster?.(src,poster);resolve(poster);
         };
         const capture = () => {
             if (done || probe.readyState < 2 || !probe.videoWidth) return;
@@ -760,6 +762,7 @@ function videoPoster(src) {
         probe.src = src;
         probe.load();
     });
+    })();
     cache.set(src, promise);
     return promise;
 }

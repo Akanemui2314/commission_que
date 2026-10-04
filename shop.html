@@ -217,11 +217,11 @@
     <div class="layout-container">
         <!-- Sidebar Profile -->
         <aside class="profile-sidebar">
-            <a href="admin-shop.html" target="_blank" rel="noopener"><img draggable="false" src="icon.png" alt="Profile" class="avatar" title="Admin Dashboard"></a>
+            <a href="admin-shop.html" target="_blank" rel="noopener"><img loading="lazy" decoding="async" draggable="false" src="icon.png" alt="Profile" class="avatar" title="Admin Dashboard"></a>
             <h1 class="profile-name">Akanezz2314</h1>
             <p class="profile-handle">@AKANEzz2314</p>
             
-            <a href="index.html" class="btn-nav">Back to Queue</a>
+            <a href="queue.html" class="btn-nav">Back to Queue</a>
 
             <div class="social-links">
                 <p>Hewwo! I'm Akane, happy to see you here.<br>If you have anything please contact me!</p>
@@ -258,12 +258,12 @@
             <button class="modal-close" onclick="closeModalDirect()">✕</button>
             <div class="modal-img-area">
                 <button class="modal-nav-btn modal-prev" onclick="changeSlide(-1)">&#10094;</button>
-                <img draggable="false" id="modal-img" src="" alt="Adoptable Art" onclick="openLightbox(this.src)" title="คลิกเพื่อขยายภาพใหญ่">
+                <img loading="lazy" decoding="async" draggable="false" id="modal-img" src="" alt="Adoptable Art" onclick="openLightbox(this.src)" title="คลิกเพื่อขยายภาพใหญ่">
                 <button class="modal-nav-btn modal-next" onclick="changeSlide(1)">&#10095;</button>
             </div>
             <div class="modal-details">
                 <div class="modal-artist">
-                    <img draggable="false" src="icon.png" alt="Avatar">
+                    <img loading="lazy" decoding="async" draggable="false" src="icon.png" alt="Avatar">
                     <span>Akanezz2314 @AKANEzz2314</span>
                 </div>
                 <div id="modal-badge-container"></div>
@@ -277,11 +277,18 @@
 
     <!-- Lightbox สำหรับแสดงภาพขยายเต็มจอ -->
     <div id="lightbox" class="lightbox-overlay" onclick="closeLightbox()">
-        <img draggable="false" id="lightbox-img" src="" alt="Zoomed Art">
+        <img loading="lazy" decoding="async" draggable="false" id="lightbox-img" src="" alt="Zoomed Art">
     </div>
 
     <!-- Firebase SDK -->
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script>// Persistent browser cache. Failure or quota limits never block the website.
+(()=>{if(window.AkaneCache)return;let opening;
+function open(){return opening||=(new Promise(resolve=>{try{const request=indexedDB.open('akane-site-cache-v1',1);request.onupgradeneeded=()=>request.result.createObjectStore('entries');request.onsuccess=()=>resolve(request.result);request.onerror=()=>resolve(null);request.onblocked=()=>resolve(null);}catch{resolve(null);}}));}
+async function get(key){try{const database=await open();if(!database)return null;return await new Promise(resolve=>{const request=database.transaction('entries').objectStore('entries').get(key);request.onsuccess=()=>resolve(request.result??null);request.onerror=()=>resolve(null);});}catch{return null;}}
+async function set(key,value){try{const database=await open();if(!database)return false;return await new Promise(resolve=>{const tx=database.transaction('entries','readwrite');tx.objectStore('entries').put(value,key);tx.oncomplete=()=>resolve(true);tx.onerror=()=>resolve(false);tx.onabort=()=>resolve(false);});}catch{return false;}}
+window.AkaneCache={get,set};})();
+</script>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
 
     <script>
@@ -296,6 +303,7 @@
         
         if (!firebase.apps.length) { firebase.initializeApp(firebaseConfig); }
         const db = firebase.firestore();
+        db.enablePersistence({synchronizeTabs:true}).catch(()=>{});
 
         let allAdoptables = [];
         let currentActiveList = []; 
@@ -304,22 +312,23 @@
         const SHOP_PAGE_SIZE = 9;
         let currentPage = 1;
 
-        async function loadShopData() {
-            const gallery = document.getElementById('shop-gallery');
-            try {
-                const snapshot = await db.collection("adoptables").orderBy("order", "desc").get();
-                if (snapshot.empty) {
-                    gallery.innerHTML = '<div id="empty-state">Coming soon...</div>';
-                    return;
-                }
-                allAdoptables = [];
-                snapshot.forEach((doc) => { allAdoptables.push(doc.data()); });
-                renderGallery('ALL');
-            } catch (error) {
-                console.error(error);
-                gallery.innerHTML = '<div id="empty-state">Error loading data, please refresh.</div>';
-            }
+        let shopUnsubscribe, pendingShopItems=null,shopInitialized=false;
+        function applyShopItems(items){
+            allAdoptables=items;shopInitialized=true;
+            if(getComputedStyle(document.getElementById('product-modal')).display!=='none'){pendingShopItems=items;return;}
+            pendingShopItems=null;renderGallery(currentFilterType);
         }
+        async function loadShopData(){
+            const cached=await window.AkaneCache.get('adoptable:list');
+            if(cached?.items)applyShopItems(cached.items);
+            shopUnsubscribe?.();
+            shopUnsubscribe=db.collection('adoptables').orderBy('order','desc').onSnapshot(snapshot=>{
+                const items=[];snapshot.forEach(doc=>items.push({...doc.data(),id:doc.id}));
+                window.AkaneCache.set('adoptable:list',{items,checkedAt:Date.now()});
+                if(!shopInitialized||JSON.stringify(items)!==JSON.stringify(allAdoptables))applyShopItems(items);
+            },error=>{console.error(error);if(!allAdoptables.length)document.getElementById('shop-gallery').innerHTML='<div id="empty-state">โหลดข้อมูลไม่สำเร็จ กรุณาลองอีกครั้ง</div>';});
+        }
+        function applyPendingShop(){if(pendingShopItems){pendingShopItems=null;renderGallery(currentFilterType);}}
 
         function filterGallery(type) {
             document.querySelectorAll('.filter-tab').forEach(tab => {
@@ -364,7 +373,7 @@
                     <div class="card" onclick="openModal(${index})">
                         <div class="card-img-wrapper">
                             <div class="badge ${badgeClass}">${badgeText}</div>
-                            <img draggable="false" src="${data.imageUrl}" alt="${data.title}">
+                            <img loading="lazy" decoding="async" draggable="false" src="${data.imageUrl}" alt="${data.title}">
                         </div>
                         <div class="card-info">
                             <h3 class="card-title">${data.title}</h3>
@@ -494,8 +503,8 @@
             updateModalContent();
         }
 
-        function closeModal(event) { document.getElementById('product-modal').style.display = 'none'; }
-        function closeModalDirect() { document.getElementById('product-modal').style.display = 'none'; }
+        function closeModal(event) { document.getElementById('product-modal').style.display = 'none'; applyPendingShop(); }
+        function closeModalDirect() { document.getElementById('product-modal').style.display = 'none'; applyPendingShop(); }
 
         function openLightbox(imgSrc) {
             document.getElementById('lightbox-img').src = imgSrc;

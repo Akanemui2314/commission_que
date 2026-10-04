@@ -93,7 +93,14 @@
             .dashboard-header { flex-direction: column; gap: 10px; text-align: center; }
         }
     </style>
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script>// Persistent browser cache. Failure or quota limits never block the website.
+(()=>{if(window.AkaneCache)return;let opening;
+function open(){return opening||=(new Promise(resolve=>{try{const request=indexedDB.open('akane-site-cache-v1',1);request.onupgradeneeded=()=>request.result.createObjectStore('entries');request.onsuccess=()=>resolve(request.result);request.onerror=()=>resolve(null);request.onblocked=()=>resolve(null);}catch{resolve(null);}}));}
+async function get(key){try{const database=await open();if(!database)return null;return await new Promise(resolve=>{const request=database.transaction('entries').objectStore('entries').get(key);request.onsuccess=()=>resolve(request.result??null);request.onerror=()=>resolve(null);});}catch{return null;}}
+async function set(key,value){try{const database=await open();if(!database)return false;return await new Promise(resolve=>{const tx=database.transaction('entries','readwrite');tx.objectStore('entries').put(value,key);tx.oncomplete=()=>resolve(true);tx.onerror=()=>resolve(false);tx.onabort=()=>resolve(false);});}catch{return false;}}
+window.AkaneCache={get,set};})();
+</script>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
 </head>
 <body>
@@ -110,7 +117,7 @@
                 <div class="upload-placeholder" id="upload-placeholder">
                     <br>Click to Upload Image
                 </div>
-                <img id="preview-img" alt="Preview">
+                <img loading="lazy" decoding="async" id="preview-img" alt="Preview">
                 <input type="file" id="imageFile" accept="image/*" style="display:none" onchange="handleImageUpload(event)">
             </div>
 
@@ -226,6 +233,7 @@
         };
         if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
         const db = firebase.firestore();
+        db.enablePersistence({synchronizeTabs:true}).catch(()=>{});
 
         const ADMIN_PW = '2314';
         if(prompt('Admin Password:') !== ADMIN_PW) { document.body.innerHTML = '<h2 style="text-align:center; margin-top:50px;">Access Denied</h2>'; }
@@ -421,7 +429,9 @@
         }
 
         async function loadManageData() {
+            const grid=document.getElementById("manage-grid");let refreshed=false;grid.inert=true;
             try {
+                if(!allAdoptablesCache.length){const cached=await window.AkaneCache.get('adoptable:list');if(cached?.items){allAdoptablesCache=cached.items;renderAdminGrid();}}
                 const snapshot = await db.collection("adoptables").orderBy("order", "desc").get();
                 allAdoptablesCache = [];
                 snapshot.forEach(doc => {
@@ -429,8 +439,9 @@
                     data.id = doc.id;
                     allAdoptablesCache.push(data);
                 });
-                renderAdminGrid();
-            } catch (e) { console.error(e); }
+                await window.AkaneCache.set('adoptable:list',{items:allAdoptablesCache,checkedAt:Date.now()});
+                renderAdminGrid();refreshed=true;
+            } catch (e) { console.error(e); } finally {grid.inert=!refreshed;}
         }
 
         function filterAdminGrid(type) {
@@ -465,7 +476,7 @@
 
                 grid.innerHTML += `
                     <div class="manage-card" data-id="${data.id}">
-                        <img src="${data.imageUrl}" alt="${data.title}">
+                        <img loading="lazy" decoding="async" src="${data.imageUrl}" alt="${data.title}">
                         <div class="manage-info">
                             <h4>${data.title}</h4>
                         </div>
@@ -500,6 +511,7 @@
 
                     try {
                         await batch.commit();
+                        await loadManageData();
                         console.log("Order updated successfully!");
                     } catch (e) {
                         console.error("Error updating order: ", e);
@@ -514,6 +526,7 @@
                 await db.collection("adoptables").doc(docId).update({ status: newStatus });
                 const item = allAdoptablesCache.find(i => i.id === docId);
                 if (item) item.status = newStatus;
+                await window.AkaneCache.set('adoptable:list',{items:allAdoptablesCache,checkedAt:Date.now()});
                 renderAdminGrid();
             } catch (e) {
                 alert("Error updating status: " + e.message);
