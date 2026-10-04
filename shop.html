@@ -217,7 +217,7 @@
     <div class="layout-container">
         <!-- Sidebar Profile -->
         <aside class="profile-sidebar">
-            <a href="admin-shop.html" target="_blank" rel="noopener"><img src="icon.png" alt="Profile" class="avatar" title="Admin Dashboard"></a>
+            <a href="admin-shop.html" target="_blank" rel="noopener"><img draggable="false" src="icon.png" alt="Profile" class="avatar" title="Admin Dashboard"></a>
             <h1 class="profile-name">Akanezz2314</h1>
             <p class="profile-handle">@AKANEzz2314</p>
             
@@ -258,12 +258,12 @@
             <button class="modal-close" onclick="closeModalDirect()">✕</button>
             <div class="modal-img-area">
                 <button class="modal-nav-btn modal-prev" onclick="changeSlide(-1)">&#10094;</button>
-                <img id="modal-img" src="" alt="Adoptable Art" onclick="openLightbox(this.src)" title="คลิกเพื่อขยายภาพใหญ่">
+                <img draggable="false" id="modal-img" src="" alt="Adoptable Art" onclick="openLightbox(this.src)" title="คลิกเพื่อขยายภาพใหญ่">
                 <button class="modal-nav-btn modal-next" onclick="changeSlide(1)">&#10095;</button>
             </div>
             <div class="modal-details">
                 <div class="modal-artist">
-                    <img src="icon.png" alt="Avatar">
+                    <img draggable="false" src="icon.png" alt="Avatar">
                     <span>Akanezz2314 @AKANEzz2314</span>
                 </div>
                 <div id="modal-badge-container"></div>
@@ -277,7 +277,7 @@
 
     <!-- Lightbox สำหรับแสดงภาพขยายเต็มจอ -->
     <div id="lightbox" class="lightbox-overlay" onclick="closeLightbox()">
-        <img id="lightbox-img" src="" alt="Zoomed Art">
+        <img draggable="false" id="lightbox-img" src="" alt="Zoomed Art">
     </div>
 
     <!-- Firebase SDK -->
@@ -364,7 +364,7 @@
                     <div class="card" onclick="openModal(${index})">
                         <div class="card-img-wrapper">
                             <div class="badge ${badgeClass}">${badgeText}</div>
-                            <img src="${data.imageUrl}" alt="${data.title}">
+                            <img draggable="false" src="${data.imageUrl}" alt="${data.title}">
                         </div>
                         <div class="card-info">
                             <h3 class="card-title">${data.title}</h3>
@@ -504,6 +504,19 @@
         function closeLightbox() {
             document.getElementById('lightbox').style.display = 'none';
         }
+
+        // Discourage browser image saving while preserving normal text and link menus.
+        const protectedShopMedia = 'img,.card-img-wrapper,.modal-img-area,.lightbox-overlay,#static-bg';
+        document.addEventListener('contextmenu', event => {
+            if (event.target instanceof Element && event.target.closest(protectedShopMedia)) {
+                event.preventDefault();
+            }
+        });
+        document.addEventListener('dragstart', event => {
+            if (event.target instanceof Element && event.target.closest('img')) {
+                event.preventDefault();
+            }
+        });
 
         loadShopData();
     </script>
