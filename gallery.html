@@ -84,6 +84,35 @@
 @media(hover:none),(prefers-reduced-motion:reduce){.ak .sparkles span{animation:none!important}.ak .offer-card:hover,.ak .work-card:hover{transform:none!important}}
 @media(max-width:680px){.ak .taxonomy-manager,.ak .akane-type-settings{padding:12px}.ak .card,.ak .offer-card,.ak .work-card{backdrop-filter:none!important;-webkit-backdrop-filter:none!important;box-shadow:0 4px 16px #ac4e680c!important}}
 </style>
+<style id="akane-shared-accordions">
+/* Shared appearance for both admin configuration accordions. */
+#akane-concepts .ak details.taxonomy-manager,
+#akane-concepts .ak details.akane-type-settings {
+  margin: 20px 0 0 !important;
+  padding: 16px !important;
+  border: 1px solid #ffb7c5 !important;
+  border-radius: 18px !important;
+  background: transparent !important;
+  box-sizing: border-box !important;
+}
+#akane-concepts .ak details.taxonomy-manager > summary,
+#akane-concepts .ak details.akane-type-settings > summary {
+  margin: 0 !important;
+  padding: 8px 0 !important;
+  border: 0 !important;
+  color: #ac4e68 !important;
+  font-size: inherit !important;
+  font-weight: 500 !important;
+  line-height: 1.5 !important;
+  cursor: pointer;
+}
+@media (max-width: 680px) {
+  #akane-concepts .ak details.taxonomy-manager,
+  #akane-concepts .ak details.akane-type-settings {
+    padding: 12px !important;
+  }
+}
+</style>
 </head>
   <body>
     <link
