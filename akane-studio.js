@@ -8,6 +8,7 @@ const style = el('style');
 style.textContent = `.akane-choice-row{display:flex;align-items:center;justify-content:space-between;gap:8px}.akane-choice-row>label{flex:1;min-width:0}.akane-choice-row button{padding:6px 12px!important}.akane-choice-row .row{gap:6px}.akane-layout[hidden]{display:none!important}.akane-layout .calculator{margin:0!important;width:100%!important;box-sizing:border-box}.akane-layout .akane-calculator-slot{width:100%}.akane-layout .rate-public-card{margin:16px 0;background:#fffaf5;border-color:#ffb7c5}.akane-type-settings{margin-top:20px;padding:16px;border:1px solid #ffb7c5;border-radius:18px}.akane-type-settings fieldset{margin:14px 0}.akane-type-settings label{display:flex!important;align-items:center;gap:8px;margin:8px 0}.akane-type-settings input[type=checkbox]{width:18px!important;height:18px;accent-color:#ac4e68}.akane-type-settings .row{flex-wrap:wrap}.akane-custom-links{padding:22px;margin:20px 0;background:#fffaf5;border-radius:24px}.akane-custom-links a{display:inline-flex;padding:12px 20px;background:#ffa6ba;color:white;border-radius:999px;text-decoration:none;margin:6px}.akane-custom-links[hidden]{display:none!important}.tos-content .rate-public-card{padding:12px 0;border:0;box-shadow:none}.tos-content .rate-page-title{display:none}.tos-language{display:none!important}@media(max-width:680px){.akane-layout .rate-public-card{padding:16px}.akane-type-settings{padding:12px}}`;
 
 style.textContent += '#akane-concepts .ak .taxonomy-manager .akane-type-settings{margin:18px 0 0!important;padding:0!important;border:0!important;background:transparent!important}.akane-option-library{margin:12px 0}.akane-choice-row{display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid #ffb7c540}.akane-choice-name{flex:1}.akane-drag-handle{cursor:grab;touch-action:none;user-select:none}.akane-choice-row.dragging{background:#fff0f5;opacity:.75}.akane-type-settings>label{display:block!important}.akane-type-settings .row>select,.akane-type-settings .row>input{flex:1;min-width:140px}.akane-type-settings .akane-choice-row>button{flex-shrink:0}';
+style.textContent += '.akane-choice-name{cursor:text}.taxonomy-list input[readonly]{border-color:transparent!important;background:transparent!important;cursor:text}.akane-choice-row.dragging,.taxonomy-list .dragging{background:#fff0f5}.akane-drag-handle:active{cursor:grabbing}';
 document.head.append(style);
 const layouts = new WeakMap();
 function apply(surface, data) {
@@ -94,6 +95,65 @@ function admin(surface) {
   links.hidden = !window.AkaneAuth.isOwner(window.AkaneAuth.user);
   typeSettings(surface);
 }
+// Keep pointer listeners on the document: moving a row must not lose the drag.
+function dragOrder(handle, row, list, save) {
+  handle.onpointerdown = (event) => {
+    if (event.button !== 0 || handle.disabled) return;
+    event.preventDefault();
+    const before = [...list.children];
+    row.classList.add('dragging');
+    const move = (event) => {
+      const otherRows = [...list.children].filter(item => item !== row);
+      const target = otherRows.find(item => event.clientY < item.getBoundingClientRect().top + item.getBoundingClientRect().height / 2);
+      list.insertBefore(row, target || null);
+    };
+    const finish = (event) => {
+      document.removeEventListener('pointermove', move);
+      document.removeEventListener('pointerup', finish);
+      document.removeEventListener('pointercancel', cancel);
+      row.classList.remove('dragging');
+      const after = [...list.children];
+      if (after.some((item, index) => item !== before[index])) save(after);
+    };
+    const cancel = () => {
+      before.forEach(item => list.append(item));
+      finish();
+    };
+    document.addEventListener('pointermove', move);
+    document.addEventListener('pointerup', finish, {once:true});
+    document.addEventListener('pointercancel', cancel, {once:true});
+  };
+}
+function editableName(label, name, save) {
+  label.tabIndex = 0;
+  label.setAttribute('role', 'button');
+  label.setAttribute('aria-label', 'แก้ชื่อ ' + name);
+  const edit = () => {
+    const input = el('input');
+    input.value = name;
+    input.setAttribute('aria-label', 'ชื่อใหม่ของ ' + name);
+    label.replaceWith(input);
+    input.focus();
+    input.select();
+    let finished = false;
+    const finish = (cancelled) => {
+      if (finished) return;
+      finished = true;
+      const value = input.value.trim();
+      input.replaceWith(label);
+      if (!cancelled && value && value !== name) save(value);
+    };
+    input.onblur = () => finish(false);
+    input.onkeydown = (event) => {
+      if (event.key === 'Enter' || event.key === 'Escape') {
+        event.preventDefault();
+        finish(event.key === 'Escape');
+      }
+    };
+  };
+  label.onclick = edit;
+  label.onkeydown = event => { if (event.key === 'Enter') edit(); };
+}
 function typeSettings(surface) {
   if (document.querySelector('#akane-concepts')?.dataset.admin !== 'true' || !surface.akaneTypeEditor) return;
   const api = surface.akaneTypeEditor;
@@ -141,29 +201,12 @@ function typeSettings(surface) {
       const handle = button('⋮⋮', () => {});
       handle.classList.add('akane-drag-handle');
       handle.setAttribute('aria-label', 'ลากจัดลำดับ ' + title + ' ' + name);
-      handle.onpointerdown = (event) => {
-        if (event.button !== 0 || fieldset.disabled) return;
-        event.preventDefault();
-        handle.setPointerCapture(event.pointerId);
-        const oldOrder = [...config[kind]];
-        item.classList.add('dragging');
-        handle.onpointermove = (move) => {
-          const target = document.elementFromPoint(move.clientX, move.clientY)?.closest('.akane-choice-row');
-          if (!target || target === item || target.parentNode !== list) return;
-          const box = target.getBoundingClientRect();
-          list.insertBefore(item, move.clientY > box.top + box.height / 2 ? target.nextSibling : target);
-        };
-        const finish = (cancelled) => {
-          item.classList.remove('dragging');
-          handle.onpointermove = handle.onpointerup = handle.onpointercancel = null;
-          const order = [...list.children].map(row => row.dataset.choice);
-          if (cancelled) { typeSettings(surface); return; }
-          if (JSON.stringify(order) !== JSON.stringify(oldOrder)) save(order);
-        };
-        handle.onpointerup = () => finish(false);
-        handle.onpointercancel = () => finish(true);
-      };
+      dragOrder(handle, item, list, rows => save(rows.map(row => row.dataset.choice)));
       const label = el('span', 'akane-choice-name', name);
+      editableName(label, name, async value => {
+        try { await api.rename(kind, name, value); }
+        catch (error) { status.textContent = error.message; }
+      });
       const remove = button('ลบ', () => save(api.get(config.key)[kind].filter(value => value !== name), name));
       remove.setAttribute('aria-label', 'ลบ ' + title + ' ' + name + ' จาก ' + config.name);
       item.append(handle, label, remove);
@@ -187,7 +230,7 @@ function typeSettings(surface) {
   }
   panel.append(status);
 }
-window.AkaneVisual = { apply, terms, admin, typeSettings };
+window.AkaneVisual = { apply, terms, admin, typeSettings, dragOrder };
 for (const surface of document.querySelectorAll('#akane-concepts .ak')) {
   admin(surface);
   if (window.AkanePageData) apply(surface, window.AkanePageData);

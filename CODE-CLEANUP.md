@@ -36,3 +36,8 @@ JavaScript syntax/build, index/gallery/admin runtime smoke checks, Type reorder/
 - Full Scale and Chibi now use square gallery thumbnails at 4/3/2 columns; Animation stays horizontal.
 - Added a hide/show control for the uploaded artwork list without deleting artwork.
 - Added delegated context-menu and drag protection for public artwork, plus video download-menu suppression. This does not prevent screenshots or extraction of browser-delivered assets.
+
+## Inline taxonomy editing and drag repair
+- Replaced pointer capture and elementFromPoint drag handlers with document pointer listeners and row geometry, so moving the dragged row does not lose its events.
+- Removed visible save-name buttons; click an existing name, edit, then Enter or blur to save; Escape cancels.
+- Added inline scale/color rename preserving price positions and artwork tags.

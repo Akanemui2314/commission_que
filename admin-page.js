@@ -972,6 +972,17 @@
           query(".taxonomy-result").textContent =
             "เปลี่ยนชื่อและอัปเดต Gallery แล้วค่ะ";
         });
+        b.hidden = true;
+        input.readOnly = true;
+        input.onclick = () => { input.readOnly = false; input.select(); };
+        input.onkeydown = event => {
+          if (event.key === "Enter") { event.preventDefault(); input.blur(); }
+          if (event.key === "Escape") { input.value = name; input.blur(); }
+        };
+        input.onblur = () => {
+          input.readOnly = true;
+          if (input.value.trim() !== name) b.click();
+        };
         row.append(input, b);
         if (kind === "types") {
           row.dataset.typeId = galleryTypes[i].id;
@@ -1051,45 +1062,9 @@
               return;
             persistTypes(next, id);
           };
-          handle.onpointerdown = (event) => {
-            if (event.button !== 0) return;
-            event.preventDefault();
-            handle.setPointerCapture(event.pointerId);
-            const original = galleryTypes.map((type) => type.id).join(",");
-            row.classList.add("dragging");
-            handle.onpointermove = (move) => {
-              const target = document
-                .elementFromPoint(move.clientX, move.clientY)
-                ?.closest("[data-type-id]");
-              if (!target || target === row || target.parentNode !== list)
-                return;
-              const box = target.getBoundingClientRect();
-              list.insertBefore(
-                row,
-                move.clientY > box.top + box.height / 2
-                  ? target.nextSibling
-                  : target,
-              );
-            };
-            const finish = (cancelled) => {
-              row.classList.remove("dragging");
-              handle.onpointermove =
-                handle.onpointerup =
-                handle.onpointercancel =
-                  null;
-              const ids = [...list.children].map((item) => item.dataset.typeId);
-              if (cancelled) {
-                drawTaxonomy();
-                return;
-              }
-              if (ids.join(",") !== original)
-                persistTypes(
-                  ids.map((id) => galleryTypes.find((type) => type.id === id)),
-                );
-            };
-            handle.onpointerup = () => finish(false);
-            handle.onpointercancel = () => finish(true);
-          };
+          window.AkaneVisual?.dragOrder(handle, row, list, rows => {
+            persistTypes(rows.map(item => galleryTypes.find(type => type.id === item.dataset.typeId)));
+          });
           row.prepend(handle);
           row.append(remove);
         }
@@ -2720,6 +2695,29 @@
           allScales: galleryScales,
           allFinishes: galleryFinishes,
         };
+      },
+      async rename(kind, oldName, newName) {
+        newName = newName.trim();
+        const choices = kind === "scales" ? galleryScales : galleryFinishes;
+        if (!newName || choices.some(value => value !== oldName && value.toLowerCase() === newName.toLowerCase()))
+          throw new Error("ใส่ชื่อที่ไม่ว่างและไม่ซ้ำค่ะ");
+        const backup = JSON.stringify({galleryTypes, galleryScales, galleryFinishes, scales, finishes, prices, typeNames, artworks});
+        const labelsByType = kind === "scales" ? scales : finishes;
+        Object.values(labelsByType).forEach(labels => labels.forEach((value, index) => {
+          if (value === oldName) labels[index] = newName;
+        }));
+        choices.forEach((value, index) => { if (value === oldName) choices[index] = newName; });
+        artworks.forEach(art => {
+          const index = kind === "scales" ? 0 : 1;
+          const field = kind === "scales" ? "scale" : "finish";
+          if ((art[field] || art.tags?.[index]) === oldName) {
+            art[field] = newName;
+            if (art.tags) art.tags[index] = newName;
+          }
+        });
+        if (!(await remember())) { restoreTaxonomy(backup); throw new Error(cloudError); }
+        refreshTaxonomy();
+        query(".taxonomy-result").textContent = "เปลี่ยนชื่อแล้วค่ะ";
       },
       async update(kind, labels, removed, typeKey) {
         if (
