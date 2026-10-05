@@ -1262,7 +1262,8 @@ button {
   max-width: 720px;
   width: calc(100% - 32px);
   max-height: 85vh;
-  overflow: auto;
+  max-height: 85dvh;
+  overflow: hidden;
   border: 1px solid #ffb7c5;
   border-radius: 24px;
   padding: 24px;
@@ -1450,9 +1451,13 @@ button {
   padding: 0;
   max-width: 760px;
 }
+#akane-concepts .ak .tos-dialog[open] {
+  display: flex;
+  flex-direction: column;
+}
 #akane-concepts .ak .tos-heading {
-  position: sticky;
-  top: 0;
+  flex: 0 0 auto;
+  position: relative;
   z-index: 2;
   background: #fff8fa;
   padding: 20px 24px 16px;
@@ -1465,6 +1470,11 @@ button {
   font-size: 32px;
 }
 #akane-concepts .ak .tos-content {
+  min-height: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+  overscroll-behavior: contain;
+  scrollbar-color: #c2b9b7 #fffaf0;
   padding: 0 24px 24px;
 }
 #akane-concepts .ak .tos-content h3 {
