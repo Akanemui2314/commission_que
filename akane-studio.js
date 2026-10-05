@@ -7,6 +7,7 @@ document.head.append(sheet);
 const style = el('style');
 style.textContent = `.akane-choice-row{display:flex;align-items:center;justify-content:space-between;gap:8px}.akane-choice-row>label{flex:1;min-width:0}.akane-choice-row button{padding:6px 12px!important}.akane-choice-row .row{gap:6px}.akane-layout[hidden]{display:none!important}.akane-layout .calculator{margin:0!important;width:100%!important;box-sizing:border-box}.akane-layout .akane-calculator-slot{width:100%}.akane-layout .rate-public-card{margin:16px 0;background:#fffaf5;border-color:#ffb7c5}.akane-type-settings{margin-top:20px;padding:16px;border:1px solid #ffb7c5;border-radius:18px}.akane-type-settings fieldset{margin:14px 0}.akane-type-settings label{display:flex!important;align-items:center;gap:8px;margin:8px 0}.akane-type-settings input[type=checkbox]{width:18px!important;height:18px;accent-color:#ac4e68}.akane-type-settings .row{flex-wrap:wrap}.akane-custom-links{padding:22px;margin:20px 0;background:#fffaf5;border-radius:24px}.akane-custom-links a{display:inline-flex;padding:12px 20px;background:#ffa6ba;color:white;border-radius:999px;text-decoration:none;margin:6px}.akane-custom-links[hidden]{display:none!important}#akane-concepts .ak .tos-admin.tos-admin{display:none!important}.tos-content .rate-public-card{padding:12px 0;border:0;box-shadow:none}.tos-content .rate-page-title{display:none}.tos-language{display:none!important}@media(max-width:680px){.akane-layout .rate-public-card{padding:16px}.akane-type-settings{padding:12px}}`;
 style.textContent += '#akane-concepts .ak .tos-admin.tos-admin{display:none!important}';
+style.textContent += '#akane-concepts .ak .taxonomy-manager .akane-type-settings{margin:18px 0 0!important;padding:0!important;border:0!important;background:transparent!important}.akane-option-library{margin:12px 0}.akane-choice-row{display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid #ffb7c540}.akane-choice-name{flex:1}.akane-drag-handle{cursor:grab;touch-action:none;user-select:none}.akane-choice-row.dragging{background:#fff0f5;opacity:.75}.akane-type-settings>label{display:block!important}.akane-type-settings .row>select,.akane-type-settings .row>input{flex:1;min-width:140px}.akane-type-settings .akane-choice-row>button{flex-shrink:0}';
 document.head.append(style);
 const layouts = new WeakMap();
 function apply(surface, data) {
@@ -94,100 +95,94 @@ function admin(surface) {
   typeSettings(surface);
 }
 function typeSettings(surface) {
-  if (
-    document.querySelector('#akane-concepts')?.dataset.admin !== 'true' ||
-    !surface.akaneTypeEditor
-  )
-    return;
-  const api = surface.akaneTypeEditor,
-    config = api.get();
-  if (!config.scales || !config.finishes) return;
-  let panel = surface.querySelector('.akane-type-settings');
+  if (document.querySelector('#akane-concepts')?.dataset.admin !== 'true' || !surface.akaneTypeEditor) return;
+  const api = surface.akaneTypeEditor;
+  const parent = surface.querySelector('.taxonomy-manager');
+  if (!parent) return;
+  parent.querySelector('summary').textContent = 'Custom Type & Color';
+  let panel = parent.querySelector('.akane-type-settings');
   if (!panel) {
-    panel = el('details', 'akane-type-settings');
-    surface.querySelector('.work-fields-column').append(panel);
+    surface.querySelector('.akane-type-settings')?.remove();
+    const library = el('details', 'akane-option-library');
+    library.append(el('summary', '', 'เพิ่ม / เปลี่ยนชื่อ Type และตัวเลือก'));
+    for (const child of [...parent.children]) {
+      if (child.tagName !== 'SUMMARY') library.append(child);
+    }
+    parent.append(library);
+    panel = el('div', 'akane-type-settings');
+    parent.append(panel);
   }
-  const open = panel.open;
-  panel.replaceChildren(el('summary', '', 'Customize Scale / Color · ' + config.name));
-  panel.open = open;
+  const config = api.get(panel.dataset.typeKey);
+  panel.dataset.typeKey = config.key;
+  panel.replaceChildren();
+  const typeLabel = el('label', '', 'เลือก Type ที่ต้องการตั้งค่า');
+  const typeSelect = el('select');
+  for (const type of config.types) typeSelect.add(new Option(type.name, type.id));
+  typeSelect.value = config.key;
+  typeSelect.onchange = () => { panel.dataset.typeKey = typeSelect.value; typeSettings(surface); };
+  typeLabel.append(typeSelect);
+  panel.append(typeLabel, el('p', 'small', 'ลากที่ ⋮⋮ เพื่อจัดลำดับ ตัวเลือกและราคาจะเชื่อมกับ Price settings'));
   const status = el('p');
   status.setAttribute('role', 'status');
-  for (const [kind, label, all] of [
-    ['scales', 'สเกลภาพ', config.allScales],
-    ['finishes', 'Customize Color Scale', config.allFinishes],
-  ]) {
+  for (const [kind, title, available] of [['scales', 'สเกลภาพ', config.allScales], ['finishes', 'การลงสี', config.allFinishes]]) {
     const fieldset = el('fieldset');
-    fieldset.append(el('legend', '', label));
-    const selected = config[kind];
-    for (const name of [...new Set([...selected, ...all])]) {
-      const row = el('label'),
-        check = el('input');
-      check.type = 'checkbox';
-      check.checked = selected.includes(name);
-      check.setAttribute('aria-label', config.name + ' ' + label + ' ' + name);
-      check.onchange = async () => {
-        const choices = [...fieldset.querySelectorAll('input[type=checkbox]')]
-          .filter((i) => i.checked)
-          .map((i) => i.dataset.choice);
-        fieldset.disabled = true;
-        try {
-          await api.update(kind, choices);
-        } catch (e) {
-          check.checked = !check.checked;
-          status.textContent = e.message;
-        } finally {
-          fieldset.disabled = false;
-        }
-      };
-      check.dataset.choice = name;
-      row.append(check, document.createTextNode(name));
-      const controls = el('div', 'row');
-      const save = async (choices, removed) => {
-        fieldset.disabled = true;
-        status.textContent = '';
-        try { await api.update(kind, choices, removed); }
-        catch (e) { status.textContent = e.message; }
-        finally { fieldset.disabled = false; }
-      };
-      const move = (offset) => {
-        const choices = [...api.get()[kind]];
-        const index = choices.indexOf(name), next = index + offset;
-        if (index < 0 || next < 0 || next >= choices.length) return;
-        [choices[index], choices[next]] = [choices[next], choices[index]];
-        return save(choices);
-      };
-      for (const [text, offset] of [['↑', -1], ['↓', 1]]) {
-        const control = button(text, () => move(offset));
-        control.setAttribute('aria-label', text + ' ' + label + ' ' + name);
-        const index = selected.indexOf(name);
-        control.disabled = index < 0 || index + offset < 0 || index + offset >= selected.length;
-        controls.append(control);
-      }
-      const remove = button('ลบ', () => save(api.get()[kind].filter(v => v !== name), name));
-      remove.setAttribute('aria-label', 'ลบ ' + label + ' ' + name);
-      controls.append(remove);
-      const item = el('div', 'akane-choice-row');
-      item.append(row, controls);
-      fieldset.append(item);
-    }
-    const row = el('div', 'row'),
-      input = el('input');
-    input.placeholder = 'ชื่อใหม่';
-    input.setAttribute('aria-label', 'เพิ่ม ' + label + ' สำหรับ ' + config.name);
-    const add = button('+ เพิ่ม', async () => {
-      const name = input.value.trim();
-      if (!name) return;
+    fieldset.append(el('legend', '', title));
+    const list = el('div', 'akane-choice-list');
+    const save = async (choices, removed) => {
       fieldset.disabled = true;
-      try {
-        await api.update(kind, [...selected, name]);
-      } catch (e) {
-        status.textContent = e.message;
-      } finally {
-        fieldset.disabled = false;
-      }
+      status.textContent = 'กำลังบันทึก…';
+      try { await api.update(kind, choices, removed, config.key); }
+      catch (error) { status.textContent = error.message; typeSettings(surface); panel.lastChild.textContent = error.message; }
+      finally { fieldset.disabled = false; }
+    };
+    for (const name of config[kind]) {
+      const item = el('div', 'akane-choice-row');
+      item.dataset.choice = name;
+      const handle = button('⋮⋮', () => {});
+      handle.classList.add('akane-drag-handle');
+      handle.setAttribute('aria-label', 'ลากจัดลำดับ ' + title + ' ' + name);
+      handle.onpointerdown = (event) => {
+        if (event.button !== 0 || fieldset.disabled) return;
+        event.preventDefault();
+        handle.setPointerCapture(event.pointerId);
+        const oldOrder = [...config[kind]];
+        item.classList.add('dragging');
+        handle.onpointermove = (move) => {
+          const target = document.elementFromPoint(move.clientX, move.clientY)?.closest('.akane-choice-row');
+          if (!target || target === item || target.parentNode !== list) return;
+          const box = target.getBoundingClientRect();
+          list.insertBefore(item, move.clientY > box.top + box.height / 2 ? target.nextSibling : target);
+        };
+        const finish = (cancelled) => {
+          item.classList.remove('dragging');
+          handle.onpointermove = handle.onpointerup = handle.onpointercancel = null;
+          const order = [...list.children].map(row => row.dataset.choice);
+          if (cancelled) { typeSettings(surface); return; }
+          if (JSON.stringify(order) !== JSON.stringify(oldOrder)) save(order);
+        };
+        handle.onpointerup = () => finish(false);
+        handle.onpointercancel = () => finish(true);
+      };
+      const label = el('span', 'akane-choice-name', name);
+      const remove = button('ลบ', () => save(api.get(config.key)[kind].filter(value => value !== name), name));
+      remove.setAttribute('aria-label', 'ลบ ' + title + ' ' + name + ' จาก ' + config.name);
+      item.append(handle, label, remove);
+      list.append(item);
+    }
+    const addRow = el('div', 'row');
+    const select = el('select');
+    select.setAttribute('aria-label', 'เพิ่ม ' + title + ' ที่มีอยู่');
+    select.add(new Option('เลือกตัวเลือกที่มีอยู่', ''));
+    for (const name of available.filter(value => !config[kind].includes(value))) select.add(new Option(name, name));
+    const input = el('input');
+    input.placeholder = 'หรือพิมพ์ชื่อใหม่';
+    input.setAttribute('aria-label', 'เพิ่ม ' + title + ' ใหม่สำหรับ ' + config.name);
+    const add = button('+ เพิ่ม', () => {
+      const name = input.value.trim() || select.value;
+      if (name) save([...api.get(config.key)[kind], name]);
     });
-    row.append(input, add);
-    fieldset.append(row);
+    addRow.append(select, input, add);
+    fieldset.append(list, addRow);
     panel.append(fieldset);
   }
   panel.append(status);
