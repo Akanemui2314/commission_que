@@ -3384,3 +3384,26 @@ button {
   content-visibility: auto;
   contain-intrinsic-size: auto 420px;
 }
+
+/* Static artwork uses compact square thumbnails; animations retain their ratio. */
+#akane-concepts .ak .square-gallery .category-carousel-image,
+#akane-concepts .ak .square-gallery .category-carousel-image:first-child {
+  flex-basis: calc((100% - 42px) / 4);
+  aspect-ratio: 1;
+}
+@media (max-width: 1024px) {
+  #akane-concepts .ak .square-gallery .category-carousel-image,
+  #akane-concepts .ak .square-gallery .category-carousel-image:first-child {
+    flex-basis: calc((100% - 28px) / 3);
+  }
+}
+@media (max-width: 680px) {
+  #akane-concepts .ak .square-gallery .category-carousel-image,
+  #akane-concepts .ak .square-gallery .category-carousel-image:first-child {
+    flex-basis: calc((100% - 14px) / 2);
+  }
+}
+#akane-concepts .ak img, #akane-concepts .ak video {
+  -webkit-user-drag: none;
+  -webkit-touch-callout: none;
+}

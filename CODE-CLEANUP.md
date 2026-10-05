@@ -30,3 +30,9 @@ JavaScript syntax/build, index/gallery/admin runtime smoke checks, Type reorder/
 - Removed three hidden demonstration artwork rows and their unused manage-item styles. Real artwork records remain.
 
 - Removed normalizeAnimationFinishes from the admin price renderer: it forced FullColor / Cell Shade / Black-White back into Animation after deletion. Owner-defined colors now remain unchanged. Tested deletion through redraw and mocked cloud reload.
+
+## Gallery and navigation update
+- Moved the calculator TOS button to the homepage hero next to queue status. The TOS content and editor remain intact.
+- Full Scale and Chibi now use square gallery thumbnails at 4/3/2 columns; Animation stays horizontal.
+- Added a hide/show control for the uploaded artwork list without deleting artwork.
+- Added delegated context-menu and drag protection for public artwork, plus video download-menu suppression. This does not prevent screenshots or extraction of browser-delivered assets.
