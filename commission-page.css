@@ -454,10 +454,6 @@ button {
   object-fit: contain;
   border-radius: 10px;
 }
-#akane-concepts .ak .manage-item {
-  padding: 12px 0;
-  border-bottom: 1px solid var(--ak-line);
-}
 #akane-concepts .ak.atelier .hero {
   grid-template-columns: 1fr;
   text-align: center;
@@ -1649,13 +1645,6 @@ button {
   max-height: 180px;
   object-fit: contain;
   margin-top: 10px;
-}
-#akane-concepts .ak .scale-manager {
-  margin-bottom: 18px;
-}
-#akane-concepts .ak .scale-manager label {
-  display: block;
-  margin: 10px 0;
 }
 @media (max-width: 680px) {
   #akane-concepts .ak .offer-card {

@@ -24,3 +24,7 @@ Artwork data, image assets, Google authentication, security rules, crop controls
 
 ## Validation
 JavaScript syntax/build, index/gallery/admin runtime smoke checks, Type reorder/deletion and failed-save rollback checks. Runtime smoke checks use mocked cloud/auth and do not test a fresh Google sign-in.
+
+## Follow-up cleanup
+- Removed duplicate Manage scales / Scale name UI, add handler, syncScaleTags helper and unused styles. Custom Type & Color is the single scale/color manager; Price settings retains the price matrix.
+- Removed three hidden demonstration artwork rows and their unused manage-item styles. Real artwork records remain.
