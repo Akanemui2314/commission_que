@@ -1,4 +1,4 @@
-import { renderExtra } from './element-library.js?v=embed-20261005';
+import { renderExtra } from './element-library.js?v=calculator-preview-1';
 const DEFAULT_SECTIONS = [
   {
     id: 'image04',
@@ -287,7 +287,7 @@ export function styles() {
   if (document.querySelector('[data-rate-builder-style]')) return;
   const link = document.createElement('link');
   link.rel = 'stylesheet';
-  link.href = 'rate-builder.css?v=embed-20261005';
+  link.href = 'rate-builder.css?v=calculator-preview-1';
   link.dataset.rateBuilderStyle = '';
   document.head.append(link);
 }
@@ -306,6 +306,8 @@ export function render(target, model, pages = {}, repaint = null) {
         paragraph.style.textAlign = ['left', 'center', 'right'].includes(block.align)
           ? block.align
           : 'left';
+        paragraph.style.fontWeight = block.bold ? '700' : '';
+        paragraph.style.fontStyle = block.italic ? 'italic' : '';
         card.append(paragraph);
       }
       if (block.kind === 'table') {

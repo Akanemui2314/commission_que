@@ -41,3 +41,10 @@ JavaScript syntax/build, index/gallery/admin runtime smoke checks, Type reorder/
 - Replaced pointer capture and elementFromPoint drag handlers with document pointer listeners and row geometry, so moving the dragged row does not lose its events.
 - Removed visible save-name buttons; click an existing name, edit, then Enter or blur to save; Escape cancels.
 - Added inline scale/color rename preserving price positions and artwork tags.
+
+## Calculator editor preview
+- Replaced the Calculator text placeholder with interactive controls linked to saved Price settings, including character count, Type, scale, finish, commercial use, price, notes and breakdown.
+- Disabled dragging on the calculator preview to prevent conflicts when selecting controls.
+
+- TOS keeps only its page title fixed; section containers now expose deletion, and empty content remains empty after reload.
+- Shared Text controls support bold and italic for each text block on both editors.

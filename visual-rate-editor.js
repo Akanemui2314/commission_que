@@ -1,4 +1,4 @@
-import { tosModel } from './tos-core.js';
+import { tosModel } from './tos-core.js?v=calculator-preview-1';
 const editingTos = document.body.dataset.editor === 'tos';
 const contentKey = editingTos ? 'tosContent' : 'calculatorContent';
 const editorModel = (site) =>
@@ -17,7 +17,7 @@ const editorModel = (site) =>
           ],
         },
       });
-import { elements, defaults, elementIcon } from './element-library.js?v=embed-20261005';
+import { elements, defaults, elementIcon } from './element-library.js?v=calculator-preview-1';
 import {
   normalize,
   render,
@@ -29,7 +29,7 @@ import {
   readMedia,
   mediaSource,
   move,
-} from './rate-core.js?v=embed-20261005';
+} from './rate-core.js?v=calculator-preview-1';
 let saved = {};
 let savedSignature = '';
 let saving = false;
@@ -244,11 +244,12 @@ function toolbar() {
   tools.querySelector('[aria-label="Dock right"]').disabled = dockSide === 'right';
 }
 function paint() {
+  if (editingTos) model.title = 'TOS';
   render(canvas, model, pages, paint);
   for (const node of canvas.querySelectorAll('[data-block-id]')) {
     node.classList.add('ve-element');
     node.classList.toggle('ve-selected', node.dataset.blockId === selected);
-    node.draggable = !preview && !node.matches('.rate-paragraph');
+    node.draggable = !preview && !node.matches('.rate-paragraph,.akane-calculator-slot');
   }
   if (!preview)
     for (const node of canvas.querySelectorAll('.rate-embed[data-block-id]')) {
@@ -268,6 +269,17 @@ function paint() {
       remove.className = 've-embed-delete';
       node.append(remove);
     }
+  if (editingTos && !preview) {
+    for (const card of canvas.querySelectorAll('[data-section-id]')) {
+      const controls = el('div', 've-tos-section-controls');
+      controls.append(action('ลบ Section นี้', () => act(() => {
+        model.sections = model.sections.filter(section => section.id !== card.dataset.sectionId);
+        sectionId = model.sections[0]?.id;
+        selected = null;
+      })));
+      card.prepend(controls);
+    }
+  }
   for (const figure of canvas.querySelectorAll('[data-image-index]')) {
     figure.draggable = !preview;
     figure.querySelector('img,video').draggable = false;
@@ -277,7 +289,7 @@ function paint() {
   for (const node of canvas.querySelectorAll(
     '.rate-paragraph[data-block-id],.rate-page-title,.ve-section-title',
   )) {
-    node.contentEditable = preview ? 'false' : 'plaintext-only';
+    node.contentEditable = preview || (editingTos && node.matches('.rate-page-title')) ? 'false' : 'plaintext-only';
     node.spellcheck = true;
     node.setAttribute(
       'aria-label',
@@ -322,7 +334,7 @@ function inspect() {
     block = currentBlock();
   if (selected === 'page') {
     panelHeader('ตั้งค่าหน้า');
-    properties.append(field('ชื่อหน้า', model.title, (v) => (model.title = v)));
+    if (!editingTos) properties.append(field('ชื่อหน้า', model.title, (v) => (model.title = v)));
     return;
   }
   if (!block) {
@@ -380,7 +392,14 @@ function inspect() {
     ),
   );
   properties.append(order);
-  if (block.kind === 'text') properties.append(el('p', '', 'พิมพ์แก้ข้อความบนหน้าได้โดยตรง'));
+  if (block.kind === 'text') {
+    properties.append(el('p', '', 'พิมพ์แก้ข้อความบนหน้าได้โดยตรง'));
+    for (const [key, label] of [['bold', 'ตัวหนา'], ['italic', 'ตัวเอียง']]) {
+      const toggle = action(label, () => { act(() => { block[key] = !block[key]; }); inspect(); });
+      toggle.setAttribute('aria-pressed', String(!!block[key]));
+      properties.append(toggle);
+    }
+  }
   if (block.kind !== 'gallery') {
     properties.append(
       select(
@@ -603,7 +622,7 @@ function galleryEditor(block) {
 }
 function showSections() {
   panelHeader('Sections');
-  properties.append(field('ชื่อหน้า', model.title, (v) => (model.title = v)));
+  if (!editingTos) properties.append(field('ชื่อหน้า', model.title, (v) => (model.title = v)));
   model.sections.forEach((section, i) => {
     const card = el('div', 've-section-settings');
     card.append(
@@ -694,6 +713,7 @@ function buildAdd() {
 }
 canvas.onclick = (event) => {
   if (preview) return;
+  if (event.target.closest('.calculator-preview') && event.target.closest('button,input,label,output')) return;
   if (event.target.closest('button') && !event.target.closest('.rate-embed')) return;
   if (event.target.closest('a')) event.preventDefault();
   addPanel.hidden = true;

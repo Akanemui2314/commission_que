@@ -1,3 +1,4 @@
+import { renderCalculatorPreview } from './calculator-preview.js?v=calculator-preview-1';
 import { resolveEmbed } from './embed-resolver.js?v=embed-20261005';
 export const elements = [
   ['text', 'Text'],
@@ -60,10 +61,7 @@ export function safeLink(value) {
 export function renderExtra(card, block, { el, button, mediaSource }) {
   if (block.kind === 'calculator') {
     const slot = el('div', 'akane-calculator-slot');
-    slot.append(
-      el('h3', '', 'Calculator'),
-      el('p', '', 'Type / สเกล / การลงสี / ราคา เชื่อมกับ Price settings'),
-    );
+    renderCalculatorPreview(slot, block, window.AkanePageData || {});
     card.append(slot);
   }
   if (block.kind === 'pricetable') {

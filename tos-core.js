@@ -1,4 +1,4 @@
-import { normalize } from './rate-core.js?v=embed-20261005';
+import { normalize } from './rate-core.js?v=calculator-preview-1';
 export function tosModel(site = {}) {
   const fallback = {
     version: 4,
@@ -20,5 +20,7 @@ export function tosModel(site = {}) {
       },
     ],
   };
-  return normalize({ priceRate: site.tosContent || fallback });
+  const model = normalize({ priceRate: site.tosContent || fallback });
+  model.title = 'TOS';
+  return model;
 }
