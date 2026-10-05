@@ -1759,9 +1759,23 @@
             : [];
         if (expanded && previews.length) {
           image.classList.add("offer-image-stack");
+          const detailArtworks = previews.map((src) => ({ image: src, title: item.title }));
           previews.forEach((src, index) => {
             const frame = document.createElement("div");
             frame.className = "offer-detail-media";
+            frame.tabIndex = 0;
+            frame.setAttribute("role", "button");
+            frame.setAttribute("aria-label", `View full commission image ${index + 1}`);
+            const open = () => openFullArtwork(detailArtworks[index], detailArtworks);
+            frame.addEventListener("click", open);
+            frame.addEventListener("keydown", (event) => {
+              if (event.key === "Enter" || event.key === " ") {
+                event.preventDefault();
+                event.stopPropagation();
+                open();
+              }
+            });
+            frame.style.cursor = "zoom-in";
             const media = makeMedia(src, item.title);
             applyCrop(media, item.crops?.[index]);
             frame.append(media);
