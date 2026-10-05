@@ -3431,20 +3431,20 @@ button {
 
 /* Keep commission covers above their details on narrow screens. */
 @media (max-width: 680px) {
-  #akane-concepts .ak .offer-card {
+  #akane-concepts .ak .offer-list .offer-card {
     display: flex;
     flex-direction: column;
     align-items: stretch;
     gap: 20px;
     padding: 18px;
   }
-  #akane-concepts .ak .offer-card > .offer-image {
+  #akane-concepts .ak .offer-list .offer-card > .offer-image {
     order: 0;
     width: 100%;
     min-width: 0;
     align-self: stretch;
   }
-  #akane-concepts .ak .offer-card > .offer-info {
+  #akane-concepts .ak .offer-list .offer-card > .offer-info {
     order: 1;
     width: 100%;
     min-width: 0;
