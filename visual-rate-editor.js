@@ -269,17 +269,6 @@ function paint() {
       remove.className = 've-embed-delete';
       node.append(remove);
     }
-  if (!preview) {
-    for (const card of canvas.querySelectorAll('[data-section-id]')) {
-      const controls = el('div', 've-tos-section-controls');
-      controls.append(action('ลบ Section นี้', () => act(() => {
-        model.sections = model.sections.filter(section => section.id !== card.dataset.sectionId);
-        sectionId = model.sections[0]?.id;
-        selected = null;
-      })));
-      card.prepend(controls);
-    }
-  }
   for (const figure of canvas.querySelectorAll('[data-image-index]')) {
     figure.draggable = !preview;
     figure.querySelector('img,video').draggable = false;
@@ -727,7 +716,7 @@ canvas.onclick = (event) => {
   sectionId = sectionNode.dataset.sectionId;
   if (event.target.closest('.ve-section-title')) {
     selected = null;
-    properties.hidden = true;
+    showSections();
     return;
   }
   const node = event.target.closest('[data-block-id]');
@@ -747,13 +736,13 @@ canvas.onclick = (event) => {
   } else {
     selected = null;
     insertAt = 0;
-    properties.hidden = true;
+    showSections();
     canvas.querySelectorAll('.ve-selected').forEach((n) => n.classList.remove('ve-selected'));
   }
 };
 document.addEventListener('click', (event) => {
   if (event.composedPath().some((node) => [tools, properties, addPanel].includes(node))) return;
-  if (event.target.closest('[data-block-id]')) return;
+  if (event.target.closest('[data-block-id],[data-section-id]')) return;
   properties.hidden = true;
   addPanel.hidden = true;
   selected = null;
