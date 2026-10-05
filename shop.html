@@ -1,375 +1,858 @@
 <!DOCTYPE html>
 <html lang="th">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Adoptable Shop - Akanezz2314</title>
     <!-- 🌸 ใส่ไอคอนเว็บเรียบร้อยแล้ว -->
-    <link rel="icon" type="image/png" href="icon3.svg">
+    <link rel="icon" type="image/png" href="icon3.svg" />
     <style>
-        :root {
-            --bg-color: #fff0f5;
-            --bg-gradient: linear-gradient(135deg, #fff0f5 0%, #ffdbdb 100%);
-            --glass-bg: rgba(255, 255, 255, 0.85);
-            --glass-border: rgba(255, 255, 255, 0.6);
-            --primary-pink: #ffb7c5;
-            --accent-pink: #ff91a4;
-            --text-main: #5a4a42;
-            
-            --badge-avail: #66bb6a;  /* 🌿 สีเขียวสำหรับ Available */
-            --badge-sold: #757575;   /* สีเทาสำหรับ Sold */
-            --badge-custom: #42a5f5; /* 🌊 สีน้ำเงินสำหรับ Custom */
+      :root {
+        --bg-color: #fff0f5;
+        --bg-gradient: linear-gradient(135deg, #fff0f5 0%, #ffdbdb 100%);
+        --glass-bg: rgba(255, 255, 255, 0.85);
+        --glass-border: rgba(255, 255, 255, 0.6);
+        --primary-pink: #ffb7c5;
+        --accent-pink: #ff91a4;
+        --text-main: #5a4a42;
+
+        --badge-avail: #66bb6a; /* 🌿 สีเขียวสำหรับ Available */
+        --badge-sold: #757575; /* สีเทาสำหรับ Sold */
+        --badge-custom: #42a5f5; /* 🌊 สีน้ำเงินสำหรับ Custom */
+      }
+
+      ::selection {
+        background: var(--primary-pink);
+        color: white;
+      }
+
+      body {
+        margin: 0;
+        padding: 20px;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        background: var(--bg-color);
+        background-image: var(--bg-gradient);
+        min-height: 100vh;
+        color: var(--text-main);
+        cursor:
+          url('cursor.png') 0 0,
+          auto;
+        display: flex;
+        justify-content: center;
+        align-items: flex-start;
+        position: relative;
+        overflow-x: hidden;
+      }
+
+      a,
+      button,
+      span {
+        cursor:
+          url('cursor.png') 0 0,
+          pointer;
+        text-decoration: none;
+        color: inherit;
+      }
+
+      /* 🌸 ภาพพื้นหลังนิ่ง (Static Background) */
+      #static-bg {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        pointer-events: none;
+        z-index: 0;
+        background-image: url('postcard.png');
+        background-size: cover;
+        background-position: center;
+        opacity: 0.35;
+      }
+
+      .layout-container {
+        display: grid;
+        grid-template-columns: 280px minmax(0, 1fr);
+        gap: 30px;
+        max-width: 1200px;
+        width: 100%;
+        margin: 0 auto;
+        align-items: start;
+        position: relative;
+        z-index: 2;
+      }
+
+      .profile-sidebar {
+        background: var(--glass-bg);
+        border: 1px solid var(--glass-border);
+        border-radius: 20px;
+        padding: 30px 20px;
+        text-align: center;
+        position: sticky;
+        top: 20px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+      }
+      .avatar {
+        width: 120px;
+        height: 120px;
+        border-radius: 50%;
+        border: 4px solid white;
+        object-fit: cover;
+        background: white;
+        margin-bottom: 15px;
+        box-shadow: 0 5px 15px rgba(255, 145, 164, 0.2);
+      }
+      .profile-name {
+        font-size: 22px;
+        margin: 0;
+        color: var(--accent-pink);
+        font-weight: bold;
+      }
+      .profile-handle {
+        font-size: 13px;
+        color: #888;
+        margin-top: 5px;
+        margin-bottom: 20px;
+      }
+
+      .btn-nav {
+        display: block;
+        background: white;
+        color: var(--text-main);
+        padding: 10px;
+        border-radius: 50px;
+        font-weight: bold;
+        font-size: 14px;
+        margin-bottom: 10px;
+        border: 1px solid var(--glass-border);
+        transition: 0.2s;
+      }
+      .btn-nav:hover {
+        background: var(--primary-pink);
+        color: white;
+      }
+
+      .social-links {
+        text-align: left;
+        margin-top: 30px;
+        font-size: 13px;
+        line-height: 2;
+      }
+      .social-links a {
+        display: block;
+        color: var(--accent-pink);
+        font-weight: bold;
+      }
+
+      .top-bar {
+        display: flex;
+        justify-content: flex-start;
+        align-items: center;
+        margin-bottom: 20px;
+        padding: 10px 25px;
+        background: var(--glass-bg);
+        border-radius: 50px;
+        border: 1px solid var(--glass-border);
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.02);
+      }
+      .nav-tabs {
+        display: flex;
+        gap: 25px;
+        font-weight: bold;
+        font-size: 15px;
+        overflow-x: auto;
+        white-space: nowrap;
+      }
+      .nav-tabs span {
+        color: #aaa;
+        transition: 0.2s;
+        padding: 5px 0;
+      }
+      .nav-tabs .active {
+        color: var(--text-main);
+        border-bottom: 2px solid var(--accent-pink);
+      }
+      .nav-tabs span:hover:not(.active) {
+        color: var(--accent-pink);
+      }
+
+      .layout-container > main {
+        min-width: 0;
+      }
+      .gallery-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(min(100%, 280px), 1fr));
+        gap: 25px;
+      }
+      .shop-pagination {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
+        margin-top: 26px;
+      }
+      .shop-pagination[hidden] {
+        display: none;
+      }
+      .shop-pagination button {
+        min-width: 36px;
+        min-height: 36px;
+        padding: 6px 10px;
+        border: 1px solid var(--primary-pink);
+        border-radius: 12px;
+        background: rgba(255, 255, 255, 0.85);
+        color: var(--text-main);
+        font: inherit;
+        font-size: 13px;
+        cursor: pointer;
+      }
+      .shop-pagination button[aria-current='page'] {
+        background: var(--primary-pink);
+        color: var(--text-main);
+      }
+      .shop-pagination button:hover:not(:disabled) {
+        background: var(--primary-pink);
+        color: var(--text-main);
+      }
+      .shop-pagination .pagination-label {
+        font-size: 13px;
+        padding: 0 4px;
+      }
+      .shop-pagination button:disabled {
+        opacity: 0.4;
+        cursor: default;
+      }
+      .shop-pagination button:focus-visible {
+        outline: 2px solid var(--accent-pink);
+        outline-offset: 3px;
+      }
+      .shop-page-summary {
+        flex-basis: 100%;
+        text-align: center;
+        color: var(--text-main);
+        font-size: 13px;
+        margin-bottom: 4px;
+      }
+      #empty-state {
+        grid-column: 1 / -1;
+        text-align: center;
+        padding: 40px;
+        color: #888;
+        font-size: 15px;
+      }
+
+      .card {
+        background: rgba(255, 255, 255, 0.85);
+        border-radius: 18px;
+        border: 1px solid var(--glass-border);
+        overflow: hidden;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+        transition: 0.2s;
+        position: relative;
+        cursor: pointer;
+      }
+      .card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 25px rgba(255, 145, 164, 0.3);
+        border-color: var(--primary-pink);
+      }
+
+      .card-img-wrapper {
+        position: relative;
+        aspect-ratio: 1/1;
+        overflow: hidden;
+        background: #fff5f7;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+      .card-img-wrapper img {
+        width: 100%;
+        height: 100%;
+        object-fit: contain;
+        transition: 0.3s;
+      }
+      .card:hover .card-img-wrapper img {
+        transform: scale(1.05);
+      }
+
+      .badge {
+        display: inline-block;
+        padding: 5px 14px;
+        border-radius: 50px;
+        font-size: 12px;
+        font-weight: bold;
+        color: white;
+        backdrop-filter: blur(4px);
+      }
+      .card-img-wrapper .badge {
+        position: absolute;
+        top: 12px;
+        left: 12px;
+        z-index: 2;
+      }
+
+      /* 🌿 ปรับสี Badge ตามสถานะ */
+      .badge.avail {
+        background: rgba(102, 187, 106, 0.95);
+      } /* สีเขียว */
+      .badge.sold {
+        background: rgba(117, 117, 117, 0.95);
+      } /* สีเทา */
+      .badge.custom {
+        background: rgba(66, 165, 245, 0.95);
+      } /* สีน้ำเงิน */
+
+      .card-info {
+        padding: 18px;
+        text-align: center;
+      }
+      .card-title {
+        font-size: 15px;
+        margin: 0;
+        font-weight: 600;
+        color: #444;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+
+      /* Modal Popup */
+      .modal-overlay {
+        position: fixed;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.45);
+        backdrop-filter: blur(6px);
+        display: none;
+        justify-content: center;
+        align-items: center;
+        z-index: 100;
+        padding: 15px;
+      }
+      .modal-container {
+        background: #ffffff;
+        width: 100%;
+        max-width: 1200px;
+        max-height: 90vh;
+        border-radius: 28px;
+        display: grid;
+        grid-template-columns: 1.3fr 1fr;
+        overflow: hidden;
+        box-shadow: 0 30px 70px rgba(90, 74, 66, 0.2);
+        position: relative;
+        animation: modalScale 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+      }
+      @keyframes modalScale {
+        from {
+          transform: scale(0.96);
+          opacity: 0;
         }
-
-        ::selection { background: var(--primary-pink); color: white; }
-
-        body { 
-            margin: 0; padding: 20px; 
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
-            background: var(--bg-color); background-image: var(--bg-gradient); 
-            min-height: 100vh; color: var(--text-main); 
-            cursor: url('cursor.png') 0 0, auto; 
-            display: flex; justify-content: center; align-items: flex-start;
-            position: relative; overflow-x: hidden;
+        to {
+          transform: scale(1);
+          opacity: 1;
         }
-        
-        a, button, span { cursor: url('cursor.png') 0 0, pointer; text-decoration: none; color: inherit; }
+      }
+      .modal-close {
+        position: absolute;
+        top: 20px;
+        right: 20px;
+        background: #f2f2f2;
+        color: #666;
+        width: 36px;
+        height: 36px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 15px;
+        font-weight: bold;
+        cursor: pointer;
+        z-index: 10;
+        border: none;
+        transition: 0.2s;
+      }
+      .modal-close:hover {
+        background: var(--accent-pink);
+        color: white;
+      }
 
-        /* 🌸 ภาพพื้นหลังนิ่ง (Static Background) */
-        #static-bg { 
-            position: fixed; 
-            top: 0; left: 0; 
-            width: 100%; height: 100%; 
-            pointer-events: none; 
-            z-index: 0; 
-            background-image: url('postcard.png'); 
-            background-size: cover; 
-            background-position: center;
-            opacity: 0.35; 
+      .modal-img-area {
+        background: #faf7f8;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 0;
+        border-right: 1px solid #f0e6e8;
+        min-height: 350px;
+        overflow: hidden;
+        position: relative;
+      }
+      .modal-img-area img {
+        width: 100%;
+        height: 100%;
+        object-fit: contain;
+        display: block;
+        cursor: zoom-in;
+        transition: transform 0.3s ease;
+      }
+
+      .modal-nav-btn {
+        position: absolute;
+        top: 50%;
+        transform: translateY(-50%);
+        background: rgba(255, 255, 255, 0.85);
+        color: var(--text-main);
+        width: 42px;
+        height: 42px;
+        border-radius: 50%;
+        border: none;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 18px;
+        font-weight: bold;
+        cursor: pointer;
+        z-index: 10;
+        transition: 0.2s;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+      }
+      .modal-nav-btn:hover {
+        background: var(--accent-pink);
+        color: white;
+      }
+      .modal-prev {
+        left: 15px;
+      }
+      .modal-next {
+        right: 15px;
+      }
+
+      .lightbox-overlay {
+        position: fixed;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.85);
+        backdrop-filter: blur(10px);
+        display: none;
+        justify-content: center;
+        align-items: center;
+        z-index: 200;
+        padding: 20px;
+        cursor: zoom-out;
+      }
+      .lightbox-overlay img {
+        max-width: 95vw;
+        max-height: 95vh;
+        object-fit: contain;
+        border-radius: 8px;
+        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+      }
+
+      .modal-details {
+        padding: 40px;
+        display: flex;
+        flex-direction: column;
+        justify-content: flex-start;
+        max-height: 85vh;
+        overflow-y: auto;
+        text-align: left;
+        -webkit-overflow-scrolling: touch;
+      }
+
+      .modal-artist {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        font-size: 13px;
+        color: #888;
+        margin-bottom: 15px;
+        font-weight: 500;
+      }
+      .modal-artist img {
+        width: 24px;
+        height: 24px;
+        border-radius: 50%;
+        object-fit: cover;
+      }
+
+      .modal-title {
+        font-size: 26px;
+        font-weight: 700;
+        color: var(--text-main);
+        margin: 8px 0 20px 0;
+        line-height: 1.3;
+      }
+
+      .modal-price-box {
+        background: #fff5f7;
+        padding: 16px 20px;
+        border-radius: 16px;
+        border: 1px solid #ffe0e6;
+        margin-bottom: 16px;
+      }
+      .modal-price-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        font-size: 14px;
+        margin-bottom: 8px;
+        color: #776b65;
+      }
+      .modal-price-row:last-child {
+        margin-bottom: 0;
+      }
+      .modal-price-row b {
+        color: var(--accent-pink);
+        font-size: 16px;
+      }
+
+      .modal-other-box {
+        background: #faf9f9;
+        padding: 14px 20px;
+        border-radius: 16px;
+        border: 1px solid #eee;
+        margin-bottom: 25px;
+        font-size: 14px;
+        color: #665c56;
+        line-height: 1.6;
+        word-break: break-word;
+        white-space: pre-wrap;
+      }
+      .modal-other-box strong {
+        display: block;
+        color: var(--text-main);
+        margin-bottom: 4px;
+        font-size: 12px;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+      }
+      .modal-other-box a {
+        color: var(--accent-pink);
+        font-weight: bold;
+        text-decoration: underline;
+      }
+      .modal-other-box a:hover {
+        color: #ff7990;
+      }
+
+      .modal-btn {
+        display: block;
+        background: var(--accent-pink);
+        color: white;
+        padding: 14px 24px;
+        border-radius: 50px;
+        font-size: 14px;
+        font-weight: bold;
+        text-align: center;
+        transition: 0.2s;
+        box-shadow: 0 4px 15px rgba(255, 145, 164, 0.3);
+        margin-top: auto;
+      }
+      .modal-btn:hover {
+        background: #ff7990;
+        transform: translateY(-1px);
+      }
+
+      @media (max-width: 900px) {
+        body {
+          padding: 10px;
         }
-
-        .layout-container { 
-            display: grid; grid-template-columns: 280px minmax(0, 1fr); gap: 30px; 
-            max-width: 1200px; width: 100%; margin: 0 auto; align-items: start; 
-            position: relative; z-index: 2;
+        .layout-container {
+          grid-template-columns: 1fr;
         }
-
         .profile-sidebar {
-            background: var(--glass-bg); border: 1px solid var(--glass-border); border-radius: 20px;
-            padding: 30px 20px; text-align: center; position: sticky; top: 20px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+          position: relative;
+          top: 0;
         }
-        .avatar { width: 120px; height: 120px; border-radius: 50%; border: 4px solid white; object-fit: cover; background: white; margin-bottom: 15px; box-shadow: 0 5px 15px rgba(255, 145, 164, 0.2); }
-        .profile-name { font-size: 22px; margin: 0; color: var(--accent-pink); font-weight: bold; }
-        .profile-handle { font-size: 13px; color: #888; margin-top: 5px; margin-bottom: 20px; }
-        
-        .btn-nav { display: block; background: white; color: var(--text-main); padding: 10px; border-radius: 50px; font-weight: bold; font-size: 14px; margin-bottom: 10px; border: 1px solid var(--glass-border); transition: 0.2s; }
-        .btn-nav:hover { background: var(--primary-pink); color: white; }
-        
-        .social-links { text-align: left; margin-top: 30px; font-size: 13px; line-height: 2; }
-        .social-links a { display: block; color: var(--accent-pink); font-weight: bold; }
 
-        .top-bar { 
-            display: flex; justify-content: flex-start; align-items: center; 
-            margin-bottom: 20px; padding: 10px 25px; 
-            background: var(--glass-bg); border-radius: 50px; border: 1px solid var(--glass-border); 
-            box-shadow: 0 5px 15px rgba(0,0,0,0.02);
-        }
-        .nav-tabs { display: flex; gap: 25px; font-weight: bold; font-size: 15px; overflow-x: auto; white-space: nowrap; }
-        .nav-tabs span { color: #aaa; transition: 0.2s; padding: 5px 0; }
-        .nav-tabs .active { color: var(--text-main); border-bottom: 2px solid var(--accent-pink); }
-        .nav-tabs span:hover:not(.active) { color: var(--accent-pink); }
-        
-        .layout-container > main { min-width: 0; }
-        .gallery-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 280px), 1fr)); gap: 25px; }
-        .shop-pagination { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 6px; margin-top: 26px; }
-        .shop-pagination[hidden] { display: none; }
-        .shop-pagination button { min-width: 36px; min-height: 36px; padding: 6px 10px; border: 1px solid var(--primary-pink); border-radius: 12px; background: rgba(255,255,255,0.85); color: var(--text-main); font: inherit; font-size: 13px; cursor: pointer; }
-        .shop-pagination button[aria-current="page"] { background: var(--primary-pink); color: var(--text-main); }
-        .shop-pagination button:hover:not(:disabled) { background: var(--primary-pink); color: var(--text-main); }
-        .shop-pagination .pagination-label { font-size: 13px; padding: 0 4px; }
-        .shop-pagination button:disabled { opacity: .4; cursor: default; }
-        .shop-pagination button:focus-visible { outline: 2px solid var(--accent-pink); outline-offset: 3px; }
-        .shop-page-summary { flex-basis: 100%; text-align: center; color: var(--text-main); font-size: 13px; margin-bottom: 4px; }
-        #empty-state { grid-column: 1 / -1; text-align: center; padding: 40px; color: #888; font-size: 15px; }
-
-        .card { background: rgba(255, 255, 255, 0.85); border-radius: 18px; border: 1px solid var(--glass-border); overflow: hidden; box-shadow: 0 5px 15px rgba(0,0,0,0.05); transition: 0.2s; position: relative; cursor: pointer; }
-        .card:hover { transform: translateY(-5px); box-shadow: 0 8px 25px rgba(255,145,164,0.3); border-color: var(--primary-pink); }
-        
-        .card-img-wrapper { position: relative; aspect-ratio: 1/1; overflow: hidden; background: #fff5f7; display: flex; align-items: center; justify-content: center; }
-        .card-img-wrapper img { width: 100%; height: 100%; object-fit: contain; transition: 0.3s; }
-        .card:hover .card-img-wrapper img { transform: scale(1.05); }
-
-        .badge { display: inline-block; padding: 5px 14px; border-radius: 50px; font-size: 12px; font-weight: bold; color: white; backdrop-filter: blur(4px); }
-        .card-img-wrapper .badge { position: absolute; top: 12px; left: 12px; z-index: 2; }
-        
-        /* 🌿 ปรับสี Badge ตามสถานะ */
-        .badge.avail { background: rgba(102, 187, 106, 0.95); }  /* สีเขียว */
-        .badge.sold { background: rgba(117, 117, 117, 0.95); }   /* สีเทา */
-        .badge.custom { background: rgba(66, 165, 245, 0.95); }   /* สีน้ำเงิน */
-
-        .card-info { padding: 18px; text-align: center; }
-        .card-title { font-size: 15px; margin: 0; font-weight: 600; color: #444; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-
-        /* Modal Popup */
         .modal-overlay {
-            position: fixed; inset: 0; background: rgba(0, 0, 0, 0.45); backdrop-filter: blur(6px);
-            display: none; justify-content: center; align-items: center; z-index: 100; padding: 15px;
+          padding: 10px;
+          align-items: flex-end;
         }
         .modal-container {
-            background: #ffffff; width: 100%; max-width: 1200px; max-height: 90vh; border-radius: 28px;
-            display: grid; grid-template-columns: 1.3fr 1fr; overflow: hidden; 
-            box-shadow: 0 30px 70px rgba(90, 74, 66, 0.2);
-            position: relative; animation: modalScale 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+          grid-template-columns: 1fr;
+          max-height: 92vh;
+          border-bottom-left-radius: 0;
+          border-bottom-right-radius: 0;
+          overflow-y: auto;
+          -webkit-overflow-scrolling: touch;
         }
-        @keyframes modalScale {
-            from { transform: scale(0.96); opacity: 0; }
-            to { transform: scale(1); opacity: 1; }
+        .modal-img-area {
+          min-height: 280px;
+          max-height: 45vh;
+          border-right: none;
+          border-bottom: 1px solid #f0e6e8;
         }
-        .modal-close {
-            position: absolute; top: 20px; right: 20px; background: #f2f2f2; color: #666;
-            width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center;
-            font-size: 15px; font-weight: bold; cursor: pointer; z-index: 10; border: none; transition: 0.2s;
+        .modal-details {
+          max-height: none;
+          overflow-y: visible;
+          padding: 25px 20px 40px 20px;
         }
-        .modal-close:hover { background: var(--accent-pink); color: white; }
-
-        .modal-img-area { 
-            background: #faf7f8; display: flex; align-items: center; justify-content: center; 
-            padding: 0; border-right: 1px solid #f0e6e8; min-height: 350px; overflow: hidden; 
-            position: relative;
-        }
-        .modal-img-area img { 
-            width: 100%; height: 100%; object-fit: contain; display: block;
-            cursor: zoom-in; transition: transform 0.3s ease; 
-        }
-
-        .modal-nav-btn {
-            position: absolute; top: 50%; transform: translateY(-50%);
-            background: rgba(255, 255, 255, 0.85); color: var(--text-main);
-            width: 42px; height: 42px; border-radius: 50%; border: none;
-            display: flex; align-items: center; justify-content: center; font-size: 18px; font-weight: bold;
-            cursor: pointer; z-index: 10; transition: 0.2s; box-shadow: 0 4px 10px rgba(0,0,0,0.2);
-        }
-        .modal-nav-btn:hover { background: var(--accent-pink); color: white; }
-        .modal-prev { left: 15px; }
-        .modal-next { right: 15px; }
-
-        .lightbox-overlay {
-            position: fixed; inset: 0; background: rgba(0, 0, 0, 0.85); backdrop-filter: blur(10px);
-            display: none; justify-content: center; align-items: center; z-index: 200; padding: 20px; cursor: zoom-out;
-        }
-        .lightbox-overlay img {
-            max-width: 95vw; max-height: 95vh; object-fit: contain; border-radius: 8px;
-            box-shadow: 0 10px 40px rgba(0,0,0,0.5);
-        }
-
-        .modal-details { 
-            padding: 40px; display: flex; flex-direction: column; justify-content: flex-start; 
-            max-height: 85vh; overflow-y: auto; text-align: left; -webkit-overflow-scrolling: touch;
-        }
-        
-        .modal-artist { display: flex; align-items: center; gap: 10px; font-size: 13px; color: #888; margin-bottom: 15px; font-weight: 500; }
-        .modal-artist img { width: 24px; height: 24px; border-radius: 50%; object-fit: cover; }
-        
-        .modal-title { font-size: 26px; font-weight: 700; color: var(--text-main); margin: 8px 0 20px 0; line-height: 1.3; }
-        
-        .modal-price-box { background: #fff5f7; padding: 16px 20px; border-radius: 16px; border: 1px solid #ffe0e6; margin-bottom: 16px; }
-        .modal-price-row { display: flex; justify-content: space-between; align-items: center; font-size: 14px; margin-bottom: 8px; color: #776b65; }
-        .modal-price-row:last-child { margin-bottom: 0; }
-        .modal-price-row b { color: var(--accent-pink); font-size: 16px; }
-
-        .modal-other-box { background: #faf9f9; padding: 14px 20px; border-radius: 16px; border: 1px solid #eee; margin-bottom: 25px; font-size: 14px; color: #665c56; line-height: 1.6; word-break: break-word; white-space: pre-wrap; }
-        .modal-other-box strong { display: block; color: var(--text-main); margin-bottom: 4px; font-size: 12px; text-transform: uppercase; letter-spacing: 0.5px; }
-        .modal-other-box a { color: var(--accent-pink); font-weight: bold; text-decoration: underline; }
-        .modal-other-box a:hover { color: #ff7990; }
-
-        .modal-btn { display: block; background: var(--accent-pink); color: white; padding: 14px 24px; border-radius: 50px; font-size: 14px; font-weight: bold; text-align: center; transition: 0.2s; box-shadow: 0 4px 15px rgba(255,145,164,0.3); margin-top: auto; }
-        .modal-btn:hover { background: #ff7990; transform: translateY(-1px); }
-
-        @media (max-width: 900px) {
-            body { padding: 10px; }
-            .layout-container { grid-template-columns: 1fr; }
-            .profile-sidebar { position: relative; top: 0; }
-            
-            .modal-overlay { padding: 10px; align-items: flex-end; }
-            .modal-container { 
-                grid-template-columns: 1fr; 
-                max-height: 92vh; 
-                border-bottom-left-radius: 0; 
-                border-bottom-right-radius: 0;
-                overflow-y: auto; 
-                -webkit-overflow-scrolling: touch;
-            }
-            .modal-img-area { min-height: 280px; max-height: 45vh; border-right: none; border-bottom: 1px solid #f0e6e8; }
-            .modal-details { 
-                max-height: none; 
-                overflow-y: visible; 
-                padding: 25px 20px 40px 20px; 
-            }
-        }
+      }
     </style>
-</head>
-<body>
-
+  </head>
+  <body>
     <!-- 🌸 ภาพพื้นหลังนิ่ง (Static Background) -->
     <div id="static-bg"></div>
 
     <div class="layout-container">
-        <!-- Sidebar Profile -->
-        <aside class="profile-sidebar">
-            <a href="admin-shop.html" target="_blank" rel="noopener"><img loading="lazy" decoding="async" draggable="false" src="icon.png" alt="Profile" class="avatar" title="Admin Dashboard"></a>
-            <h1 class="profile-name">Akanezz2314</h1>
-            <p class="profile-handle">@AKANEzz2314</p>
-            
-            <a href="queue.html" class="btn-nav">Back to Queue</a>
+      <!-- Sidebar Profile -->
+      <aside class="profile-sidebar">
+        <a href="admin-shop.html" target="_blank" rel="noopener"
+          ><img
+            loading="lazy"
+            decoding="async"
+            draggable="false"
+            src="icon.png"
+            alt="Profile"
+            class="avatar"
+            title="Admin Dashboard"
+        /></a>
+        <h1 class="profile-name">Akanezz2314</h1>
+        <p class="profile-handle">@AKANEzz2314</p>
 
-            <div class="social-links">
-                <p>Hewwo! I'm Akane, happy to see you here.<br>If you have anything please contact me!</p>
-                <b>About me</b>
-                <a href="https://akanezz2314.carrd.co" target="_blank">Akane_Carrd</a>
-                <a href="https://www.facebook.com/akanemui2314" target="_blank">Facebook</a>
-                <a href="https://x.com/AKANEzz2314" target="_blank">Twitter/X</a>
-                <a href="https://www.deviantart.com/akanezz2314" target="_blank">Deviant Art</a>
-            </div>
-        </aside>
+        <a href="queue.html" class="btn-nav">Back to Queue</a>
 
-        <!-- Main Content -->
-        <main>
-            <div class="top-bar">
-                <div class="nav-tabs">
-                    <span class="filter-tab active" onclick="filterGallery('ALL')">All</span>
-                    <span class="filter-tab" onclick="filterGallery('AVAILABLE')">Available</span>
-                    <span class="filter-tab" onclick="filterGallery('CUSTOM')">Custom</span>
-                    <span class="filter-tab" onclick="filterGallery('SOLD')">Sold</span>
-                </div>
-            </div>
+        <div class="social-links">
+          <p>
+            Hewwo! I'm Akane, happy to see you here.<br />If you have anything please contact me!
+          </p>
+          <b>About me</b>
+          <a href="https://akanezz2314.carrd.co" target="_blank">Akane_Carrd</a>
+          <a href="https://www.facebook.com/akanemui2314" target="_blank">Facebook</a>
+          <a href="https://x.com/AKANEzz2314" target="_blank">Twitter/X</a>
+          <a href="https://www.deviantart.com/akanezz2314" target="_blank">Deviant Art</a>
+        </div>
+      </aside>
 
-            <!-- Showcase Grid -->
-            <div class="gallery-grid" id="shop-gallery">
-                <div id="empty-state">Loading data...</div>
-            </div>
-            <nav id="shop-pagination" class="shop-pagination" aria-label="Adoptable pages" hidden></nav>
-        </main>
+      <!-- Main Content -->
+      <main>
+        <div class="top-bar">
+          <div class="nav-tabs">
+            <span class="filter-tab active" onclick="filterGallery('ALL')">All</span>
+            <span class="filter-tab" onclick="filterGallery('AVAILABLE')">Available</span>
+            <span class="filter-tab" onclick="filterGallery('CUSTOM')">Custom</span>
+            <span class="filter-tab" onclick="filterGallery('SOLD')">Sold</span>
+          </div>
+        </div>
+
+        <!-- Showcase Grid -->
+        <div class="gallery-grid" id="shop-gallery">
+          <div id="empty-state">Loading data...</div>
+        </div>
+        <nav id="shop-pagination" class="shop-pagination" aria-label="Adoptable pages" hidden></nav>
+      </main>
     </div>
 
     <!-- Modal Popup -->
     <div id="product-modal" class="modal-overlay" onclick="closeModal(event)">
-        <div class="modal-container" onclick="event.stopPropagation()">
-            <button class="modal-close" onclick="closeModalDirect()">✕</button>
-            <div class="modal-img-area">
-                <button class="modal-nav-btn modal-prev" onclick="changeSlide(-1)">&#10094;</button>
-                <img loading="lazy" decoding="async" draggable="false" id="modal-img" src="" alt="Adoptable Art" onclick="openLightbox(this.src)" title="คลิกเพื่อขยายภาพใหญ่">
-                <button class="modal-nav-btn modal-next" onclick="changeSlide(1)">&#10095;</button>
-            </div>
-            <div class="modal-details">
-                <div class="modal-artist">
-                    <img loading="lazy" decoding="async" draggable="false" src="icon.png" alt="Avatar">
-                    <span>Akanezz2314 @AKANEzz2314</span>
-                </div>
-                <div id="modal-badge-container"></div>
-                <h2 id="modal-title" class="modal-title">Title</h2>
-                <div id="modal-price-box" class="modal-price-box"></div>
-                <div id="modal-other-box" class="modal-other-box" style="display: none;"></div>
-                <div id="modal-btn-container"></div>
-            </div>
+      <div class="modal-container" onclick="event.stopPropagation()">
+        <button class="modal-close" onclick="closeModalDirect()">✕</button>
+        <div class="modal-img-area">
+          <button class="modal-nav-btn modal-prev" onclick="changeSlide(-1)">&#10094;</button>
+          <img
+            loading="lazy"
+            decoding="async"
+            draggable="false"
+            id="modal-img"
+            src=""
+            alt="Adoptable Art"
+            onclick="openLightbox(this.src)"
+            title="คลิกเพื่อขยายภาพใหญ่"
+          />
+          <button class="modal-nav-btn modal-next" onclick="changeSlide(1)">&#10095;</button>
         </div>
+        <div class="modal-details">
+          <div class="modal-artist">
+            <img loading="lazy" decoding="async" draggable="false" src="icon.png" alt="Avatar" />
+            <span>Akanezz2314 @AKANEzz2314</span>
+          </div>
+          <div id="modal-badge-container"></div>
+          <h2 id="modal-title" class="modal-title">Title</h2>
+          <div id="modal-price-box" class="modal-price-box"></div>
+          <div id="modal-other-box" class="modal-other-box" style="display: none"></div>
+          <div id="modal-btn-container"></div>
+        </div>
+      </div>
     </div>
 
     <!-- Lightbox สำหรับแสดงภาพขยายเต็มจอ -->
     <div id="lightbox" class="lightbox-overlay" onclick="closeLightbox()">
-        <img loading="lazy" decoding="async" draggable="false" id="lightbox-img" src="" alt="Zoomed Art">
+      <img
+        loading="lazy"
+        decoding="async"
+        draggable="false"
+        id="lightbox-img"
+        src=""
+        alt="Zoomed Art"
+      />
     </div>
 
     <!-- Firebase SDK -->
-    <script>// Persistent browser cache. Failure or quota limits never block the website.
-(()=>{if(window.AkaneCache)return;let opening;
-function open(){return opening||=(new Promise(resolve=>{try{const request=indexedDB.open('akane-site-cache-v1',1);request.onupgradeneeded=()=>request.result.createObjectStore('entries');request.onsuccess=()=>resolve(request.result);request.onerror=()=>resolve(null);request.onblocked=()=>resolve(null);}catch{resolve(null);}}));}
-async function get(key){try{const database=await open();if(!database)return null;return await new Promise(resolve=>{const request=database.transaction('entries').objectStore('entries').get(key);request.onsuccess=()=>resolve(request.result??null);request.onerror=()=>resolve(null);});}catch{return null;}}
-async function set(key,value){try{const database=await open();if(!database)return false;return await new Promise(resolve=>{const tx=database.transaction('entries','readwrite');tx.objectStore('entries').put(value,key);tx.oncomplete=()=>resolve(true);tx.onerror=()=>resolve(false);tx.onabort=()=>resolve(false);});}catch{return false;}}
-window.AkaneCache={get,set};})();
-</script>
-<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script>
+      // Persistent browser cache. Failure or quota limits never block the website.
+      (() => {
+        if (window.AkaneCache) return;
+        let opening;
+        function open() {
+          return (opening ||= new Promise((resolve) => {
+            try {
+              const request = indexedDB.open('akane-site-cache-v1', 1);
+              request.onupgradeneeded = () => request.result.createObjectStore('entries');
+              request.onsuccess = () => resolve(request.result);
+              request.onerror = () => resolve(null);
+              request.onblocked = () => resolve(null);
+            } catch {
+              resolve(null);
+            }
+          }));
+        }
+        async function get(key) {
+          try {
+            const database = await open();
+            if (!database) return null;
+            return await new Promise((resolve) => {
+              const request = database.transaction('entries').objectStore('entries').get(key);
+              request.onsuccess = () => resolve(request.result ?? null);
+              request.onerror = () => resolve(null);
+            });
+          } catch {
+            return null;
+          }
+        }
+        async function set(key, value) {
+          try {
+            const database = await open();
+            if (!database) return false;
+            return await new Promise((resolve) => {
+              const tx = database.transaction('entries', 'readwrite');
+              tx.objectStore('entries').put(value, key);
+              tx.oncomplete = () => resolve(true);
+              tx.onerror = () => resolve(false);
+              tx.onabort = () => resolve(false);
+            });
+          } catch {
+            return false;
+          }
+        }
+        window.AkaneCache = { get, set };
+      })();
+    </script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
 
     <script>
-        const firebaseConfig = {
-            apiKey: "AIzaSyCGuowjScRtT3Xi451MIy_cfDRoFxwFIkg",
-            authDomain: "akane-adoptshop.firebaseapp.com",
-            projectId: "akane-adoptshop",
-            storageBucket: "akane-adoptshop.firebasestorage.app",
-            messagingSenderId: "431915875227",
-            appId: "1:431915875227:web:80ed5ed2788b88f56abf3e"
-        };
-        
-        if (!firebase.apps.length) { firebase.initializeApp(firebaseConfig); }
-        const db = firebase.firestore();
-        db.enablePersistence({synchronizeTabs:true}).catch(()=>{});
+      const firebaseConfig = {
+        apiKey: 'AIzaSyCGuowjScRtT3Xi451MIy_cfDRoFxwFIkg',
+        authDomain: 'akane-adoptshop.firebaseapp.com',
+        projectId: 'akane-adoptshop',
+        storageBucket: 'akane-adoptshop.firebasestorage.app',
+        messagingSenderId: '431915875227',
+        appId: '1:431915875227:web:80ed5ed2788b88f56abf3e',
+      };
 
-        let allAdoptables = [];
-        let currentActiveList = []; 
-        let currentIndex = 0;       
-        let currentFilterType = 'ALL';
-        const SHOP_PAGE_SIZE = 9;
-        let currentPage = 1;
+      if (!firebase.apps.length) {
+        firebase.initializeApp(firebaseConfig);
+      }
+      const db = firebase.firestore();
+      db.enablePersistence({ synchronizeTabs: true }).catch(() => {});
 
-        let shopUnsubscribe, pendingShopItems=null,shopInitialized=false;
-        function applyShopItems(items){
-            allAdoptables=items;shopInitialized=true;
-            if(getComputedStyle(document.getElementById('product-modal')).display!=='none'){pendingShopItems=items;return;}
-            pendingShopItems=null;renderGallery(currentFilterType);
+      let allAdoptables = [];
+      let currentActiveList = [];
+      let currentIndex = 0;
+      let currentFilterType = 'ALL';
+      const SHOP_PAGE_SIZE = 9;
+      let currentPage = 1;
+
+      let shopUnsubscribe,
+        pendingShopItems = null,
+        shopInitialized = false;
+      function applyShopItems(items) {
+        allAdoptables = items;
+        shopInitialized = true;
+        if (getComputedStyle(document.getElementById('product-modal')).display !== 'none') {
+          pendingShopItems = items;
+          return;
         }
-        async function loadShopData(){
-            const cached=await window.AkaneCache.get('adoptable:list');
-            if(cached?.items)applyShopItems(cached.items);
-            shopUnsubscribe?.();
-            shopUnsubscribe=db.collection('adoptables').orderBy('order','desc').onSnapshot(snapshot=>{
-                const items=[];snapshot.forEach(doc=>items.push({...doc.data(),id:doc.id}));
-                window.AkaneCache.set('adoptable:list',{items,checkedAt:Date.now()});
-                if(!shopInitialized||JSON.stringify(items)!==JSON.stringify(allAdoptables))applyShopItems(items);
-            },error=>{console.error(error);if(!allAdoptables.length)document.getElementById('shop-gallery').innerHTML='<div id="empty-state">โหลดข้อมูลไม่สำเร็จ กรุณาลองอีกครั้ง</div>';});
+        pendingShopItems = null;
+        renderGallery(currentFilterType);
+      }
+      async function loadShopData() {
+        const cached = await window.AkaneCache.get('adoptable:list');
+        if (cached?.items) applyShopItems(cached.items);
+        shopUnsubscribe?.();
+        shopUnsubscribe = db
+          .collection('adoptables')
+          .orderBy('order', 'desc')
+          .onSnapshot(
+            (snapshot) => {
+              const items = [];
+              snapshot.forEach((doc) => items.push({ ...doc.data(), id: doc.id }));
+              window.AkaneCache.set('adoptable:list', { items, checkedAt: Date.now() });
+              if (!shopInitialized || JSON.stringify(items) !== JSON.stringify(allAdoptables))
+                applyShopItems(items);
+            },
+            (error) => {
+              console.error(error);
+              if (!allAdoptables.length)
+                document.getElementById('shop-gallery').innerHTML =
+                  '<div id="empty-state">โหลดข้อมูลไม่สำเร็จ กรุณาลองอีกครั้ง</div>';
+            },
+          );
+      }
+      function applyPendingShop() {
+        if (pendingShopItems) {
+          pendingShopItems = null;
+          renderGallery(currentFilterType);
         }
-        function applyPendingShop(){if(pendingShopItems){pendingShopItems=null;renderGallery(currentFilterType);}}
+      }
 
-        function filterGallery(type) {
-            document.querySelectorAll('.filter-tab').forEach(tab => {
-                tab.classList.remove('active');
-                if (tab.getAttribute('onclick').includes(type)) { tab.classList.add('active'); }
-            });
-            currentPage = 1;
-            renderGallery(type);
+      function filterGallery(type) {
+        document.querySelectorAll('.filter-tab').forEach((tab) => {
+          tab.classList.remove('active');
+          if (tab.getAttribute('onclick').includes(type)) {
+            tab.classList.add('active');
+          }
+        });
+        currentPage = 1;
+        renderGallery(type);
+      }
+
+      function renderGallery(filterType) {
+        currentFilterType = filterType;
+        const gallery = document.getElementById('shop-gallery');
+        gallery.innerHTML = '';
+
+        currentActiveList =
+          filterType === 'ALL'
+            ? allAdoptables
+            : allAdoptables.filter((item) => item.status === filterType);
+
+        const pageCount = Math.max(1, Math.ceil(currentActiveList.length / SHOP_PAGE_SIZE));
+        currentPage = Math.max(1, Math.min(currentPage, pageCount));
+        renderPagination(pageCount);
+
+        if (currentActiveList.length === 0) {
+          gallery.innerHTML = '<div id="empty-state">Coming soon...</div>';
+          return;
         }
 
-        function renderGallery(filterType) {
-            currentFilterType = filterType;
-            const gallery = document.getElementById('shop-gallery');
-            gallery.innerHTML = '';
+        const startIndex = (currentPage - 1) * SHOP_PAGE_SIZE;
+        currentActiveList
+          .slice(startIndex, startIndex + SHOP_PAGE_SIZE)
+          .forEach((data, pageIndex) => {
+            const index = startIndex + pageIndex;
+            let badgeClass = 'avail';
+            let badgeText = 'Available';
 
-            currentActiveList = filterType === 'ALL' 
-                ? allAdoptables 
-                : allAdoptables.filter(item => item.status === filterType);
-
-            const pageCount = Math.max(1, Math.ceil(currentActiveList.length / SHOP_PAGE_SIZE));
-            currentPage = Math.max(1, Math.min(currentPage, pageCount));
-            renderPagination(pageCount);
-
-            if (currentActiveList.length === 0) {
-                gallery.innerHTML = '<div id="empty-state">Coming soon...</div>';
-                return;
+            if (data.status === 'SOLD') {
+              badgeClass = 'sold';
+              badgeText = 'SOLD';
+            } else if (data.status === 'CUSTOM') {
+              badgeClass = 'custom';
+              badgeText = 'Custom';
             }
-            
-            const startIndex = (currentPage - 1) * SHOP_PAGE_SIZE;
-            currentActiveList.slice(startIndex, startIndex + SHOP_PAGE_SIZE).forEach((data, pageIndex) => {
-                const index = startIndex + pageIndex;
-                let badgeClass = 'avail';
-                let badgeText = 'Available';
 
-                if (data.status === 'SOLD') {
-                    badgeClass = 'sold'; badgeText = 'SOLD';
-                } else if (data.status === 'CUSTOM') {
-                    badgeClass = 'custom'; badgeText = 'Custom';
-                }
-
-                gallery.innerHTML += `
+            gallery.innerHTML += `
                     <div class="card" onclick="openModal(${index})">
                         <div class="card-img-wrapper">
                             <div class="badge ${badgeClass}">${badgeText}</div>
@@ -380,170 +863,189 @@ window.AkaneCache={get,set};})();
                         </div>
                     </div>
                 `;
-            });
-        }
+          });
+      }
 
-        function renderPagination(pageCount) {
-            const nav = document.getElementById('shop-pagination');
-            nav.hidden = pageCount <= 1;
-            nav.innerHTML = '';
-            if (nav.hidden) return;
-            const first = (currentPage - 1) * SHOP_PAGE_SIZE + 1;
-            const last = Math.min(currentPage * SHOP_PAGE_SIZE, currentActiveList.length);
-            nav.innerHTML = `<span class="shop-page-summary" role="status">${first}–${last} / ${currentActiveList.length}</span>`;
-            const addButton = (label, page, disabled, active = false) => {
-                const button = document.createElement('button');
-                button.type = 'button';
-                button.textContent = label;
-                button.disabled = disabled;
-                if (active) button.setAttribute('aria-current', 'page');
-                button.addEventListener('click', () => changeShopPage(page));
-                nav.appendChild(button);
-            };
-            addButton('<', currentPage - 1, currentPage === 1);
-            const label = document.createElement('span');
-            label.className = 'pagination-label';
-            label.textContent = 'Page';
-            nav.appendChild(label);
-            const pages = new Set([1, pageCount]);
-            for (let page = currentPage - 2; page <= currentPage + 2; page++) {
-                if (page > 0 && page <= pageCount) pages.add(page);
+      function renderPagination(pageCount) {
+        const nav = document.getElementById('shop-pagination');
+        nav.hidden = pageCount <= 1;
+        nav.innerHTML = '';
+        if (nav.hidden) return;
+        const first = (currentPage - 1) * SHOP_PAGE_SIZE + 1;
+        const last = Math.min(currentPage * SHOP_PAGE_SIZE, currentActiveList.length);
+        nav.innerHTML = `<span class="shop-page-summary" role="status">${first}–${last} / ${currentActiveList.length}</span>`;
+        const addButton = (label, page, disabled, active = false) => {
+          const button = document.createElement('button');
+          button.type = 'button';
+          button.textContent = label;
+          button.disabled = disabled;
+          if (active) button.setAttribute('aria-current', 'page');
+          button.addEventListener('click', () => changeShopPage(page));
+          nav.appendChild(button);
+        };
+        addButton('<', currentPage - 1, currentPage === 1);
+        const label = document.createElement('span');
+        label.className = 'pagination-label';
+        label.textContent = 'Page';
+        nav.appendChild(label);
+        const pages = new Set([1, pageCount]);
+        for (let page = currentPage - 2; page <= currentPage + 2; page++) {
+          if (page > 0 && page <= pageCount) pages.add(page);
+        }
+        if (pageCount <= 7) for (let page = 1; page <= pageCount; page++) pages.add(page);
+        let previousPage = 0;
+        [...pages]
+          .sort((a, b) => a - b)
+          .forEach((page) => {
+            if (previousPage && page > previousPage + 1) {
+              const gap = document.createElement('span');
+              gap.textContent = '…';
+              nav.appendChild(gap);
             }
-            if (pageCount <= 7) for (let page = 1; page <= pageCount; page++) pages.add(page);
-            let previousPage = 0;
-            [...pages].sort((a, b) => a - b).forEach(page => {
-                if (previousPage && page > previousPage + 1) {
-                    const gap = document.createElement('span');
-                    gap.textContent = '…';
-                    nav.appendChild(gap);
-                }
-                addButton(String(page), page, false, page === currentPage);
-                previousPage = page;
-            });
-            addButton('>', currentPage + 1, currentPage === pageCount);
+            addButton(String(page), page, false, page === currentPage);
+            previousPage = page;
+          });
+        addButton('>', currentPage + 1, currentPage === pageCount);
+      }
+
+      function changeShopPage(page) {
+        const pageCount = Math.max(1, Math.ceil(currentActiveList.length / SHOP_PAGE_SIZE));
+        currentPage = Math.max(1, Math.min(page, pageCount));
+        renderGallery(currentFilterType);
+        document.getElementById('shop-gallery').scrollIntoView({ block: 'start' });
+      }
+
+      function openModal(index) {
+        currentIndex = index;
+        updateModalContent();
+        document.getElementById('product-modal').style.display = 'flex';
+      }
+
+      function updateModalContent() {
+        const data = currentActiveList[currentIndex];
+        if (!data) return;
+
+        document.getElementById('modal-img').src = data.imageUrl;
+        document.getElementById('modal-title').innerText = data.title;
+
+        let badgeClass = 'avail';
+        let badgeText = 'Available';
+        if (data.status === 'SOLD') {
+          badgeClass = 'sold';
+          badgeText = 'SOLD';
+        } else if (data.status === 'CUSTOM') {
+          badgeClass = 'custom';
+          badgeText = 'Custom';
         }
+        document.getElementById('modal-badge-container').innerHTML =
+          `<div class="badge ${badgeClass}">${badgeText}</div>`;
 
-        function changeShopPage(page) {
-            const pageCount = Math.max(1, Math.ceil(currentActiveList.length / SHOP_PAGE_SIZE));
-            currentPage = Math.max(1, Math.min(page, pageCount));
-            renderGallery(currentFilterType);
-            document.getElementById('shop-gallery').scrollIntoView({ block: 'start' });
-        }
-
-        function openModal(index) {
-            currentIndex = index;
-            updateModalContent();
-            document.getElementById('product-modal').style.display = 'flex';
-        }
-
-        function updateModalContent() {
-            const data = currentActiveList[currentIndex];
-            if (!data) return;
-
-            document.getElementById('modal-img').src = data.imageUrl;
-            document.getElementById('modal-title').innerText = data.title;
-
-            let badgeClass = 'avail'; let badgeText = 'Available';
-            if (data.status === 'SOLD') { badgeClass = 'sold'; badgeText = 'SOLD'; }
-            else if (data.status === 'CUSTOM') { badgeClass = 'custom'; badgeText = 'Custom'; }
-            document.getElementById('modal-badge-container').innerHTML = `<div class="badge ${badgeClass}">${badgeText}</div>`;
-
-            let priceHTML = '';
-            if (data.priceData) {
-                if (data.priceData.type === 'AUCTION') {
-                    priceHTML = `
+        let priceHTML = '';
+        if (data.priceData) {
+          if (data.priceData.type === 'AUCTION') {
+            priceHTML = `
                         <div class="modal-price-row"><span>SB:</span> <b>${data.priceData.sb} THB</b></div>
                         <div class="modal-price-row"><span>Min:</span> <b>${data.priceData.min} THB</b></div>
                         <div class="modal-price-row"><span>AB:</span> <b>${data.priceData.ab} THB</b></div>
                     `;
-                } else if (data.priceData.type === 'SET_PRICE') {
-                    if(data.priceData.sp1) priceHTML += `<div class="modal-price-row"><span>SP1:</span> <b>${data.priceData.sp1} THB</b></div>`;
-                    if(data.priceData.sp2) priceHTML += `<div class="modal-price-row"><span>SP2:</span> <b>${data.priceData.sp2} THB</b></div>`;
-                    if(data.priceData.sp3) priceHTML += `<div class="modal-price-row"><span>SP3:</span> <b>${data.priceData.sp3} THB</b></div>`;
-                } else if (data.priceData.type === 'CUSTOM') {
-                    priceHTML = `<div class="modal-price-row"><span>Price:</span> <b>${data.priceData.customPrice} THB</b></div>`;
-                }
-            } else if (data.price) {
-                priceHTML = `<div class="modal-price-row"><span>Price:</span> <b>${data.price} THB</b></div>`;
-            }
-            document.getElementById('modal-price-box').innerHTML = priceHTML;
+          } else if (data.priceData.type === 'SET_PRICE') {
+            if (data.priceData.sp1)
+              priceHTML += `<div class="modal-price-row"><span>SP1:</span> <b>${data.priceData.sp1} THB</b></div>`;
+            if (data.priceData.sp2)
+              priceHTML += `<div class="modal-price-row"><span>SP2:</span> <b>${data.priceData.sp2} THB</b></div>`;
+            if (data.priceData.sp3)
+              priceHTML += `<div class="modal-price-row"><span>SP3:</span> <b>${data.priceData.sp3} THB</b></div>`;
+          } else if (data.priceData.type === 'CUSTOM') {
+            priceHTML = `<div class="modal-price-row"><span>Price:</span> <b>${data.priceData.customPrice} THB</b></div>`;
+          }
+        } else if (data.price) {
+          priceHTML = `<div class="modal-price-row"><span>Price:</span> <b>${data.price} THB</b></div>`;
+        }
+        document.getElementById('modal-price-box').innerHTML = priceHTML;
 
-            const otherBox = document.getElementById('modal-other-box');
-            if (data.otherDetails && data.otherDetails.trim() !== '') {
-                let escapedDetails = data.otherDetails
-                    .replace(/&/g, "&amp;")
-                    .replace(/</g, "&lt;")
-                    .replace(/>/g, "&gt;");
-                
-                let formattedDetails = escapedDetails.replace(
-                    /(https?:\/\/[^\s]+)/g, 
-                    '<a href="$1" target="_blank" rel="noopener">$1</a>'
-                );
+        const otherBox = document.getElementById('modal-other-box');
+        if (data.otherDetails && data.otherDetails.trim() !== '') {
+          let escapedDetails = data.otherDetails
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;');
 
-                otherBox.innerHTML = `<strong>Other Details</strong>${formattedDetails}`;
-                otherBox.style.display = 'block';
-            } else {
-                otherBox.style.display = 'none';
-            }
+          let formattedDetails = escapedDetails.replace(
+            /(https?:\/\/[^\s]+)/g,
+            '<a href="$1" target="_blank" rel="noopener">$1</a>',
+          );
 
-            let btnHTML = '';
-            if(data.platform && data.platform.trim() !== '') {
-                btnHTML = `<a href="${data.platform}" target="_blank" class="modal-btn">Visit Auction</a>`;
-            }
-            document.getElementById('modal-btn-container').innerHTML = btnHTML;
+          otherBox.innerHTML = `<strong>Other Details</strong>${formattedDetails}`;
+          otherBox.style.display = 'block';
+        } else {
+          otherBox.style.display = 'none';
         }
 
-        function changeSlide(direction) {
-            currentIndex += direction;
-            if (currentIndex < 0) {
-                currentIndex = currentActiveList.length - 1; 
-            } else if (currentIndex >= currentActiveList.length) {
-                currentIndex = 0; 
-            }
-            updateModalContent();
+        let btnHTML = '';
+        if (data.platform && data.platform.trim() !== '') {
+          btnHTML = `<a href="${data.platform}" target="_blank" class="modal-btn">Visit Auction</a>`;
         }
+        document.getElementById('modal-btn-container').innerHTML = btnHTML;
+      }
 
-        function closeModal(event) { document.getElementById('product-modal').style.display = 'none'; applyPendingShop(); }
-        function closeModalDirect() { document.getElementById('product-modal').style.display = 'none'; applyPendingShop(); }
-
-        function openLightbox(imgSrc) {
-            document.getElementById('lightbox-img').src = imgSrc;
-            document.getElementById('lightbox').style.display = 'flex';
+      function changeSlide(direction) {
+        currentIndex += direction;
+        if (currentIndex < 0) {
+          currentIndex = currentActiveList.length - 1;
+        } else if (currentIndex >= currentActiveList.length) {
+          currentIndex = 0;
         }
-        function closeLightbox() {
-            document.getElementById('lightbox').style.display = 'none';
+        updateModalContent();
+      }
+
+      function closeModal(event) {
+        document.getElementById('product-modal').style.display = 'none';
+        applyPendingShop();
+      }
+      function closeModalDirect() {
+        document.getElementById('product-modal').style.display = 'none';
+        applyPendingShop();
+      }
+
+      function openLightbox(imgSrc) {
+        document.getElementById('lightbox-img').src = imgSrc;
+        document.getElementById('lightbox').style.display = 'flex';
+      }
+      function closeLightbox() {
+        document.getElementById('lightbox').style.display = 'none';
+      }
+
+      // Discourage browser image saving while preserving normal text and link menus.
+      const protectedShopMedia =
+        'img,.card-img-wrapper,.modal-img-area,.lightbox-overlay,#static-bg';
+      document.addEventListener('contextmenu', (event) => {
+        if (event.target instanceof Element && event.target.closest(protectedShopMedia)) {
+          event.preventDefault();
         }
+      });
+      document.addEventListener('dragstart', (event) => {
+        if (event.target instanceof Element && event.target.closest('img')) {
+          event.preventDefault();
+        }
+      });
 
-        // Discourage browser image saving while preserving normal text and link menus.
-        const protectedShopMedia = 'img,.card-img-wrapper,.modal-img-area,.lightbox-overlay,#static-bg';
-        document.addEventListener('contextmenu', event => {
-            if (event.target instanceof Element && event.target.closest(protectedShopMedia)) {
-                event.preventDefault();
-            }
-        });
-        document.addEventListener('dragstart', event => {
-            if (event.target instanceof Element && event.target.closest('img')) {
-                event.preventDefault();
-            }
-        });
-
-        loadShopData();
+      loadShopData();
     </script>
     <script>
-document.addEventListener('keydown', function (event) {
-    if (event.key !== 'Escape') return;
+      document.addEventListener('keydown', function (event) {
+        if (event.key !== 'Escape') return;
 
-    const lightbox = document.getElementById('lightbox');
-    const modal = document.getElementById('product-modal');
+        const lightbox = document.getElementById('lightbox');
+        const modal = document.getElementById('product-modal');
 
-    if (lightbox && getComputedStyle(lightbox).display !== 'none') {
-        event.preventDefault();
-        closeLightbox();
-    } else if (modal && getComputedStyle(modal).display !== 'none') {
-        event.preventDefault();
-        closeModalDirect();
-    }
-});
-</script>
-</body>
+        if (lightbox && getComputedStyle(lightbox).display !== 'none') {
+          event.preventDefault();
+          closeLightbox();
+        } else if (modal && getComputedStyle(modal).display !== 'none') {
+          event.preventDefault();
+          closeModalDirect();
+        }
+      });
+    </script>
+  </body>
 </html>

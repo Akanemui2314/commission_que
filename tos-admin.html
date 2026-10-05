@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="th">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Akane · Visual TOS Editor</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@400;500;600;700&display=swap"
+    />
+    <link rel="stylesheet" href="rate-builder.css?v=embed-20261005" />
+    <link rel="stylesheet" href="visual-rate-editor.css?v=embed-20261005" />
+    <style>
+      body:not(.owner-authorized) #rate-page,
+      body:not(.owner-authorized) #editor-tools,
+      body:not(.owner-authorized) #editor-properties,
+      body:not(.owner-authorized) #editor-add {
+        display: none;
+      }
+      .owner-gate {
+        max-width: 420px;
+        margin: 10vh auto;
+        padding: 32px;
+        background: white;
+        border-radius: 28px;
+      }
+      .owner-gate[hidden] {
+        display: none;
+      }
+    </style>
+    <style>
+      body[data-editor='tos'] #rate-page {
+        width: 100%;
+        max-width: 900px;
+        margin: auto;
+        background: #fff;
+        border-radius: 28px;
+        padding: 28px;
+        box-shadow: 0 12px 40px #5c422c18;
+      }
+      body[data-editor='tos'] .rate-public-card {
+        border: 0;
+        padding: 16px 0;
+        margin: 0;
+      }
+      body[data-editor='tos'].ve-mobile #rate-page {
+        max-width: 390px;
+      }
+    </style>
+  </head>
+  <body class="visual-editor" data-editor="tos">
+    <div style="position: fixed; bottom: 20px; left: 20px; z-index: 100">
+      <a href="tos-admin.html">TH</a> · <a href="tos-admin.html?language=en">EN</a>
+    </div>
+    <nav id="editor-tools" aria-label="เครื่องมือปรับแต่ง"></nav>
+    <div id="editor-status" role="status">กำลังตรวจสอบการเข้าสู่ระบบ…</div>
+    <aside id="editor-properties" aria-label="ตั้งค่าองค์ประกอบ" hidden></aside>
+    <aside id="editor-add" aria-label="เพิ่มองค์ประกอบ" hidden></aside>
+    <main id="rate-page" aria-label="คลิกองค์ประกอบเพื่อแก้ไข"></main>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+    <script src="commission-cloud.js?v=akane-studio-1"></script>
+    <script src="akane-auth.js?v=akane-studio-1"></script>
+    <script src="editor-data.js?v=akane-studio-1"></script>
+    <script type="module" src="visual-rate-editor.js?v=embed-20261005"></script>
+  </body>
+</html>

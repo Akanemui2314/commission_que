@@ -1,0 +1,15 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function isOwner() {
+      return request.auth != null
+        && request.auth.token.email == 'akanezz2314@gmail.com'
+        && request.auth.token.email_verified == true
+        && request.auth.token.firebase.sign_in_provider == 'google.com';
+    }
+    match /{collection}/{document=**} {
+      allow read: if collection in ['adoptables', 'commissionSite', 'commissionRevisions', 'commissionMedia', 'commissionVideoPosters'];
+      allow write: if collection in ['adoptables', 'commissionSite', 'commissionRevisions', 'commissionMedia', 'commissionVideoPosters'] && isOwner();
+    }
+  }
+}
