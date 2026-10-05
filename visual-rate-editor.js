@@ -1,18 +1,9 @@
 import { tosModel } from './tos-core.js';
 const editingTos = document.body.dataset.editor === 'tos';
-const englishTos = new URLSearchParams(location.search).get('language') === 'en';
-const contentKey = editingTos ? (englishTos ? 'tosContentEn' : 'tosContent') : 'calculatorContent';
+const contentKey = editingTos ? 'tosContent' : 'calculatorContent';
 const editorModel = (site) =>
   editingTos
-    ? tosModel(
-        englishTos
-          ? {
-              ...site,
-              tosContent: site.tosContentEn,
-              terms: (site.terms || []).map((t) => ({ thTitle: t.enTitle, th: t.en })),
-            }
-          : site,
-      )
+    ? tosModel(site)
     : normalize({
         priceRate: site.calculatorContent || {
           version: 4,

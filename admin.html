@@ -18,6 +18,60 @@
       button {
         cursor: pointer;
       }
+
+      #akane-concepts .ak .direct-crop-frame {
+        position: relative;
+        overflow: hidden;
+      }
+      #akane-concepts .ak .direct-crop-toggle,
+      #akane-concepts .ak .direct-crop-reset {
+        position: absolute;
+        top: 8px;
+        right: 8px;
+        z-index: 5;
+        width: 36px;
+        height: 36px;
+        min-width: 36px;
+        padding: 0;
+        border-radius: 50%;
+        background: #fffdf8 !important;
+        color: #b54c6a !important;
+        border: 1px solid #ffc0d0;
+        box-shadow: 0 2px 8px #0002;
+        font-size: 20px;
+      }
+      #akane-concepts .ak .direct-crop-reset {
+        right: 52px;
+      }
+      #akane-concepts .ak .direct-crop-hint {
+        position: absolute;
+        bottom: 8px;
+        left: 8px;
+        z-index: 4;
+        background: #fffdf8e8;
+        color: #b54c6a;
+        padding: 5px 10px;
+        border-radius: 999px;
+        font-size: 12px;
+        pointer-events: none;
+      }
+      #akane-concepts .ak .direct-crop-frame.is-cropping {
+        cursor: grab;
+        touch-action: none;
+        outline: 2px solid #ffa5be;
+        outline-offset: -2px;
+      }
+      #akane-concepts .ak .direct-crop-frame.is-cropping:active {
+        cursor: grabbing;
+      }
+      #akane-concepts .ak .direct-crop-frame.is-cropping img,
+      #akane-concepts .ak .direct-crop-frame.is-cropping video {
+        pointer-events: none;
+        user-select: none;
+      }
+      #akane-concepts .ak .direct-crop-frame [hidden] {
+        display: none !important;
+      }
     </style>
   </head>
   <body>
@@ -3661,7 +3715,11 @@
         function readPreview() {
           return previewCache;
         }
-        const typeNames = { Character: 'Full Scale', Chibi: 'Chibi', ...(saved?.typeNames || {}) };
+        const typeNames = {
+          Character: 'Full Scale',
+          Chibi: 'Chibi',
+          ...(saved?.typeNames || {}),
+        };
         if (saved?.scales) Object.assign(scales, saved.scales);
         if (saved?.finishes) Object.assign(finishes, saved.finishes);
         if (saved?.pricing) Object.assign(prices, saved.pricing);
@@ -4031,7 +4089,9 @@
             surface._wakeLatest?.();
           }
           function updatePlayback() {}
-          window.addEventListener('resize', () => surface._wakeLatest?.(), { passive: true });
+          window.addEventListener('resize', () => surface._wakeLatest?.(), {
+            passive: true,
+          });
           query('.latest-prev').addEventListener('click', async () => {
             manualTarget--;
             rotationPhase = manualTarget;
@@ -4419,7 +4479,13 @@
             return String(value).replace(
               /[&<>"']/g,
               (char) =>
-                ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[char],
+                ({
+                  '&': '&amp;',
+                  '<': '&lt;',
+                  '>': '&gt;',
+                  '"': '&quot;',
+                  "'": '&#39;',
+                })[char],
             );
           }
           function fillOptions(select, values) {
@@ -4881,7 +4947,9 @@
                   }
                 };
                 const timer = setTimeout(() => finish(''), 20000);
-                probe.addEventListener('error', () => finish(''), { once: true });
+                probe.addEventListener('error', () => finish(''), {
+                  once: true,
+                });
                 probe.addEventListener(
                   'loadedmetadata',
                   () => {
@@ -4892,7 +4960,9 @@
                       probe.addEventListener('seeked', capture, { once: true });
                       probe.currentTime = time;
                     } else {
-                      probe.addEventListener('loadeddata', capture, { once: true });
+                      probe.addEventListener('loadeddata', capture, {
+                        once: true,
+                      });
                       capture();
                     }
                   },
@@ -4935,61 +5005,156 @@
             drawWorkCrop(src);
           }
           function drawWorkCrop(src) {
-            query('.work-crop-tools').hidden = false;
-            applyCrop(query('.upload img,.upload video'), workCrop);
-            const editor = query('.work-crop-editor');
-            editor.hidden = false;
-            editor.replaceChildren();
-            const section = document.createElement('section');
-            section.className = 'crop-item';
-            const heading = document.createElement('h3');
-            heading.textContent = 'Crop artwork';
-            const frame = document.createElement('div');
-            frame.className = 'crop-frame';
-            const media = makeMedia(src, 'Artwork crop preview');
-            frame.append(media);
+            query('.work-crop-tools').hidden = true;
+            query('.work-crop-editor').hidden = true;
+            query('.work-crop-editor').replaceChildren();
+            const frame = query('.upload-preview-frame') || query('.upload');
+            frame
+              .querySelectorAll('.direct-crop-toggle,.direct-crop-reset,.direct-crop-hint')
+              .forEach((el) => el.remove());
+            const media = query('.upload img,.upload video');
             applyCrop(media, workCrop);
-            section.append(heading, frame);
-            for (const [key, name, min, max, step] of [
-              ['x', 'ตำแหน่งซ้าย / ขวา', 0, 100, 1],
-              ['y', 'ตำแหน่งบน / ล่าง', 0, 100, 1],
-              ['zoom', 'Zoom', 1, 3, 0.05],
-            ]) {
-              const label = document.createElement('label');
-              label.textContent = name;
-              const output = document.createElement('output');
-              const input = document.createElement('input');
-              input.type = 'range';
-              input.min = min;
-              input.max = max;
-              input.step = step;
-              input.value = workCrop[key];
-              input.setAttribute('aria-label', `${name} · Artwork`);
-              const update = () => {
-                output.textContent =
-                  key === 'zoom' ? `${Number(input.value).toFixed(2)}×` : `${input.value}%`;
-              };
-              input.addEventListener('input', async () => {
-                workCrop[key] = Number(input.value);
+            enableDirectCrop(
+              frame,
+              media,
+              () => workCrop,
+              (value) => {
+                workCrop = cropValue(value);
                 applyCrop(media, workCrop);
-                applyCrop(query('.upload img,.upload video'), workCrop);
-                update();
+              },
+            );
+          }
+
+          function enableDirectCrop(frame, media, getCrop, onChange) {
+            frame._cropAbort?.abort();
+            const abort = new AbortController();
+            frame._cropAbort = abort;
+            const listen = (type, handler, options = {}) =>
+              frame.addEventListener(type, handler, {
+                ...options,
+                signal: abort.signal,
               });
-              update();
-              label.append(output, input);
-              section.append(label);
-            }
+            frame.classList.add('direct-crop-frame');
+            const button = document.createElement('button');
+            button.type = 'button';
+            button.className = 'direct-crop-toggle';
+            button.textContent = '✥';
+            button.title = 'ปรับ Crop · ลากภาพเพื่อจัดตำแหน่ง';
+            button.setAttribute('aria-label', 'ลากปรับ Crop');
+            button.setAttribute('aria-pressed', 'false');
+            frame.append(button);
             const reset = document.createElement('button');
             reset.type = 'button';
-            reset.textContent = 'Reset crop';
-            reset.className = 'cursor-interaction';
-            reset.addEventListener('click', async () => {
-              workCrop = cropValue();
-              drawWorkCrop(src);
+            reset.className = 'direct-crop-reset';
+            reset.textContent = '↺';
+            reset.title = 'Reset crop';
+            reset.setAttribute('aria-label', 'Reset crop');
+            reset.hidden = true;
+            frame.append(reset);
+            const hint = document.createElement('span');
+            hint.className = 'direct-crop-hint';
+            hint.textContent = 'ลากภาพ · เลื่อนล้อเพื่อซูม';
+            hint.hidden = true;
+            frame.append(hint);
+            let active = false;
+            const points = new Map();
+            let lastPinch = 0;
+            function setActive(next) {
+              active = next;
+              frame.classList.toggle('is-cropping', active);
+              button.setAttribute('aria-pressed', String(active));
+              button.title = active ? 'เสร็จสิ้นการปรับ Crop' : 'ปรับ Crop · ลากภาพ';
+              button.textContent = active ? '✓' : '✥';
+              reset.hidden = !active;
+              hint.hidden = !active;
+              media.controls = media.tagName === 'VIDEO' && !active;
+              if (!active) {
+                points.clear();
+                lastPinch = 0;
+              }
+              media.draggable = false;
+            }
+            button.onclick = () => setActive(!active);
+            reset.onclick = () => onChange(cropValue());
+            frame.tabIndex = 0;
+            frame.setAttribute('aria-label', 'ภาพตัวอย่าง กดปุ่ม Crop แล้วลากภาพ');
+            listen('pointerdown', (e) => {
+              if (!active || e.target.closest('button')) return;
+              e.preventDefault();
+              frame.setPointerCapture(e.pointerId);
+              points.set(e.pointerId, { x: e.clientX, y: e.clientY });
+              lastPinch = points.size === 2 ? distance() : 0;
             });
-            section.append(reset);
-            editor.append(section);
+            function distance() {
+              const p = [...points.values()];
+              return p.length < 2 ? 0 : Math.hypot(p[0].x - p[1].x, p[0].y - p[1].y);
+            }
+            listen('pointermove', (e) => {
+              if (!active || !points.has(e.pointerId)) return;
+              const previous = points.get(e.pointerId);
+              points.set(e.pointerId, { x: e.clientX, y: e.clientY });
+              const crop = cropValue(getCrop());
+              if (points.size === 2) {
+                const d = distance();
+                if (lastPinch) crop.zoom = Math.min(3, Math.max(1, (crop.zoom * d) / lastPinch));
+                lastPinch = d;
+              } else {
+                const r = frame.getBoundingClientRect();
+                crop.x = Math.min(
+                  100,
+                  Math.max(0, crop.x - ((e.clientX - previous.x) / r.width) * 100),
+                );
+                crop.y = Math.min(
+                  100,
+                  Math.max(0, crop.y - ((e.clientY - previous.y) / r.height) * 100),
+                );
+              }
+              onChange(crop);
+            });
+            const end = (e) => {
+              points.delete(e.pointerId);
+              lastPinch = 0;
+            };
+            listen('pointerup', end);
+            listen('pointercancel', end);
+            listen(
+              'wheel',
+              (e) => {
+                if (!active) return;
+                e.preventDefault();
+                const crop = cropValue(getCrop());
+                crop.zoom = Math.min(3, Math.max(1, crop.zoom * Math.exp(-e.deltaY * 0.002)));
+                onChange(crop);
+              },
+              { passive: false },
+            );
+            listen('keydown', (e) => {
+              if (!active || e.target !== frame) return;
+              const crop = cropValue(getCrop());
+              const keys = {
+                ArrowLeft: ['x', 2],
+                ArrowRight: ['x', -2],
+                ArrowUp: ['y', 2],
+                ArrowDown: ['y', -2],
+              };
+              if (e.key === 'Escape') {
+                setActive(false);
+                return;
+              }
+              if (keys[e.key]) {
+                e.preventDefault();
+                const [k, d] = keys[e.key];
+                crop[k] = Math.min(100, Math.max(0, crop[k] + d));
+                onChange(crop);
+              }
+              if (e.key === '+' || e.key === '-') {
+                e.preventDefault();
+                crop.zoom = Math.min(3, Math.max(1, crop.zoom + (e.key === '+' ? 0.1 : -0.1)));
+                onChange(crop);
+              }
+            });
           }
+
           function cropValue(value) {
             return {
               x: Math.min(100, Math.max(0, Number(value?.x ?? 50))),
@@ -4999,9 +5164,9 @@
           }
           function applyCrop(img, value) {
             const crop = cropValue(value);
-            img.style.objectPosition = `${crop.x}% ${crop.y}%`;
-            img.style.transformOrigin = `${crop.x}% ${crop.y}%`;
-            img.style.transform = `scale(${crop.zoom})`;
+            img.style.objectPosition = '50% 50%';
+            img.style.transformOrigin = 'center';
+            img.style.transform = `translate(${50 - crop.x}%, ${50 - crop.y}%) scale(${crop.zoom})`;
           }
           function drawCropEditor() {
             const editor = query('.crop-editor');
@@ -5072,34 +5237,15 @@
                 actions.append(remove, picker);
                 section.append(actions);
               }
-              for (const [key, name, min, max, step] of [
-                ['x', 'ตำแหน่งซ้าย / ขวา', 0, 100, 1],
-                ['y', 'ตำแหน่งบน / ล่าง', 0, 100, 1],
-                ['zoom', 'Zoom', 1, 3, 0.05],
-              ]) {
-                const label = document.createElement('label');
-                label.textContent = name;
-                const output = document.createElement('output');
-                const input = document.createElement('input');
-                input.type = 'range';
-                input.min = min;
-                input.max = max;
-                input.step = step;
-                input.value = offerCrops[index][key];
-                input.setAttribute('aria-label', `${name} · Image ${index + 1}`);
-                const update = () => {
-                  output.textContent =
-                    key === 'zoom' ? `${Number(input.value).toFixed(2)}×` : `${input.value}%`;
-                };
-                input.addEventListener('input', async () => {
-                  offerCrops[index][key] = Number(input.value);
+              enableDirectCrop(
+                frame,
+                img,
+                () => offerCrops[index],
+                (value) => {
+                  offerCrops[index] = cropValue(value);
                   applyCrop(img, offerCrops[index]);
-                  update();
-                });
-                update();
-                label.append(output, input);
-                section.append(label);
-              }
+                },
+              );
               const reset = document.createElement('button');
               reset.type = 'button';
               reset.className = 'cursor-interaction';
@@ -5377,7 +5523,9 @@
             query('.offer-commercial').checked = item.commercialAllowed === true;
             offerImages = [...(item.images || (item.cover ? [item.cover] : []))];
             offerCover = offerImages[0] || '';
-            offerCrops = offerImages.map((_, i) => ({ ...cropValue(item.crops?.[i]) }));
+            offerCrops = offerImages.map((_, i) => ({
+              ...cropValue(item.crops?.[i]),
+            }));
             drawCropEditor();
             query('.offer-addons').value = (item.addons || [])
               .map((a) => `${a.name} | ${a.price}`)
@@ -6134,7 +6282,10 @@
           query('.cloud-status').textContent = cloudError || 'เชื่อมต่อ Firebase แล้วค่ะ';
           if (root.dataset.admin === 'true' && !adminUnlocked()) showAdminLogin();
           if (globalThis.Tweak) {
-            const tweak = new Tweak({ container: surface, onChange: appearance });
+            const tweak = new Tweak({
+              container: surface,
+              onChange: appearance,
+            });
             tweak.addSlider(look, 'radius', {
               label: 'ความโค้งของกล่องเลือกงาน',
               min: 8,
@@ -6173,7 +6324,9 @@
             throw new Error('โหลดการเชื่อมต่อ Firebase ไม่สำเร็จ กรุณารีเฟรชหน้า');
           let data = await window.AkaneCloud.load();
           if (!data) {
-            const response = await fetch('site-data.json', { cache: 'no-store' });
+            const response = await fetch('site-data.json', {
+              cache: 'no-store',
+            });
             if (!response.ok) throw new Error('โหลดข้อมูลเริ่มต้นไม่สำเร็จ');
             data = await response.json();
           }

@@ -21,7 +21,13 @@ function apply(surface, data) {
   if (!info) {
     const canvas = el('div', 'akane-layout');
     calculator.before(canvas);
-    info = { canvas, calculator, pages: {}, title: calculator.querySelector('h2').textContent, notes: calculator.querySelector('.price-notes ul').innerHTML };
+    info = {
+      canvas,
+      calculator,
+      pages: {},
+      title: calculator.querySelector('h2').textContent,
+      notes: calculator.querySelector('.price-notes ul').innerHTML,
+    };
     layouts.set(surface, info);
     new MutationObserver(() => {
       canvas.hidden = calculator.hidden;
@@ -57,7 +63,7 @@ function apply(surface, data) {
   paint();
 }
 function terms(target, language, data) {
-  const content = language === 'en' ? data?.tosContentEn : data?.tosContent;
+  const content = data?.tosContent;
   if (!content) return false;
   render(target, content, {}, () => terms(target, language, data));
   return true;
@@ -70,8 +76,7 @@ function admin(surface) {
     links.append(el('h2', '', 'Customize pages'));
     for (const [label, url] of [
       ['Customize Check Price', 'price-rate-admin.html'],
-      ['Customize TOS · TH', 'tos-admin.html'],
-      ['Customize TOS · EN', 'tos-admin.html?language=en'],
+      ['Customize TOS', 'tos-admin.html'],
     ]) {
       const a = el('a', '', label + ' ↗');
       a.href = url;
@@ -166,9 +171,7 @@ for (const surface of document.querySelectorAll('#akane-concepts .ak')) {
 }
 if (location.hash === '#calculator') {
   const show = () => {
-    const trigger = document.querySelector(
-      'a[data-local="commission"]',
-    );
+    const trigger = document.querySelector('a[data-local="commission"]');
     if (trigger) trigger.click();
   };
   window.addEventListener('load', show, { once: true });
