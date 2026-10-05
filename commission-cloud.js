@@ -260,14 +260,13 @@
     }
     const meta = doc.data(),
       ref = db.collection('commissionRevisions').doc(meta.revision);
-    const parts = await parallel(
-      Array.from({ length: meta.count }, (_, i) => i),
-      async (i) => {
-        const part = await ref.collection('parts').doc(String(i)).get();
-        if (!part.exists) throw new Error('โหลดข้อมูลไม่ครบ กรุณารีเฟรช');
-        return part.data().text;
-      },
-    );
+    const snapshot = await ref.collection('parts').get();
+    const chunks = new Map(snapshot.docs.map(part => [part.id, part.data().text]));
+    const parts = Array.from({ length: meta.count }, (_, i) => {
+      const text = chunks.get(String(i));
+      if (typeof text !== 'string') throw new Error('โหลดข้อมูลไม่ครบ กรุณารีเฟรช');
+      return text;
+    });
     const encoded = JSON.parse(parts.join('')),
       data = await transform(encoded, false);
     revision = meta.revision;

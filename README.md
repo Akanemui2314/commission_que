@@ -1,16 +1,15 @@
 # Akane commission website
 
-- `index.html` / `queue.html`: existing queue dashboard
-- `gallery.html`: commission and artwork gallery
-- `admin.html`: gallery draft editor
-- `shop.html` / `admin-shop.html`: existing Adoptable shop
+Public pages: index.html, gallery.html, queue.html, shop.html.
+Owner pages: admin.html, admin-shop.html, price-rate-admin.html, tos-admin.html.
 
-## Publish artwork and commission updates
+Commission updates are saved to Firebase. Owner access uses Google Login and
+Firestore rules; keep server-side rules deployed. The owner is configured in
+akane-auth.js and firestore.rules. The old PIN workflow is no longer used.
 
-1. In Admin, save edits and choose **ส่งออกข้อมูลสำหรับ GitHub**.
-2. Keep the exported JSON as a backup outside the public repository.
-3. Run `python3 import-site-data.py /path/to/akane-site-export.json`.
-4. Commit `site-data.json`, `media/`, and website changes, then push to the Pages branch.
-5. Verify the public gallery before removing local preview data.
+## Build
 
-GitHub Pages serves static files. Admin saves are browser-local drafts; publishing the export is required for other visitors to see updates. The 2314 PIN is a convenience gate, not server authentication. Never store secrets in these public files.
+Readable commission/admin logic is in commission-page.js and admin-page.js.
+Shared editor source is akane-studio.js. Run `node build-site.mjs` after edits
+and commit the generated minified assets too. Keep existing data-import tooling
+for backup recovery; do not publish private backups.
