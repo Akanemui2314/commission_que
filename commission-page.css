@@ -1255,8 +1255,19 @@ button {
   margin-top: 8px;
   max-width: 320px;
 }
-#akane-concepts .ak .tos-open {
-  margin-top: 14px;
+#akane-concepts .ak .hero .row {
+  align-items: center;
+}
+#akane-concepts .ak .hero .row > a,
+#akane-concepts .ak .hero .row > button {
+  box-sizing: border-box;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 44px;
+  margin: 0;
+  line-height: 1.5;
+  padding: 10px 16px;
 }
 #akane-concepts .ak .tos-dialog {
   max-width: 720px;
