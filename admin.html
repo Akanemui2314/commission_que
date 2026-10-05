@@ -3390,6 +3390,48 @@
         }
       }
 
+      /* Compact artwork cards keep media and controls inside each grid cell. */
+      #akane-concepts .ak .work-library {
+        grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
+        gap: 12px;
+      }
+      #akane-concepts .ak .work-library .offer-admin-bubble {
+        display: grid;
+        grid-template-columns: repeat(3, auto);
+        justify-content: start;
+        align-content: start;
+        gap: 10px 6px;
+        margin: 0;
+        padding: 12px;
+        border-radius: 20px;
+        min-width: 0;
+      }
+      #akane-concepts .ak .work-library .work-library-thumb {
+        grid-column: 1 / -1;
+        width: 48px;
+        height: 48px;
+        justify-self: center;
+      }
+      #akane-concepts .ak .work-library .offer-admin-name {
+        grid-column: 1 / -1;
+        width: 100%;
+        font-size: 14px;
+      }
+      #akane-concepts .ak .work-library .offer-admin-bubble button {
+        padding: 7px 10px;
+        font-size: 13px;
+        min-width: 0;
+        white-space: nowrap;
+      }
+      #akane-concepts .ak .work-library-pages {
+        grid-column: 1 / -1;
+      }
+      @media (max-width: 480px) {
+        #akane-concepts .ak .work-library {
+          grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+        }
+      }
+
       #akane-concepts .ak .work-library-heading {
         display: flex;
         align-items: center;
