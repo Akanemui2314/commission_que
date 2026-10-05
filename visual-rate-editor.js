@@ -269,7 +269,7 @@ function paint() {
       remove.className = 've-embed-delete';
       node.append(remove);
     }
-  if (editingTos && !preview) {
+  if (!preview) {
     for (const card of canvas.querySelectorAll('[data-section-id]')) {
       const controls = el('div', 've-tos-section-controls');
       controls.append(action('ลบ Section นี้', () => act(() => {
