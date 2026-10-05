@@ -4835,9 +4835,9 @@
           }
           function applyCrop(img, value) {
             const crop = cropValue(value);
-            img.style.objectPosition = '50% 50%';
-            img.style.transformOrigin = 'center';
-            img.style.transform = `translate(${50 - crop.x}%, ${50 - crop.y}%) scale(${crop.zoom})`;
+            img.style.objectPosition = `${crop.x}% ${crop.y}%`;
+            img.style.transformOrigin = `${crop.x}% ${crop.y}%`;
+            img.style.transform = `scale(${crop.zoom})`;
           }
           function drawCropEditor() {
             const editor = query('.crop-editor');
