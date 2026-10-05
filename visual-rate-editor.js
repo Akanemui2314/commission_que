@@ -1,4 +1,4 @@
-import { tosModel } from './tos-core.js?v=calculator-preview-1';
+import { tosModel } from './tos-core.js?v=calculator-preview-2';
 const editingTos = document.body.dataset.editor === 'tos';
 const contentKey = editingTos ? 'tosContent' : 'calculatorContent';
 const editorModel = (site) =>
@@ -17,7 +17,7 @@ const editorModel = (site) =>
           ],
         },
       });
-import { elements, defaults, elementIcon } from './element-library.js?v=calculator-preview-1';
+import { elements, defaults, elementIcon } from './element-library.js?v=calculator-preview-2';
 import {
   normalize,
   render,
@@ -29,7 +29,7 @@ import {
   readMedia,
   mediaSource,
   move,
-} from './rate-core.js?v=calculator-preview-1';
+} from './rate-core.js?v=calculator-preview-2';
 let saved = {};
 let savedSignature = '';
 let saving = false;

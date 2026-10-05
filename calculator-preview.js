@@ -9,7 +9,7 @@ export function renderCalculatorPreview(target, block, data) {
   if (!document.getElementById('calculator-preview-style')) {
     const style = make('style');
     style.id = 'calculator-preview-style';
-    style.textContent = `.calculator-preview{display:grid;grid-template-columns:1fr 1fr;gap:32px;background:white;padding:28px;border-radius:28px;color:#5a4a42}.calculator-preview fieldset{border:0;padding:0;margin:20px 0}.calculator-preview legend{margin-bottom:12px;color:#8b7870}.calculator-preview .cp-choices,.cp-counter{display:flex;gap:8px;flex-wrap:wrap;align-items:center}.calculator-preview button{border:2px solid #ffb7c5;border-radius:999px;background:white;color:#ce6681;padding:10px 16px;font:600 16px inherit;cursor:pointer}.calculator-preview button[aria-pressed=true]{background:#ffb7c5;color:white}.calculator-preview button:disabled{opacity:.45}.cp-price{font-size:48px;color:#ac4e68;margin:12px 0}.cp-note{background:#fff5f8;padding:22px;border-radius:22px;margin:22px 0}.cp-note li{margin:12px 0}.calculator-preview input[type=checkbox]{width:18px;height:18px}.cp-selection{color:#8b7870}.cp-counter output{padding:0 12px}.cp-breakdown{margin-top:16px}@media(max-width:700px){.calculator-preview{grid-template-columns:1fr;padding:16px;gap:16px}}`;
+    style.textContent = `.calculator-preview{display:grid;grid-template-columns:1fr 1fr;gap:32px;background:white;padding:28px;border-radius:28px;color:#5a4a42}.calculator-preview fieldset{border:0;padding:0;margin:20px 0}.calculator-preview legend{margin-bottom:12px;color:#8b7870}.calculator-preview .cp-choices,.cp-counter{display:flex;gap:8px;flex-wrap:wrap;align-items:center}.calculator-preview button{border:2px solid #ffb7c5;border-radius:999px;background:white;color:#ce6681;padding:10px 16px;font-family:inherit;font-weight:600;font-size:16px;cursor:pointer}.calculator-preview button[aria-pressed=true]{background:#ffb7c5;color:white}.calculator-preview button:disabled{opacity:.45}.cp-price{font-size:48px;color:#ac4e68;margin:12px 0}.cp-note{background:#fff5f8;padding:22px;border-radius:22px;margin:22px 0}.cp-note li{margin:12px 0}.calculator-preview input[type=checkbox]{width:18px;height:18px}.cp-selection{color:#8b7870}.cp-counter output{padding:0 12px}.cp-breakdown{margin-top:16px}@media(max-width:700px){.calculator-preview{grid-template-columns:1fr;padding:16px;gap:16px}}`;
     document.head.append(style);
   }
   const types = Object.keys(data.scales || {}).filter(type => data.scales[type]?.length && data.finishes?.[type]?.length);
@@ -67,7 +67,7 @@ export function renderCalculatorPreview(target, block, data) {
         button.setAttribute('aria-pressed', String(chosen)); groups[group].append(button);
       });
     });
-    const unit = Number(data.prices?.[type]?.[scale]?.[finish]) || 0;
+    const unit = Number(data.pricing?.[type]?.[scale]?.[finish]) || 0;
     const discount = count > 1 && unit >= 500 ? 50 : 0;
     const subtotal = unit * count - discount;
     const total = subtotal * (commercial ? 2 : 1);

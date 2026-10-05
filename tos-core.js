@@ -1,4 +1,4 @@
-import { normalize } from './rate-core.js?v=calculator-preview-1';
+import { normalize } from './rate-core.js?v=calculator-preview-2';
 export function tosModel(site = {}) {
   const fallback = {
     version: 4,

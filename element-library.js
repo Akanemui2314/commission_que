@@ -1,4 +1,4 @@
-import { renderCalculatorPreview } from './calculator-preview.js?v=calculator-preview-1';
+import { renderCalculatorPreview } from './calculator-preview.js?v=calculator-preview-2';
 import { resolveEmbed } from './embed-resolver.js?v=embed-20261005';
 export const elements = [
   ['text', 'Text'],

@@ -1,4 +1,4 @@
-import { renderExtra } from './element-library.js?v=calculator-preview-1';
+import { renderExtra } from './element-library.js?v=calculator-preview-2';
 const DEFAULT_SECTIONS = [
   {
     id: 'image04',
@@ -287,7 +287,7 @@ export function styles() {
   if (document.querySelector('[data-rate-builder-style]')) return;
   const link = document.createElement('link');
   link.rel = 'stylesheet';
-  link.href = 'rate-builder.css?v=calculator-preview-1';
+  link.href = 'rate-builder.css?v=calculator-preview-2';
   link.dataset.rateBuilderStyle = '';
   document.head.append(link);
 }
