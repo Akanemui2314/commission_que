@@ -1213,48 +1213,8 @@
         target.append(wrap);
       }
     }
-    function normalizeAnimationFinishes() {
-      const labels = ["FullColor", "Cell Shade", "Black-White"];
-      const aliases = {
-        "Full Color": "FullColor",
-        "Flat Color": "Cell Shade",
-        Sketch: "Black-White",
-      };
-      for (const type of Object.keys(scales)) {
-        if (
-          String(typeNames[type] || type)
-            .trim()
-            .toLowerCase() !== "animation"
-        )
-          continue;
-        const old = finishes[type] || [];
-        const columns = labels.map((label, i) => {
-          const found = old.findIndex((v) => (aliases[v] || v) === label);
-          return found >= 0 ? found : i;
-        });
-        prices[type] = scales[type].map((_, i) =>
-          columns.map((j) => Number(prices[type]?.[i]?.[j]) || 0),
-        );
-        finishes[type] = [...labels];
-        const galleryType = galleryTypes.find(
-          (t) => t.id === type || t.name.trim().toLowerCase() === "animation",
-        );
-        artworks.forEach((art) => {
-          if (art.typeId !== (galleryType?.id || type)) return;
-          const finish = aliases[art.finish || art.tags?.[1]];
-          if (finish) {
-            art.finish = finish;
-            if (Array.isArray(art.tags)) art.tags[1] = finish;
-          }
-        });
-        labels.forEach((label) => {
-          if (!galleryFinishes.includes(label)) galleryFinishes.push(label);
-        });
-      }
-    }
     function drawPriceSettings() {
       if (root.dataset.admin !== "true") return;
-      normalizeAnimationFinishes();
       query(".price-settings").replaceChildren();
       for (const type of Object.keys(scales)) {
         const section = document.createElement("section");

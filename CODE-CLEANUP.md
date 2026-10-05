@@ -28,3 +28,5 @@ JavaScript syntax/build, index/gallery/admin runtime smoke checks, Type reorder/
 ## Follow-up cleanup
 - Removed duplicate Manage scales / Scale name UI, add handler, syncScaleTags helper and unused styles. Custom Type & Color is the single scale/color manager; Price settings retains the price matrix.
 - Removed three hidden demonstration artwork rows and their unused manage-item styles. Real artwork records remain.
+
+- Removed normalizeAnimationFinishes from the admin price renderer: it forced FullColor / Cell Shade / Black-White back into Animation after deletion. Owner-defined colors now remain unchanged. Tested deletion through redraw and mocked cloud reload.
