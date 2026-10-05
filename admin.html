@@ -38,10 +38,14 @@
         color: #b54c6a !important;
         border: 1px solid #ffc0d0;
         box-shadow: 0 2px 8px #0002;
-        font-size: 20px;
+        font-size: 14px;
+        width: auto;
+        min-width: 64px;
+        padding: 0 10px;
+        border-radius: 999px;
       }
       #akane-concepts .ak .direct-crop-reset {
-        right: 52px;
+        right: 82px;
       }
       #akane-concepts .ak .direct-crop-hint {
         position: absolute;
@@ -73,7 +77,14 @@
         display: none !important;
       }
     </style>
-  </head>
+
+<style id="akane-performance-ui">
+.ak .taxonomy-manager,.ak .akane-type-settings{margin-top:20px;padding:16px;border:1px solid #ffb7c5;border-radius:18px;background:transparent;box-sizing:border-box}
+.ak .taxonomy-manager>summary,.ak .akane-type-settings>summary{padding:8px 0;cursor:pointer;color:#ac4e68;font-weight:500;line-height:1.5}
+@media(hover:none),(prefers-reduced-motion:reduce){.ak .sparkles span{animation:none!important}.ak .offer-card:hover,.ak .work-card:hover{transform:none!important}}
+@media(max-width:680px){.ak .taxonomy-manager,.ak .akane-type-settings{padding:12px}.ak .card,.ak .offer-card,.ak .work-card{backdrop-filter:none!important;-webkit-backdrop-filter:none!important;box-shadow:0 4px 16px #ac4e680c!important}}
+</style>
+</head>
   <body>
     <link
       rel="stylesheet"
@@ -3286,7 +3297,7 @@
         position: relative;
         display: block;
       }
-      #akane-concepts .ak .upload-preview-frame:has([hidden]) {
+      #akane-concepts .ak .upload-preview-frame:has(> img[hidden], > video[hidden]) {
         display: none;
       }
       #akane-concepts .ak .work-upload-panel .upload-preview-frame img,
@@ -3659,9 +3670,9 @@
     </div>
     <script defer src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script defer src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
-    <script defer src="commission-cloud.js?v=akane-studio-1"></script>
+    <script defer src="commission-cloud.js?v=performance-20261005"></script>
     <script src="akane-auth.js?v=akane-studio-1"></script>
-    <script type="module" src="akane-studio.js?v=akane-studio-1"></script>
+    <script defer src="akane-studio-bundle.js?v=preview-3"></script>
     <script>
       (async () => {
         const root = document.getElementById('akane-concepts');
@@ -4997,6 +5008,8 @@
 
           let workCrop = { x: 50, y: 50, zoom: 1 };
           let editingWork = -1;
+          const workPanelHome = document.createComment('Artwork editor home');
+          query('.work-upload-panel')?.before(workPanelHome);
           function showUploadMedia(src) {
             const old = query('.upload img,.upload video');
             const media = makeMedia(src, 'ภาพตัวอย่างที่เลือก');
@@ -5038,7 +5051,7 @@
             const button = document.createElement('button');
             button.type = 'button';
             button.className = 'direct-crop-toggle';
-            button.textContent = '✥';
+            button.textContent = 'Crop';
             button.title = 'ปรับ Crop · ลากภาพเพื่อจัดตำแหน่ง';
             button.setAttribute('aria-label', 'ลากปรับ Crop');
             button.setAttribute('aria-pressed', 'false');
@@ -5064,7 +5077,7 @@
               frame.classList.toggle('is-cropping', active);
               button.setAttribute('aria-pressed', String(active));
               button.title = active ? 'เสร็จสิ้นการปรับ Crop' : 'ปรับ Crop · ลากภาพ';
-              button.textContent = active ? '✓' : '✥';
+              button.textContent = active ? 'Done' : 'Crop';
               reset.hidden = !active;
               hint.hidden = !active;
               media.controls = media.tagName === 'VIDEO' && !active;
@@ -5825,6 +5838,7 @@
           });
           let workLibraryPage = 1;
           function drawWorkLibrary() {
+            if (query('.work-upload-panel')) workPanelHome.after(query('.work-upload-panel'));
             const target = query('.work-library');
             target.replaceChildren();
             const entries = orderedArtworkEntries(artworks);
@@ -5857,7 +5871,13 @@
                   query('.save').textContent = 'Save changes';
                   query('.cancel-work-edit').hidden = false;
                   query('.save-result').textContent = '';
-                  query('.work-title').focus();
+                  row.after(query('.work-upload-panel'));
+                  query('.work-upload-panel').style.gridColumn = '1 / -1';
+                  query('.work-upload-panel').scrollIntoView({
+                    block: 'nearest',
+                    behavior: 'smooth',
+                  });
+                  query('.work-title').focus({ preventScroll: true });
                 });
                 const remove = document.createElement('button');
                 remove.type = 'button';
@@ -6106,6 +6126,7 @@
 
           query('.cancel-work-edit').addEventListener('click', async () => {
             editingWork = -1;
+            workPanelHome.after(query('.work-upload-panel'));
             query('.save').textContent = 'บันทึกตัวอย่าง';
             query('.cancel-work-edit').hidden = true;
             query('.work-title').value = '';
@@ -6159,6 +6180,7 @@
             drawLatest();
             drawWorkLibrary();
             editingWork = -1;
+            workPanelHome.after(query('.work-upload-panel'));
             query('.save').textContent = 'บันทึกตัวอย่าง';
             query('.cancel-work-edit').hidden = true;
             query('.save-result').textContent = 'บันทึกแล้ว ผลงานแสดงในShowcaseและ Overview ค่ะ';
@@ -6317,10 +6339,18 @@
           .forEach((panel) => (panel.inert = true));
         // Render the interface before waiting for Firebase and media hydration.
         await new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve)));
-        if (document.readyState !== 'complete')
-          await new Promise((resolve) => window.addEventListener('load', resolve, { once: true }));
+
         try {
-          if (!window.AkaneCloud)
+          if (!window.AkaneCloud) {
+              // Wait only for the data connector, not all page images.
+              await new Promise((resolve, reject) => {
+                const script = document.querySelector('script[src^="commission-cloud.js"]');
+                if (!script) return reject(new Error('ไม่พบตัวเชื่อมต่อข้อมูล'));
+                script.addEventListener('load', resolve, { once: true });
+                script.addEventListener('error', () => reject(new Error('โหลดตัวเชื่อมต่อข้อมูลไม่สำเร็จ')), { once: true });
+              });
+            }
+            if (!window.AkaneCloud)
             throw new Error('โหลดการเชื่อมต่อ Firebase ไม่สำเร็จ กรุณารีเฟรชหน้า');
           let data = await window.AkaneCloud.load();
           if (!data) {

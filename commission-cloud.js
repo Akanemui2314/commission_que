@@ -197,7 +197,7 @@
       mediaCache.set(id, data);
     }
     mediaIds.set(data, id);
-    await window.AkaneCache.set('commission:media:' + id, data);
+    void window.AkaneCache.set('commission:media:' + id, data);
     return 'akane-media:' + id;
   }
   async function fetchMedia(id) {
@@ -211,18 +211,19 @@
     const ref = db.collection('commissionMedia').doc(id),
       doc = await ref.get();
     if (!doc.exists) throw new Error('ไม่พบไฟล์ภาพที่บันทึกไว้');
-    const parts = await parallel(
-      Array.from({ length: doc.data().count }, (_, i) => i),
-      async (i) => {
-        const part = await ref.collection('parts').doc(String(i)).get();
-        if (!part.exists) throw new Error('โหลดไฟล์ภาพไม่ครบ กรุณาลองอีกครั้ง');
-        return part.data().text;
-      },
-    );
+    // Fetch chunks in one query and preserve their numeric order.
+    const snapshot = await ref.collection('parts').get();
+    const count = doc.data().count;
+    const chunks = new Map(snapshot.docs.map((part) => [part.id, part.data().text]));
+    const parts = Array.from({ length: count }, (_, i) => {
+      const text = chunks.get(String(i));
+      if (typeof text !== 'string') throw new Error('โหลดไฟล์ภาพไม่ครบ กรุณาลองอีกครั้ง');
+      return text;
+    });
     const data = parts.join('');
     mediaCache.set(id, data);
     mediaIds.set(data, id);
-    await window.AkaneCache.set('commission:media:' + id, data);
+    void window.AkaneCache.set('commission:media:' + id, data);
     return data;
   }
   function loadMedia(id) {
@@ -235,7 +236,11 @@
   async function transform(value, upload) {
     if (typeof value === 'string') {
       if (upload && /^data:(image|video|audio)\//.test(value)) return storeMedia(value);
-      if (!upload && value.startsWith('akane-media:')) return loadMedia(value.slice(12));
+      if (!upload && value.startsWith('akane-media:')) {
+        // Render customer data before resolving individual viewport images.
+        if (window.AkaneProgressiveMedia) return window.AkaneProgressiveMedia.placeholder(value);
+        return loadMedia(value.slice(12));
+      }
       return value;
     }
     if (Array.isArray(value)) return parallel(value, (v) => transform(v, upload));
@@ -316,6 +321,8 @@
     window.AkanePageData = data;
   }
   window.AkaneCloud = {
+    resolveMedia: (src) =>
+      src.startsWith('akane-media:') ? loadMedia(src.slice(12)) : Promise.resolve(src),
     load: async () => {
       const cached = await window.AkaneCache.get('commission:snapshot');
       if (cached?.revision && cached.encoded) {
