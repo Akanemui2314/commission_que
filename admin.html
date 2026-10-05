@@ -113,6 +113,7 @@
   }
 }
 </style>
+<style>#akane-concepts .ak header{display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap}#akane-concepts .ak .admin-commission-link{display:inline-flex;margin-left:auto;padding:12px 20px;border:1px solid #ffb7c5;border-radius:999px;text-decoration:none;color:#ac4e68;background:#fffaf5;font-weight:500}</style>
 </head>
   <body>
     <link
@@ -3701,7 +3702,7 @@
     <script defer src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
     <script defer src="commission-cloud.js?v=performance-20261005"></script>
     <script src="akane-auth.js?v=akane-studio-1"></script>
-    <script defer src="akane-studio-bundle.js?v=preview-3"></script>
+    <script defer src="akane-studio-bundle.js?v=scale-controls-1"></script>
     <script>
       (async () => {
         const root = document.getElementById('akane-concepts');
@@ -3958,7 +3959,7 @@
             view: root.dataset.admin === 'true' ? 'admin' : 'customer',
           };
           surface.innerHTML = `<div class="sparkles" aria-hidden="true">${Array.from({ length: 16 }, (_, i) => `<span style="left:${(i * 29) % 98}%;top:${(i * 17) % 96}%;animation-delay:-${i}s">${i % 3 ? '✧' : '❀'}</span>`).join('')}</div><div class="interior">
-<header><div class="brand">Akanezz2314 <small>COMMISSION / GALLERY</small></div><nav aria-label="เมนูเว็บไซต์"><a href="#" data-local="gallery">Commission</a><a href="shop.html" target="_blank" rel="noopener">Adoptable</a><div class="row" aria-label="Language"><button type="button" class="language cursor-interaction" data-language="th">TH</button><button type="button" class="language cursor-interaction" data-language="en">EN</button></div><button type="button" class="admin-entry cursor-interaction" aria-label="Open admin">🔧</button></nav></header><div class="contact-top"><span>Contact</span><a href="https://twitter.com/AKANEzz2314" target="_blank" rel="noopener">X / Twitter</a><a href="https://www.deviantart.com/akanezz2314" target="_blank" rel="noopener">DeviantArt</a><a href="https://www.facebook.com/akanemui2314" target="_blank" rel="noopener">Facebook</a><a href="mailto:akanezz2314@gmail.com">Email</a><a href="https://toyhou.se/Akanezz2314" target="_blank" rel="noopener">Toyhouse</a></div>
+<header><div class="brand">Akanezz2314 <small>COMMISSION / GALLERY</small></div><a class="admin-commission-link" href="gallery.html" target="_blank" rel="noopener noreferrer">ดูหน้า Commission ↗</a><nav aria-label="เมนูเว็บไซต์"><a href="#" data-local="gallery">Commission</a><a href="shop.html" target="_blank" rel="noopener">Adoptable</a><div class="row" aria-label="Language"><button type="button" class="language cursor-interaction" data-language="th">TH</button><button type="button" class="language cursor-interaction" data-language="en">EN</button></div><button type="button" class="admin-entry cursor-interaction" aria-label="Open admin">🔧</button></nav></header><div class="contact-top"><span>Contact</span><a href="https://twitter.com/AKANEzz2314" target="_blank" rel="noopener">X / Twitter</a><a href="https://www.deviantart.com/akanezz2314" target="_blank" rel="noopener">DeviantArt</a><a href="https://www.facebook.com/akanemui2314" target="_blank" rel="noopener">Facebook</a><a href="mailto:akanezz2314@gmail.com">Email</a><a href="https://toyhou.se/Akanezz2314" target="_blank" rel="noopener">Toyhouse</a></div>
 <section class="hero"><div><span class="eyebrow">Hewwo!</span><h1>Akanezz2314<br><span style="display:block;font-size:21px;font-family:Tahoma,sans-serif;margin-top:8px">Commission</span></h1><p>สนใจงานหรือมีคำถามเพิ่มเติม ทักมาสอบถามได้เสมอเลยนะคะ ♥️</p><div class="row"><a href="#" data-local="commission">เช็คราคา</a><a class="pill" href="queue.html" target="_blank" rel="noopener">สถานะรับงาน / ตารางคิว</a></div></div><div class="hero-art"><div><i data-lucide="image" aria-hidden="true"></i>พื้นที่ภาพแนะนำของ Akane<br><span class="small">เลือกจากผลงานที่อัปโหลด</span></div></div></section>
 <div class="content-grid"><section class="works"><section class="open-commissions"><div class="available-heading row"><h2>Available</h2><span class="availability-toggle" role="status" aria-live="polite"><span class="availability-knob" aria-hidden="true"></span><span class="availability-label">OFF</span></span></div><div class="offer-list"></div></section><span class="eyebrow">Gallery</span><h2>Showcase</h2><section class="latest-carousel" aria-label="Showcase artwork"><div class="latest-stage"></div><div class="latest-controls row"><button type="button" class="cursor-interaction latest-prev" aria-label="Previous artwork">‹</button><span class="latest-count"></span><button type="button" class="cursor-interaction latest-next" aria-label="Next artwork">›</button></div></section><h2 class="category-title">Overview</h2><div class="category-filters choices" aria-label="หมวดผลงาน"></div><div class="gallery-tag-filters row"></div><div class="grouped-gallery" aria-live="polite"></div></section>
 <section class="calculator" hidden aria-label="เลือกรูปแบบคอมมิชชั่น"><div><span class="eyebrow">Commission details</span><h2>เช็คราคา</h2><div class="character-counter row"><span>Characters</span><button type="button" class="cursor-interaction character-minus" aria-label="Remove character">−</button><output class="character-count">1</output><button type="button" class="cursor-interaction character-plus" aria-label="Add character">+</button></div><div class="character-tabs choices" hidden></div><fieldset><legend>ประเภทงาน</legend><div class="choices types"></div></fieldset><fieldset><legend>สเกลภาพ</legend><div class="choices scales"></div></fieldset><fieldset><legend>การลงสี</legend><div class="choices finishes"></div></fieldset></div><div class="quote"><div class="small selection"></div><div class="price" aria-live="polite"></div><label class="small"><input class="commercial" type="checkbox">ใช้เชิงพาณิชย์ ×2</label><section class="price-notes" aria-label="Price notes"><h3>Note</h3><ul><li class="single-character-note">ราคาสำหรับ 1 ตัวละครค่ะ</li><li>ราคานี้ยังไม่รวมฉากหลังนะคะ ฉากหลังคิดเพิ่มตามดีเทลค่ะ!</li><li>มากกว่า 1 ตัวละคร และราคาที่เลือกตั้งแต่ 500 บาท ลด 50 บาทครั้งเดียวต่อภาพค่ะ</li><li>ราคาที่แสดงเป็นราคาพื้นฐานนะคะ อาจมีค่าใช้จ่ายเพิ่มเติมตามดีเทลอื่นๆ โดยจะประเมินจากรายละเอียดของงานค่ะ</li></ul></section><button class="primary cursor-interaction brief">Price breakdown</button><div class="brief-result" aria-live="polite" hidden></div><button type="button" class="tos-open cursor-interaction">TOS / ข้อตกลงการจ้างงาน</button></div></section></div>
@@ -6285,7 +6286,7 @@
                 allFinishes: galleryFinishes,
               };
             },
-            async update(kind, labels) {
+            async update(kind, labels, removed) {
               if (
                 !labels.length ||
                 labels.some((v) => !v.trim()) ||
@@ -6308,6 +6309,7 @@
               );
               const choices = kind === 'scales' ? galleryScales : galleryFinishes;
               const oldChoices = [...choices];
+              if (removed) choices.splice(0, choices.length, ...choices.filter(v => v !== removed));
               labels.forEach((v) => {
                 if (!choices.includes(v)) choices.push(v);
               });

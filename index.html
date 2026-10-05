@@ -3444,7 +3444,7 @@
     <script src="progressive-media.js?v=performance-20261005"></script>
     <script defer src="commission-cloud.js?v=performance-20261005"></script>
     <script src="akane-auth.js?v=akane-studio-1"></script>
-    <script defer src="akane-studio-bundle.js?v=preview-3"></script>
+    <script defer src="akane-studio-bundle.js?v=scale-controls-1"></script>
     <script>
       (async () => {
         const root = document.getElementById('akane-concepts');
@@ -5947,7 +5947,7 @@
                 allFinishes: galleryFinishes,
               };
             },
-            async update(kind, labels) {
+            async update(kind, labels, removed) {
               if (
                 !labels.length ||
                 labels.some((v) => !v.trim()) ||
@@ -5970,6 +5970,7 @@
               );
               const choices = kind === 'scales' ? galleryScales : galleryFinishes;
               const oldChoices = [...choices];
+              if (removed) choices.splice(0, choices.length, ...choices.filter(v => v !== removed));
               labels.forEach((v) => {
                 if (!choices.includes(v)) choices.push(v);
               });

@@ -738,7 +738,7 @@
   sheet.href = "rate-builder.css?v=akane-studio-1";
   document.head.append(sheet);
   var style = el("style");
-  style.textContent = `.akane-layout[hidden]{display:none!important}.akane-layout .calculator{margin:0!important;width:100%!important;box-sizing:border-box}.akane-layout .akane-calculator-slot{width:100%}.akane-layout .rate-public-card{margin:16px 0;background:#fffaf5;border-color:#ffb7c5}.akane-type-settings{margin-top:20px;padding:16px;border:1px solid #ffb7c5;border-radius:18px}.akane-type-settings fieldset{margin:14px 0}.akane-type-settings label{display:flex!important;align-items:center;gap:8px;margin:8px 0}.akane-type-settings input[type=checkbox]{width:18px!important;height:18px;accent-color:#ac4e68}.akane-type-settings .row{flex-wrap:wrap}.akane-custom-links{padding:22px;margin:20px 0;background:#fffaf5;border-radius:24px}.akane-custom-links a{display:inline-flex;padding:12px 20px;background:#ffa6ba;color:white;border-radius:999px;text-decoration:none;margin:6px}.akane-custom-links[hidden]{display:none!important}#akane-concepts .ak .tos-admin.tos-admin{display:none!important}.tos-content .rate-public-card{padding:12px 0;border:0;box-shadow:none}.tos-content .rate-page-title{display:none}.tos-language{display:none!important}@media(max-width:680px){.akane-layout .rate-public-card{padding:16px}.akane-type-settings{padding:12px}}`;
+  style.textContent = `.akane-choice-row{display:flex;align-items:center;justify-content:space-between;gap:8px}.akane-choice-row>label{flex:1;min-width:0}.akane-choice-row button{padding:6px 12px!important}.akane-choice-row .row{gap:6px}.akane-layout[hidden]{display:none!important}.akane-layout .calculator{margin:0!important;width:100%!important;box-sizing:border-box}.akane-layout .akane-calculator-slot{width:100%}.akane-layout .rate-public-card{margin:16px 0;background:#fffaf5;border-color:#ffb7c5}.akane-type-settings{margin-top:20px;padding:16px;border:1px solid #ffb7c5;border-radius:18px}.akane-type-settings fieldset{margin:14px 0}.akane-type-settings label{display:flex!important;align-items:center;gap:8px;margin:8px 0}.akane-type-settings input[type=checkbox]{width:18px!important;height:18px;accent-color:#ac4e68}.akane-type-settings .row{flex-wrap:wrap}.akane-custom-links{padding:22px;margin:20px 0;background:#fffaf5;border-radius:24px}.akane-custom-links a{display:inline-flex;padding:12px 20px;background:#ffa6ba;color:white;border-radius:999px;text-decoration:none;margin:6px}.akane-custom-links[hidden]{display:none!important}#akane-concepts .ak .tos-admin.tos-admin{display:none!important}.tos-content .rate-public-card{padding:12px 0;border:0;box-shadow:none}.tos-content .rate-page-title{display:none}.tos-language{display:none!important}@media(max-width:680px){.akane-layout .rate-public-card{padding:16px}.akane-type-settings{padding:12px}}`;
   style.textContent += "#akane-concepts .ak .tos-admin.tos-admin{display:none!important}";
   document.head.append(style);
   var layouts = /* @__PURE__ */ new WeakMap();
@@ -860,7 +860,38 @@
         };
         check.dataset.choice = name;
         row2.append(check, document.createTextNode(name));
-        fieldset.append(row2);
+        const controls = el("div", "row");
+        const save = async (choices, removed) => {
+          fieldset.disabled = true;
+          status.textContent = "";
+          try {
+            await api.update(kind, choices, removed);
+          } catch (e) {
+            status.textContent = e.message;
+          } finally {
+            fieldset.disabled = false;
+          }
+        };
+        const move = (offset) => {
+          const choices = [...api.get()[kind]];
+          const index = choices.indexOf(name), next = index + offset;
+          if (index < 0 || next < 0 || next >= choices.length) return;
+          [choices[index], choices[next]] = [choices[next], choices[index]];
+          return save(choices);
+        };
+        for (const [text, offset] of [["\u2191", -1], ["\u2193", 1]]) {
+          const control = button(text, () => move(offset));
+          control.setAttribute("aria-label", text + " " + label + " " + name);
+          const index = selected.indexOf(name);
+          control.disabled = index < 0 || index + offset < 0 || index + offset >= selected.length;
+          controls.append(control);
+        }
+        const remove = button("\u0E25\u0E1A", () => save(api.get()[kind].filter((v) => v !== name), name));
+        remove.setAttribute("aria-label", "\u0E25\u0E1A " + label + " " + name);
+        controls.append(remove);
+        const item = el("div", "akane-choice-row");
+        item.append(row2, controls);
+        fieldset.append(item);
       }
       const row = el("div", "row"), input = el("input");
       input.placeholder = "\u0E0A\u0E37\u0E48\u0E2D\u0E43\u0E2B\u0E21\u0E48";
