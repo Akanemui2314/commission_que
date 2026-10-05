@@ -3390,6 +3390,20 @@
         }
       }
 
+      /* Match the spacious Notton admin canvas. */
+      #akane-concepts[data-admin='true'] {
+        max-width: 1560px;
+      }
+      #akane-concepts[data-admin='true'] .ak .interior {
+        max-width: none;
+        padding: 24px;
+      }
+      @media (max-width: 680px) {
+        #akane-concepts[data-admin='true'] .ak .interior {
+          padding: 12px;
+        }
+      }
+
       /* Compact artwork cards keep media and controls inside each grid cell. */
       #akane-concepts .ak .work-library {
         grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
